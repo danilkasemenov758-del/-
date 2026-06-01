@@ -263,26 +263,44 @@ button:active {
 
 .hero-title {
   margin-top: 12px;
-  font-size: 37px;
+  max-width: 100%;
+  font-size: clamp(28px, 9vw, 37px);
+  overflow-wrap: anywhere;
 }
 
-.home-logo {
-  display: block;
-  width: 172px;
-  height: auto;
+.home-brand {
+  display: grid;
+  justify-items: start;
   margin-top: 18px;
+  color: var(--white);
+  text-align: left;
+}
+
+.home-brand strong {
+  font-family: "Dela Gothic One", "Montserrat", system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.home-brand span {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.82;
 }
 
 .hero-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px;
+  grid-template-columns: minmax(0, 1fr) 64px;
   align-items: start;
   gap: 12px;
 }
 
 .actor-avatar {
-  width: 66px;
-  height: 66px;
+  width: 58px;
+  height: 58px;
   margin-top: 32px;
   display: grid;
   place-items: center;
@@ -292,10 +310,23 @@ button:active {
     radial-gradient(circle at 36% 30%, #fff4c6 0 18%, transparent 19%),
     linear-gradient(145deg, #ffd35d, #ff8d27);
   color: var(--white);
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 1000;
   text-transform: uppercase;
   box-shadow: 0 12px 28px rgba(153, 68, 0, 0.2);
+}
+
+.empty-state {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .subtitle,
@@ -717,6 +748,31 @@ button:active {
   bottom: -18px;
   object-fit: cover;
   object-position: left top;
+}
+
+.admin-card {
+  background:
+    radial-gradient(circle at 82% 70%, rgba(255, 200, 87, 0.28), transparent 32%),
+    rgba(255, 255, 255, 0.12);
+}
+
+.admin-card strong {
+  max-width: 112px;
+}
+
+.admin-card span {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 25px;
+  font-weight: 1000;
 }
 
 .toast {
