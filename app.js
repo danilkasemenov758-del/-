@@ -24,6 +24,11 @@ let employees = [
   { id: 103, name: "Маша", efficiency: 92, accepted: 16, late: 0, rating: 4.9 },
 ];
 
+let reports = [
+  { id: 1, actorName: "Даша", text: "Не открылась музыка в программе", createdAt: "01.06.2026 14:20", status: "new" },
+  { id: 2, actorName: "Илья", text: "Нет баннера в комплекте", createdAt: "01.06.2026 15:05", status: "new" },
+];
+
 const state = {
   route: localStorage.getItem("authConfirmed") === "true" ? "checking" : "auth-confirm",
   justAuthorized: false,
@@ -52,6 +57,9 @@ const state = {
     package: "2 актера, до 20 человек",
     extras: [],
   },
+  newEmployee: { name: "", username: "", role: "actor" },
+  newProgram: { title: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
+  newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
 let orders = [
@@ -223,6 +231,7 @@ async function loadRemoteData() {
     props = data.props || props;
     programs = data.programs || programs;
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
+    reports = data.reports || reports;
     saveState();
     render();
   } catch (error) {
@@ -340,6 +349,64 @@ function actionToast(type) {
     "create-order": "Заказ добавлен",
     report: "Ошибка отправлена",
   }[type] || "Действие сохранено";
+}
+
+function addEmployee() {
+  const name = state.newEmployee.name.trim();
+  if (!name) return;
+  employees = [
+    ...employees,
+    {
+      id: Date.now(),
+      name,
+      role: state.newEmployee.role,
+      efficiency: 0,
+      accepted: 0,
+      late: 0,
+      rating: 0,
+    },
+  ];
+  queueAction("create-employee", { ...state.newEmployee });
+  state.newEmployee = { name: "", username: "", role: "actor" };
+  setRoute("profile");
+}
+
+function addProgram() {
+  const title = state.newProgram.title.trim();
+  if (!title) return;
+  programs = [
+    ...programs,
+    {
+      id: Date.now(),
+      title,
+      age: state.newProgram.age,
+      duration: state.newProgram.duration,
+      pricePerHour: Number(state.newProgram.pricePerHour || 0),
+      actorPayPerHour: Number(state.newProgram.actorPayPerHour || 0),
+      tracks: [],
+    },
+  ];
+  queueAction("create-program", { ...state.newProgram });
+  state.newProgram = { title: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 };
+  setRoute("programs");
+}
+
+function addProp() {
+  const name = state.newProp.name.trim();
+  if (!name) return;
+  props = [
+    ...props,
+    {
+      id: Date.now(),
+      name,
+      status: state.newProp.status,
+      place: state.newProp.place || "Склад",
+      kit: Boolean(state.newProp.kit),
+    },
+  ];
+  queueAction("create-prop", { ...state.newProp });
+  state.newProp = { name: "", place: "Склад", status: "available", kit: true };
+  setRoute("props");
 }
 
 function saveForTrip(orderId) {
@@ -485,7 +552,10 @@ function homeScreen() {
   return appFrame(`
     <div class="auth-burst${authClass}"></div>
     <div class="top-row">${syncPill()}</div>
-    <img class="home-logo" src="./assets/logo.svg" alt="Точка праздника" />
+    <div class="home-brand">
+      <strong>Точка праздника</strong>
+      <span>проект Банни Бон</span>
+    </div>
     <div class="hero-row">
       <h1 class="hero-title">Сегодня,<br>${firstName}</h1>
       <div class="actor-avatar" aria-label="Фото актера">${state.user.firstName.slice(0, 1)}</div>
@@ -494,17 +564,21 @@ function homeScreen() {
 
     <p class="section-label">Ближайшие заказы</p>
     <div class="orders-stack">
-      ${orders
-        .slice(0, 3)
-        .map(
-          (order) => `
-            <button class="order-row" data-route="order" data-order-id="${order.id}">
-              <span><strong>${order.title}</strong><span>${order.date} ${order.time}</span></span>
-              <span class="row-icon" aria-label="Открыть">›</span>
-            </button>
-          `
-        )
-        .join("")}
+      ${
+        orders.length
+          ? orders
+              .slice(0, 3)
+              .map(
+                (order) => `
+                  <button class="order-row" data-route="order" data-order-id="${order.id}">
+                    <span><strong>${order.title}</strong><span>${order.date} ${order.time}</span></span>
+                    <span class="row-icon" aria-label="Открыть">›</span>
+                  </button>
+                `
+              )
+              .join("")
+          : `<div class="empty-state">Заказов пока нет</div>`
+      }
     </div>
     <button class="more-button" data-route="orders">Все заказы</button>
 
@@ -516,6 +590,14 @@ function homeScreen() {
               <img src="./assets/hero-triangle.svg" alt="" />
               <span>+</span>
             </button>`
+          : ""
+      }
+      ${
+        state.user.role === "admin"
+          ? `<button class="quick-card admin-card" data-route="admin-employees"><strong>Сотрудник</strong><span>+</span></button>
+             <button class="quick-card admin-card" data-route="admin-program"><strong>Программа</strong><span>+</span></button>
+             <button class="quick-card admin-card" data-route="admin-prop"><strong>Реквизит</strong><span>+</span></button>
+             <button class="quick-card admin-card" data-route="admin-reports"><strong>Ошибки</strong><span>!</span></button>`
           : ""
       }
       <button class="quick-card" data-route="orders">
@@ -556,16 +638,20 @@ function ordersScreen() {
         <button class="chip">Месяц</button>
       </div>
       <div class="orders-stack">
-        ${orders
-          .map(
-            (order) => `
-              <button class="order-row" data-route="order" data-order-id="${order.id}">
-                <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${order.status}</span></span>
-                <span class="row-icon" aria-label="Открыть">›</span>
-              </button>
-            `
-          )
-          .join("")}
+        ${
+          orders.length
+            ? orders
+                .map(
+                  (order) => `
+                    <button class="order-row" data-route="order" data-order-id="${order.id}">
+                      <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${order.status}</span></span>
+                      <span class="row-icon" aria-label="Открыть">›</span>
+                    </button>
+                  `
+                )
+                .join("")
+            : `<div class="empty-state">В базе пока нет заказов</div>`
+        }
       </div>
     </div>
   `, true);
@@ -1061,6 +1147,115 @@ function profileScreen() {
   `, true);
 }
 
+function adminEmployeesScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Сотрудник</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">Добавить сотрудника</h2>
+        <input class="booking-input" data-admin-field="newEmployee.name" placeholder="Имя" value="${state.newEmployee.name}" />
+        <input class="booking-input" data-admin-field="newEmployee.username" placeholder="Telegram username" value="${state.newEmployee.username}" style="margin-top: 8px" />
+        <select class="booking-input" data-admin-field="newEmployee.role" style="margin-top: 8px">
+          <option value="actor" ${state.newEmployee.role === "actor" ? "selected" : ""}>Актер</option>
+          <option value="admin" ${state.newEmployee.role === "admin" ? "selected" : ""}>Админ</option>
+        </select>
+      </section>
+      <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
+      <section class="panel">
+        <h2 class="panel-title">Список</h2>
+        <div class="employee-list">
+          ${employees
+            .map(
+              (employee) => `
+                <div class="employee-row">
+                  <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
+                  <span><strong>${employee.name}</strong><small>${employee.role === "admin" ? "админ" : "актер"} · оценка ${employee.rating}</small></span>
+                  <b>${employee.accepted}</b>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+      </section>
+    </div>
+  `, true);
+}
+
+function adminProgramScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Программа</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">Добавить программу</h2>
+        <input class="booking-input" data-admin-field="newProgram.title" placeholder="Название" value="${state.newProgram.title}" />
+        <input class="booking-input" data-admin-field="newProgram.age" placeholder="Возраст" value="${state.newProgram.age}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.duration" placeholder="Длительность" value="${state.newProgram.duration}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.pricePerHour" type="number" placeholder="Цена за час" value="${state.newProgram.pricePerHour}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.actorPayPerHour" type="number" placeholder="ЗП актера за час" value="${state.newProgram.actorPayPerHour}" style="margin-top: 8px" />
+      </section>
+      <button class="primary-button" data-action="create-program">Добавить программу</button>
+    </div>
+  `, true);
+}
+
+function adminPropScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Реквизит</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">Добавить реквизит</h2>
+        <input class="booking-input" data-admin-field="newProp.name" placeholder="Название" value="${state.newProp.name}" />
+        <input class="booking-input" data-admin-field="newProp.place" placeholder="Место хранения" value="${state.newProp.place}" style="margin-top: 8px" />
+        <select class="booking-input" data-admin-field="newProp.status" style="margin-top: 8px">
+          <option value="available" ${state.newProp.status === "available" ? "selected" : ""}>Доступно</option>
+          <option value="busy" ${state.newProp.status === "busy" ? "selected" : ""}>Занято</option>
+          <option value="repair" ${state.newProp.status === "repair" ? "selected" : ""}>Проверка</option>
+        </select>
+      </section>
+      <button class="primary-button" data-action="create-prop">Добавить реквизит</button>
+    </div>
+  `, true);
+}
+
+function adminReportsScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Ошибки</h1>
+    <div class="content-stack">
+      ${
+        reports.length
+          ? reports
+              .map(
+                (report) => `
+                  <section class="panel">
+                    <h2 class="panel-title">${report.actorName || `Сотрудник #${report.actor_id || ""}`}</h2>
+                    <p class="small-text">${report.text}</p>
+                    <p class="small-text" style="margin-top: 8px">${report.createdAt || report.created_at || ""}</p>
+                  </section>
+                `
+              )
+              .join("")
+          : `<div class="empty-state">Ошибок пока нет</div>`
+      }
+    </div>
+  `, true);
+}
+
 function reportScreen() {
   return appFrame(`
     <div class="top-row">
@@ -1104,6 +1299,10 @@ function render() {
     saved: savedScreen,
     profile: profileScreen,
     report: reportScreen,
+    "admin-employees": adminEmployeesScreen,
+    "admin-program": adminProgramScreen,
+    "admin-prop": adminPropScreen,
+    "admin-reports": adminReportsScreen,
   };
 
   document.querySelector("#app").innerHTML = (screens[state.route] || homeScreen)();
@@ -1182,6 +1381,18 @@ document.addEventListener("click", (event) => {
     clearToastLater();
   }
 
+  if (action === "create-employee") {
+    addEmployee();
+  }
+
+  if (action === "create-program") {
+    addProgram();
+  }
+
+  if (action === "create-prop") {
+    addProp();
+  }
+
   if (action === "return-prop") {
     returnProp(Number(actionButton.dataset.propId));
   }
@@ -1221,6 +1432,22 @@ document.addEventListener("input", (event) => {
   const key = input.dataset.booking;
   state.booking[key] = input.type === "number" || input.tagName === "SELECT" ? Number(input.value) : input.value;
   render();
+});
+
+document.addEventListener("input", (event) => {
+  const input = event.target.closest("[data-admin-field]");
+  if (!input) return;
+
+  const [group, key] = input.dataset.adminField.split(".");
+  state[group][key] = input.type === "number" ? Number(input.value) : input.value;
+});
+
+document.addEventListener("change", (event) => {
+  const input = event.target.closest("[data-admin-field]");
+  if (!input) return;
+
+  const [group, key] = input.dataset.adminField.split(".");
+  state[group][key] = input.value;
 });
 
 document.addEventListener("change", (event) => {
