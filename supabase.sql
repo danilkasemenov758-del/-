@@ -7,6 +7,7 @@ create table if not exists employees (
   name text not null,
   username text,
   role text not null default 'actor',
+  is_active boolean not null default true,
   efficiency int not null default 0,
   accepted int not null default 0,
   late int not null default 0,
@@ -18,6 +19,7 @@ create table if not exists programs (
   title text not null,
   age text,
   duration text,
+  drive_url text,
   price_per_hour int not null default 0,
   actor_pay_per_hour int not null default 0,
   tracks jsonb not null default '[]'::jsonb
