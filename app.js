@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-8";
+const APP_VERSION = "2026.06.02-9";
 const releaseNotes = [
-  "Текущий аккаунт администратора отображается в сотрудниках с пометкой админ.",
-  "Добавлен переливающийся бейдж версии и экран истории изменений.",
-  "Сбор комплекта при добавлении программы возвращает обратно к форме программы.",
-  "Поджата мобильная разметка календаря и полей времени.",
-  "Обновлена админская логика профилей сотрудников и программ.",
+  "Синхронизация и версия оформлены как переливающиеся капсулы.",
+  "Фото пользователя открывается отдельно с подписью Это вы! И это здорово!",
+  "Время заказа собрано в единую плашку с раскрытием двух полей.",
+  "Главная перестроена: у админа отдельная вкладка Админ, у актера рабочие разделы.",
+  "Взятие комплекта закрепляет реквизит комплекта за человеком.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -64,6 +64,8 @@ const state = {
   toast: "",
   reportText: "",
   versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
+  avatarOpen: false,
+  timeEditorOpen: false,
   acceptedOrders: JSON.parse(localStorage.getItem("acceptedOrders") || "{}"),
   booking: {
     firstName: "",
@@ -424,6 +426,24 @@ function queueAction(type, payload) {
 function takeProp(propId) {
   props = props.map((item) => (item.id === propId ? { ...item, status: "mine", place: `У ${state.user.firstName}` } : item));
   queueAction("take-prop", { propId, actorId: state.user.id });
+}
+
+function takeKit(orderId = state.activeOrderId) {
+  const order = orders.find((item) => Number(item.id) === Number(orderId)) || getActiveOrder();
+  const program = getProgramForOrder(order);
+  const kitIds = new Set((state.programKits[String(program?.id)] || []).map(Number));
+  const targetIds = kitIds.size ? kitIds : new Set(props.filter((item) => item.kit).map((item) => Number(item.id)));
+  props = props.map((item) =>
+    targetIds.has(Number(item.id)) ? { ...item, status: "mine", place: `У ${state.user.firstName}` } : item
+  );
+  orders = orders.map((item) =>
+    Number(item.id) === Number(orderId) ? { ...item, kitStatus: `Комплект у ${state.user.firstName}` } : item
+  );
+  queueAction("take-kit", { orderId, actorId: state.user.id, propIds: [...targetIds] });
+  state.toast = `Комплект у ${state.user.firstName}`;
+  saveState();
+  render();
+  clearToastLater();
 }
 
 function returnProp(propId) {
@@ -945,12 +965,23 @@ function clearToastLater() {
 }
 
 function tabbar() {
-  const tabs = [
-    ["home", "Сегодня"],
-    ["orders", "Заказы"],
-    ["props", "Реквизит"],
-    ["programs", "Программы"],
-  ];
+  const tabs =
+    state.user.role === "admin"
+      ? [
+          ["home", "Сегодня"],
+          ["admin", "Админ"],
+          ["orders", "Заказы"],
+          ["programs", "Программы"],
+          ["props", "Реквизит"],
+          ["saved", "Сохранено"],
+        ]
+      : [
+          ["home", "Сегодня"],
+          ["orders", "Заказы"],
+          ["programs", "Программы"],
+          ["props", "Реквизит"],
+          ["saved", "Сохранено"],
+        ];
 
   return `
     <nav class="tabbar">
@@ -970,7 +1001,7 @@ function tabbar() {
 function syncPill() {
   const pending = pendingActions().length;
   const text = pending ? `к отправке: ${pending}` : "все синхронизировано";
-  return `<div class="sync-cluster"><span class="status-pill">${text}</span><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button></div>`;
+  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-action="refresh-data">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button></div>`;
 }
 
 function money(value) {
@@ -1049,6 +1080,24 @@ function openVersionScreen() {
   setRoute("version");
 }
 
+function avatarScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Это вы!</h1>
+    <div class="content-stack">
+      <section class="panel avatar-view-panel">
+        <div class="avatar-view">
+          ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
+        </div>
+        <h2 class="panel-title">Это вы! И это здорово!</h2>
+      </section>
+    </div>
+  `, true);
+}
+
 function homeScreen() {
   const firstName = state.user.firstName.toUpperCase();
   const authClass = state.justAuthorized ? " authorized-entry" : "";
@@ -1066,9 +1115,9 @@ function homeScreen() {
     </div>
     <div class="hero-row">
       <h1 class="hero-title">Сегодня,<br>${firstName}</h1>
-      <div class="actor-avatar" aria-label="Фото актера">
+      <button class="actor-avatar" data-route="avatar" aria-label="Фото актера">
         ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
-      </div>
+      </button>
     </div>
     <span class="role-pill hero-role">${state.user.role === "admin" ? "админ" : "актер"}</span>
 
@@ -1095,32 +1144,20 @@ function homeScreen() {
     <div class="quick-scroll">
       ${
         state.user.role === "admin"
-          ? `<button class="quick-card add-order-card" data-route="new-order">
-              <strong>Добавить заказ</strong>
-              <img src="./assets/hero-triangle.svg" alt="" />
-              <span>+</span>
-            </button>`
-          : ""
-      }
-      ${
-        state.user.role === "admin"
-          ? `<button class="quick-card admin-card" data-route="admin-employees"><strong>Сотрудник</strong><span>+</span></button>
-             <button class="quick-card admin-card" data-route="admin-program"><strong>Программа</strong><span>+</span></button>
-             <button class="quick-card admin-card" data-route="admin-prop"><strong>Реквизит</strong><span>+</span></button>
-             <button class="quick-card admin-card" data-route="admin-reports"><strong>Ошибки</strong><span>!</span></button>`
+          ? `<button class="quick-card add-order-card" data-route="admin"><strong>Админ</strong><span>+</span></button>`
           : ""
       }
       <button class="quick-card" data-route="orders">
         <strong>Заказы</strong>
         <img src="./assets/orders.svg" alt="" />
       </button>
-      <button class="quick-card" data-route="props">
-        <strong>Реквизит</strong>
-        <img src="./assets/props.svg" alt="" />
-      </button>
       <button class="quick-card dark" data-route="programs">
         <strong>Программы</strong>
         <img src="./assets/programs.svg" alt="" />
+      </button>
+      <button class="quick-card" data-route="props">
+        <strong>Реквизит</strong>
+        <img src="./assets/props.svg" alt="" />
       </button>
       <button class="quick-card" data-route="saved"><strong>Сохранено</strong><span>✓</span></button>
     </div>
@@ -1172,6 +1209,23 @@ function ordersScreen() {
             : `<div class="empty-state">Заказов по фильтру нет</div>`
         }
       </div>
+    </div>
+  `, true);
+}
+
+function adminScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Админ</h1>
+    <div class="content-stack">
+      <button class="quick-card admin-action-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-employees"><strong>Добавить сотрудника</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-program"><strong>Добавить программу</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-prop"><strong>Добавить реквизит</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-reports"><strong>Ошибки</strong><span>!</span></button>
     </div>
   `, true);
 }
@@ -1230,16 +1284,24 @@ function newOrderScreen() {
             )
             .join("")}
         </div>
-        <div class="booking-grid time-grid" style="margin-top: 12px">
-          <label>
-            <span>Начало</span>
-            <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
-          </label>
-          <label>
-            <span>Окончание</span>
-            <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
-          </label>
-        </div>
+        <button class="time-summary-button" data-action="toggle-time-editor">
+          <span>Время</span>
+          <strong>${state.booking.start} — ${state.booking.end}</strong>
+        </button>
+        ${
+          state.timeEditorOpen
+            ? `<div class="time-editor">
+                <label>
+                  <span>Начало</span>
+                  <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
+                </label>
+                <label>
+                  <span>Окончание</span>
+                  <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
+                </label>
+              </div>`
+            : ""
+        }
       </section>
 
       <section class="panel legacy-time-panel">
@@ -1683,6 +1745,12 @@ function profileScreen() {
     <h1 class="page-title">Профиль</h1>
     <div class="content-stack">
       <section class="panel">
+        <button class="profile-avatar-row" data-route="avatar">
+          <span class="profile-avatar">
+            ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
+          </span>
+          <strong>${state.user.firstName}</strong>
+        </button>
         <div class="detail-grid">
           <div class="detail-line"><span>Имя</span><strong>${state.user.firstName}</strong></div>
           <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
@@ -2095,9 +2163,11 @@ function render() {
   const previousScrollTop = document.querySelector(".screen")?.scrollTop || 0;
   const screens = {
     "auth-confirm": authConfirmScreen,
+    avatar: avatarScreen,
     checking: checkingScreen,
     denied: deniedScreen,
     home: homeScreen,
+    admin: adminScreen,
     version: versionScreen,
     orders: ordersScreen,
     order: orderScreen,
@@ -2182,7 +2252,7 @@ document.addEventListener("click", (event) => {
   const orderId = Number(actionButton.dataset.orderId || state.activeOrderId);
 
   if (action === "take-kit") {
-    queueAction("take-kit", { orderId, actorId: state.user.id });
+    takeKit(orderId);
   }
 
   if (action === "take-prop") {
@@ -2204,6 +2274,11 @@ document.addEventListener("click", (event) => {
   if (action === "refresh-data") {
     loadRemoteData();
     syncPendingActions();
+  }
+
+  if (action === "toggle-time-editor") {
+    state.timeEditorOpen = !state.timeEditorOpen;
+    render();
   }
 
   if (action === "close-version") {
