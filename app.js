@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-16";
+const APP_VERSION = "2026.06.02-17";
 const releaseNotes = [
-  "По нажатию на время между кнопками открывается системный выбор времени.",
-  "Главное фото стало большим круглым портретом с золотой рамкой.",
-  "Степпер времени остался компактным и не растягивает экран.",
-  "Время можно менять и кнопками, и через выбор точного значения.",
-  "Сохранены мобильные правки экрана добавления заказа.",
+  "Размер фото на главном экране возвращен к компактному виду.",
+  "Фото внутри круга осталось портретным и аккуратно заполняет рамку.",
+  "Добавлена кнопка Как пользоваться рядом с версией.",
+  "Добавлена инструкция отдельно для админа и актера.",
+  "Время можно менять кнопками или выбрать точное значение по тапу.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -1066,7 +1066,7 @@ function tabbar() {
 function syncPill() {
   const pending = pendingActions().length;
   const text = pending ? `к отправке: ${pending}` : "все синхронизировано";
-  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-action="refresh-data">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button></div>`;
+  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-action="refresh-data">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button><button class="help-pill glow" data-route="help">Как пользоваться</button></div>`;
 }
 
 function money(value) {
@@ -1143,6 +1143,68 @@ function versionScreen() {
 function openVersionScreen() {
   state.previousRoute = state.route === "version" ? state.previousRoute || "home" : state.route;
   setRoute("version");
+}
+
+function helpScreen() {
+  const actorGuide = [
+    ["Принять заказ", "Откройте Заказы, выберите актуальный заказ и нажмите Принять. Если мест уже нет, кнопка принятия станет недоступной."],
+    ["Отказаться от заказа", "Откройте принятый заказ и нажмите Отказаться. Заказ уйдет из ваших принятых, а начисление по нему пересчитается."],
+    ["Взять реквизит", "Перейдите в Реквизит или откройте комплект программы. Нажмите Взять, и реквизит сразу закрепится за вами, даже если вы офлайн."],
+    ["Вернуть реквизит", "Откройте Реквизит, найдите предмет со статусом У меня и нажмите Вернуть. После синхронизации отметка уйдет в базу."],
+    ["Программы", "Во вкладке Программы откройте нужную программу, смотрите сценарий, ссылку на диск и комплект реквизита."],
+    ["Профиль", "В профиле видны принятые заказы, заработок за период, эффективность и реквизит, закрепленный за вами."],
+    ["Ошибка", "Если что-то работает не так, нажмите Сообщить об ошибке. Сообщение сохранится и попадет админу после синхронизации."],
+  ];
+  const adminGuide = [
+    ["Добавить заказ", "Во вкладке Админ нажмите Добавить заказ: выберите клиента, дату, время, программу, состав, дополнительные пункты и создайте заказ."],
+    ["Сотрудники", "Во вкладке Админ добавьте сотрудника. По умолчанию он актер, а переключатель дает дополнительные функции администратора."],
+    ["Принятие заказов", "Админ тоже может принимать заказы. В карточке заказа видно, кто уже принял заказ и сколько мест осталось."],
+    ["Программы", "Добавляйте программу, ссылку на диск и полный сценарий. Через Собрать комплект закрепляйте нужный реквизит за программой."],
+    ["Реквизит", "Добавляйте реквизит и редактируйте список. Удаление доступно только после режима Изменить и подтверждения."],
+    ["Ошибки", "Во вкладке Админ откройте Ошибки, чтобы посмотреть сообщения пользователей и очистить обработанные."],
+    ["Выплаты", "В профиле сотрудника можно смотреть эффективность, принятые заказы, выплаты и корректировать общую сумму при необходимости."],
+  ];
+  const guide = state.user.role === "admin" ? adminGuide : actorGuide;
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-action="close-help">‹</button>
+      <span class="help-pill static-version-pill">Как пользоваться</span>
+    </div>
+    <h1 class="page-title">Инструкция</h1>
+    <div class="content-stack">
+      <section class="panel version-panel">
+        <h2 class="panel-title">${state.user.role === "admin" ? "Для администратора" : "Для актера"}</h2>
+        <p class="small-text">Короткая памятка по основным действиям в приложении.</p>
+      </section>
+      ${guide
+        .map(
+          ([title, text]) => `
+            <section class="panel help-section">
+              <h2 class="panel-title">${title}</h2>
+              <p class="small-text">${text}</p>
+            </section>
+          `
+        )
+        .join("")}
+      ${
+        state.user.role === "admin"
+          ? `<section class="panel help-section">
+              <h2 class="panel-title">Что видит актер</h2>
+              <p class="small-text">Актеры работают с заказами, программами, реквизитом, сохраненным и профилем. Админские кнопки им не показываются.</p>
+            </section>`
+          : `<section class="panel help-section">
+              <h2 class="panel-title">Синхронизация</h2>
+              <p class="small-text">Если интернета нет, действия сохраняются локально. Когда сеть появится, приложение отправит изменения в базу.</p>
+            </section>`
+      }
+      <button class="primary-button" data-action="close-help">Закрыть</button>
+    </div>
+  `, true);
+}
+
+function openHelpScreen() {
+  state.previousRoute = state.route === "help" ? state.previousRoute || "home" : state.route;
+  setRoute("help");
 }
 
 function avatarScreen() {
@@ -2283,6 +2345,7 @@ function render() {
     denied: deniedScreen,
     home: homeScreen,
     admin: adminScreen,
+    help: helpScreen,
     version: versionScreen,
     orders: ordersScreen,
     order: orderScreen,
@@ -2354,6 +2417,11 @@ document.addEventListener("click", (event) => {
       openVersionScreen();
       return;
     }
+    if (routeButton.dataset.route === "help") {
+      if (state.route === "help") return;
+      openHelpScreen();
+      return;
+    }
     const options = {};
     if (routeButton.dataset.orderId) options.activeOrderId = Number(routeButton.dataset.orderId);
     if (routeButton.dataset.programId) options.activeProgramId = Number(routeButton.dataset.programId);
@@ -2418,6 +2486,11 @@ document.addEventListener("click", (event) => {
     state.versionGlow = false;
     localStorage.setItem("versionSeen", APP_VERSION);
     const target = ["checking", "denied", "auth-confirm", "version"].includes(state.previousRoute) ? "home" : state.previousRoute || "home";
+    setRoute(target);
+  }
+
+  if (action === "close-help") {
+    const target = ["checking", "denied", "auth-confirm", "help"].includes(state.previousRoute) ? "home" : state.previousRoute || "home";
     setRoute(target);
   }
 
