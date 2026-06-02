@@ -9,6 +9,14 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
+const APP_VERSION = "2026.06.02-8";
+const releaseNotes = [
+  "Текущий аккаунт администратора отображается в сотрудниках с пометкой админ.",
+  "Добавлен переливающийся бейдж версии и экран истории изменений.",
+  "Сбор комплекта при добавлении программы возвращает обратно к форме программы.",
+  "Поджата мобильная разметка календаря и полей времени.",
+  "Обновлена админская логика профилей сотрудников и программ.",
+];
 
 const telegramUser = tg?.initDataUnsafe?.user;
 
@@ -55,6 +63,7 @@ const state = {
   orderFilter: "mine",
   toast: "",
   reportText: "",
+  versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
   acceptedOrders: JSON.parse(localStorage.getItem("acceptedOrders") || "{}"),
   booking: {
     firstName: "",
@@ -87,6 +96,7 @@ const state = {
   bonuses: readStorage("bonuses", []),
   programKits: readStorage("programKits", {}),
   kitBuilderProgramId: null,
+  kitBuilderReturnRoute: "",
   newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
@@ -244,6 +254,24 @@ function saveState() {
   localStorage.setItem("programKits", JSON.stringify(state.programKits));
 }
 
+function ensureCurrentEmployee() {
+  if (!state.user?.id || !state.user.hasAccess) return;
+  const existing = employees.find((employee) => Number(employee.id) === Number(state.user.id));
+  const record = {
+    id: state.user.id,
+    name: state.user.firstName,
+    username: state.user.username,
+    role: state.user.role,
+    efficiency: existing?.efficiency ?? 0,
+    accepted: existing?.accepted ?? 0,
+    late: existing?.late ?? 0,
+    rating: existing?.rating ?? 0,
+  };
+  employees = existing
+    ? employees.map((employee) => (Number(employee.id) === Number(state.user.id) ? { ...employee, ...record } : employee))
+    : [record, ...employees];
+}
+
 async function apiFetch(path, options = {}) {
   if (!API_BASE) return null;
 
@@ -344,6 +372,7 @@ function applyCurrentUserAccess(currentUser) {
   state.user.username = currentUser.username || state.user.username;
   state.user.role = currentUser.role === "admin" ? "admin" : "actor";
   state.user.hasAccess = true;
+  ensureCurrentEmployee();
 }
 
 function rememberDeleted(type, id) {
@@ -597,9 +626,15 @@ function saveProgramKit() {
   const key = currentKitKey();
   queueAction("save-program-kit", { programId: key, propIds: state.programKits[key] || [] });
   state.toast = "Комплект программы сохранен";
+  const returnRoute = state.kitBuilderReturnRoute;
   state.kitBuilderProgramId = null;
+  state.kitBuilderReturnRoute = "";
   state.propEditMode = false;
-  render();
+  if (returnRoute) {
+    setRoute(returnRoute);
+  } else {
+    render();
+  }
   clearToastLater();
 }
 
@@ -888,6 +923,7 @@ function startOfDay(date) {
 }
 
 function appFrame(content, nav = false) {
+  ensureCurrentEmployee();
   return `
     <main class="phone ${state.user.role === "admin" ? "admin-mode" : ""}">
       <section class="screen${nav ? " with-nav" : ""}">
@@ -934,7 +970,7 @@ function tabbar() {
 function syncPill() {
   const pending = pendingActions().length;
   const text = pending ? `к отправке: ${pending}` : "все синхронизировано";
-  return `<span class="status-pill">${text}</span>`;
+  return `<div class="sync-cluster"><span class="status-pill">${text}</span><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button></div>`;
 }
 
 function money(value) {
@@ -983,6 +1019,34 @@ function deniedScreen() {
     </div>
     <div class="footer-brand">Точка праздника<span>проект Банни Бон</span></div>
   `);
+}
+
+function versionScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-action="close-version">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Версия</h1>
+    <div class="content-stack">
+      <section class="panel version-panel">
+        <h2 class="panel-title">v${APP_VERSION}</h2>
+        <p class="small-text">История последних изменений приложения.</p>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Что изменилось</h2>
+        <div class="orders-stack">
+          ${releaseNotes.map((note) => `<div class="notice">${note}</div>`).join("")}
+        </div>
+      </section>
+      <button class="primary-button" data-action="close-version">Закрыть</button>
+    </div>
+  `, true);
+}
+
+function openVersionScreen() {
+  state.previousRoute = state.route === "version" ? "home" : state.route;
+  setRoute("version");
 }
 
 function homeScreen() {
@@ -1707,7 +1771,7 @@ function profileScreen() {
                     (employee) => `
                       <button class="employee-row employee-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
                         <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
-                        <span><strong>${employee.name}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
+                        <span><strong>${employee.name} ${employee.role === "admin" ? `<em class="role-mark">(админ)</em>` : ""}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
                         <b>${employee.rating}</b>
                       </button>
                     `
@@ -1864,7 +1928,7 @@ function adminEmployeesScreen() {
                 <div class="employee-row">
                   <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
                   <button class="employee-name-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
-                    <span><strong>${employee.name}</strong><small>${employee.role === "admin" ? "админ" : "актер"} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
+                    <span><strong>${employee.name} ${employee.role === "admin" ? `<em class="role-mark">(админ)</em>` : ""}</strong><small>${employee.role === "admin" ? "админ" : "актер"} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
                   </button>
                   <div class="counter-actions">
                     <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">−</button>
@@ -2034,6 +2098,7 @@ function render() {
     checking: checkingScreen,
     denied: deniedScreen,
     home: homeScreen,
+    version: versionScreen,
     orders: ordersScreen,
     order: orderScreen,
     "new-order": newOrderScreen,
@@ -2099,6 +2164,10 @@ document.addEventListener("click", (event) => {
   }
 
   if (routeButton) {
+    if (routeButton.dataset.route === "version") {
+      openVersionScreen();
+      return;
+    }
     const options = {};
     if (routeButton.dataset.orderId) options.activeOrderId = Number(routeButton.dataset.orderId);
     if (routeButton.dataset.programId) options.activeProgramId = Number(routeButton.dataset.programId);
@@ -2135,6 +2204,12 @@ document.addEventListener("click", (event) => {
   if (action === "refresh-data") {
     loadRemoteData();
     syncPendingActions();
+  }
+
+  if (action === "close-version") {
+    state.versionGlow = false;
+    localStorage.setItem("versionSeen", APP_VERSION);
+    setRoute(state.previousRoute || "home");
   }
 
   if (action === "toggle-order-edit") {
@@ -2191,7 +2266,8 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "program-kit-builder") {
-    state.kitBuilderProgramId = state.activeProgramId || "draft";
+    state.kitBuilderProgramId = state.route === "admin-program" ? "draft" : state.activeProgramId || "draft";
+    state.kitBuilderReturnRoute = state.route === "admin-program" ? "admin-program" : state.route === "program-detail" ? "program-detail" : "";
     state.propEditMode = true;
     state.toast = "Выберите реквизит для комплекта программы";
     setRoute("admin-prop");
