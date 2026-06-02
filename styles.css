@@ -101,23 +101,17 @@ button:active {
 
 .phone::before,
 .phone::after {
-  display: none;
-}
-
-.screen::before,
-.screen::after {
   content: "";
   position: absolute;
   pointer-events: none;
-  z-index: 0;
 }
 
-.screen::before {
+.phone::before {
   inset: 14px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.screen::after {
+.phone::after {
   width: 260px;
   height: 260px;
   right: -116px;
@@ -136,11 +130,6 @@ button:active {
   padding: calc(env(safe-area-inset-top) + 54px) 20px calc(env(safe-area-inset-bottom) + 22px);
   animation: screen-in 180ms ease both;
   scrollbar-width: thin;
-}
-
-.screen > * {
-  position: relative;
-  z-index: 1;
 }
 
 .screen.with-nav {
