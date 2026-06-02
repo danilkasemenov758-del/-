@@ -1267,7 +1267,13 @@ div.prop-row {
 }
 
 .time-grid {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.time-grid .booking-input {
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 13px;
 }
 
 .booking-grid label {
@@ -1438,6 +1444,27 @@ div.prop-row {
 
 .editable-extra-row:has(.extra-price-input) {
   grid-template-columns: minmax(0, 1fr) 88px 34px;
+}
+
+.compact-actions {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.counter-actions,
+.bonus-edit-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.bonus-row {
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bonus-edit-row {
+  margin-top: 8px;
 }
 
 .extra-price-input {
