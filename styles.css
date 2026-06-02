@@ -101,17 +101,23 @@ button:active {
 
 .phone::before,
 .phone::after {
+  display: none;
+}
+
+.screen::before,
+.screen::after {
   content: "";
   position: absolute;
   pointer-events: none;
+  z-index: 0;
 }
 
-.phone::before {
+.screen::before {
   inset: 14px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.phone::after {
+.screen::after {
   width: 260px;
   height: 260px;
   right: -116px;
@@ -130,6 +136,11 @@ button:active {
   padding: calc(env(safe-area-inset-top) + 54px) 20px calc(env(safe-area-inset-bottom) + 22px);
   animation: screen-in 180ms ease both;
   scrollbar-width: thin;
+}
+
+.screen > * {
+  position: relative;
+  z-index: 1;
 }
 
 .screen.with-nav {
@@ -364,7 +375,7 @@ button:active {
   font-weight: 1000;
   text-transform: uppercase;
   box-shadow: 0 0 22px rgba(255, 186, 57, 0.34), 0 12px 28px rgba(153, 68, 0, 0.2);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .actor-avatar::before {
@@ -379,14 +390,16 @@ button:active {
   mask-composite: exclude;
   animation: gold-border-spin 2200ms linear infinite;
   pointer-events: none;
+  z-index: 3;
 }
 
 .actor-avatar img {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
   object-fit: contain;
   position: relative;
   z-index: 1;
+  border-radius: 50%;
   background: rgba(255, 183, 49, 0.22);
 }
 
@@ -1065,14 +1078,14 @@ div.prop-row {
 @keyframes confetti-pop {
   0% {
     opacity: 0;
-    transform: translateY(34px) scale(0.4) rotate(0deg);
+    transform: translateY(90px) scale(0.35) rotate(0deg);
   }
   35% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translateY(-42px) scale(1) rotate(140deg);
+    transform: translateY(-170px) scale(1.25) rotate(220deg);
   }
 }
 
@@ -1224,34 +1237,51 @@ div.prop-row {
   justify-items: center;
   gap: 16px;
   text-align: center;
+  overflow: hidden;
+  min-height: 430px;
 }
 
 .avatar-stats {
   width: 100%;
+  position: relative;
+  z-index: 2;
 }
 
 .confetti-burst {
   position: absolute;
-  inset: 18px 16px auto;
-  height: 110px;
+  inset: 0;
+  height: 100%;
   pointer-events: none;
+  z-index: 1;
 }
 
 .confetti-burst i {
   position: absolute;
-  width: 10px;
-  height: 18px;
+  width: 14px;
+  height: 26px;
   border-radius: 3px;
   background: #ffd45a;
-  animation: confetti-pop 900ms ease-out both;
+  animation: confetti-pop 1300ms ease-out both;
 }
 
-.confetti-burst i:nth-child(1) { left: 12%; top: 16px; transform: rotate(18deg); }
-.confetti-burst i:nth-child(2) { left: 28%; top: 0; background: #fff0a2; animation-delay: 80ms; }
-.confetti-burst i:nth-child(3) { right: 30%; top: 12px; background: #ff9b2f; animation-delay: 120ms; }
-.confetti-burst i:nth-child(4) { right: 12%; top: 22px; transform: rotate(-22deg); animation-delay: 160ms; }
-.confetti-burst i:nth-child(5) { left: 45%; top: 8px; background: #7ceeff; animation-delay: 200ms; }
-.confetti-burst i:nth-child(6) { right: 45%; top: 30px; background: #ffffff; animation-delay: 240ms; }
+.confetti-burst i:nth-child(1) { left: 8%; top: 62%; transform: rotate(18deg); }
+.confetti-burst i:nth-child(2) { left: 18%; top: 42%; background: #fff0a2; animation-delay: 60ms; }
+.confetti-burst i:nth-child(3) { left: 28%; top: 66%; background: #ff9b2f; animation-delay: 100ms; }
+.confetti-burst i:nth-child(4) { left: 38%; top: 48%; transform: rotate(-22deg); animation-delay: 140ms; }
+.confetti-burst i:nth-child(5) { left: 50%; top: 68%; background: #ffd45a; animation-delay: 180ms; }
+.confetti-burst i:nth-child(6) { left: 62%; top: 44%; background: #ffffff; animation-delay: 220ms; }
+.confetti-burst i:nth-child(7) { left: 74%; top: 62%; background: #fff0a2; animation-delay: 260ms; }
+.confetti-burst i:nth-child(8) { right: 8%; top: 48%; background: #ff9b2f; animation-delay: 300ms; }
+.confetti-burst i:nth-child(9) { left: 6%; top: 28%; background: #ffffff; animation-delay: 160ms; }
+.confetti-burst i:nth-child(10) { left: 20%; top: 18%; animation-delay: 200ms; }
+.confetti-burst i:nth-child(11) { left: 35%; top: 24%; background: #fff0a2; animation-delay: 240ms; }
+.confetti-burst i:nth-child(12) { left: 48%; top: 14%; background: #ff9b2f; animation-delay: 280ms; }
+.confetti-burst i:nth-child(13) { right: 34%; top: 22%; background: #ffffff; animation-delay: 320ms; }
+.confetti-burst i:nth-child(14) { right: 20%; top: 16%; animation-delay: 360ms; }
+.confetti-burst i:nth-child(15) { right: 7%; top: 28%; background: #fff0a2; animation-delay: 400ms; }
+.confetti-burst i:nth-child(16) { left: 14%; top: 78%; background: #ff9b2f; animation-delay: 440ms; }
+.confetti-burst i:nth-child(17) { left: 70%; top: 78%; background: #ffffff; animation-delay: 480ms; }
+.confetti-burst i:nth-child(18) { right: 14%; top: 70%; animation-delay: 520ms; }
 
 .avatar-view,
 .profile-avatar {
@@ -1263,7 +1293,8 @@ div.prop-row {
   background: linear-gradient(145deg, #ffd35d, #ff8d27);
   color: var(--white);
   font-weight: 1000;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 2;
 }
 
 .avatar-view::before,
@@ -1279,6 +1310,7 @@ div.prop-row {
   mask-composite: exclude;
   animation: gold-border-spin 2200ms linear infinite;
   pointer-events: none;
+  z-index: 3;
 }
 
 .avatar-view {
@@ -1289,11 +1321,12 @@ div.prop-row {
 
 .avatar-view img,
 .profile-avatar img {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
   object-fit: contain;
   position: relative;
   z-index: 1;
+  border-radius: 50%;
   background: rgba(255, 183, 49, 0.22);
 }
 

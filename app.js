@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-11";
+const APP_VERSION = "2026.06.02-12";
 const releaseNotes = [
-  "Нижнее меню стало горизонтальным скроллом и больше не ломает подписи.",
-  "Добавлен лимит принятия заказа по количеству актеров.",
-  "В профиле отображается реквизит, закрепленный за сотрудником.",
-  "Прошедшие заказы вынесены в отдельный фильтр.",
-  "Экран фото получил хлопушку и краткую статистику.",
+  "Фото сотрудника стало круглым с золотистой переливающейся рамкой.",
+  "В заказах появился фильтр Актуальные перед Моими заказами.",
+  "Выбор даты сразу открывает выбор времени, а выбранный интервал виден под календарем.",
+  "Кнопка назад из добавления заказа возвращает в админку.",
+  "Хлопушка на экране фото стала крупнее и занимает весь экран карточки.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -60,7 +60,7 @@ const state = {
   activeProgramId: 1,
   activeEmployeeId: 101,
   filter: "all",
-  orderFilter: "mine",
+  orderFilter: "active",
   toast: "",
   reportText: "",
   versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
@@ -1008,6 +1008,15 @@ function clearToastLater() {
   }, 1500);
 }
 
+function openBookingTimePicker(key = "start") {
+  window.setTimeout(() => {
+    const input = document.querySelector(`.time-editor [data-booking="${key}"]`);
+    input?.focus?.();
+    input?.showPicker?.();
+    input?.click?.();
+  }, 80);
+}
+
 function tabbar() {
   const tabs =
     state.user.role === "admin"
@@ -1127,6 +1136,7 @@ function openVersionScreen() {
 function avatarScreen() {
   const completed = acceptedOrdersForCurrentUser().length;
   const earned = userEarnings();
+  const confetti = Array.from({ length: 18 }, () => "<i></i>").join("");
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1135,7 +1145,7 @@ function avatarScreen() {
     <h1 class="page-title">Это вы!</h1>
     <div class="content-stack">
       <section class="panel avatar-view-panel">
-        <div class="confetti-burst"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="confetti-burst">${confetti}</div>
         <div class="avatar-view">
           ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
         </div>
@@ -1233,6 +1243,7 @@ function ordersScreen() {
       ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-order-edit">${state.orderEditMode ? "Готово" : "Изменить"}</button>` : ""}
       <input class="search-input" placeholder="Найти заказ" />
       <div class="chips">
+        <button class="chip ${state.orderFilter === "active" ? "active" : ""}" data-order-filter="active">Актуальные</button>
         <button class="chip ${state.orderFilter === "mine" ? "active" : ""}" data-order-filter="mine">Мои</button>
         <button class="chip ${state.orderFilter === "week" ? "active" : ""}" data-order-filter="week">Неделя</button>
         <button class="chip ${state.orderFilter === "month" ? "active" : ""}" data-order-filter="month">Месяц</button>
@@ -1288,7 +1299,7 @@ function newOrderScreen() {
   const calendarDays = buildCalendarDays(selectedDate);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : "home"}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Новый заказ</h1>
@@ -1337,13 +1348,23 @@ function newOrderScreen() {
             .join("")}
         </div>
         <button class="time-summary-button" data-action="toggle-time-editor">
-          <span>Время</span>
+          <span>Выбранное время</span>
           <strong>${state.booking.start} — ${state.booking.end}</strong>
         </button>
-        <div class="hidden-time-inputs">
-          <input type="time" data-booking="start" value="${state.booking.start}" />
-          <input type="time" data-booking="end" value="${state.booking.end}" />
-        </div>
+        ${
+          state.timeEditorOpen
+            ? `<div class="time-editor">
+                <label>
+                  <span>Начало</span>
+                  <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
+                </label>
+                <label>
+                  <span>Окончание</span>
+                  <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
+                </label>
+              </div>`
+            : ""
+        }
       </section>
 
       <section class="panel legacy-time-panel">
@@ -2349,9 +2370,9 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "toggle-time-editor") {
-    const input = document.querySelector('.hidden-time-inputs [data-booking="start"]');
-    input?.showPicker?.();
-    input?.click?.();
+    state.timeEditorOpen = true;
+    render();
+    openBookingTimePicker("start");
   }
 
   if (action === "toggle-bonus-form") {
@@ -2586,9 +2607,10 @@ document.addEventListener("change", (event) => {
   if (bookingInput) {
     const key = bookingInput.dataset.booking;
     state.booking[key] = bookingInput.type === "number" || bookingInput.tagName === "SELECT" ? Number(bookingInput.value) : bookingInput.value;
-    if (key === "start" && bookingInput.closest(".hidden-time-inputs")) {
-      const endInput = document.querySelector('.hidden-time-inputs [data-booking="end"]');
+    if (key === "start" && bookingInput.closest(".time-editor")) {
+      const endInput = document.querySelector('.time-editor [data-booking="end"]');
       window.setTimeout(() => {
+        endInput?.focus?.();
         endInput?.showPicker?.();
         endInput?.click?.();
       }, 120);
@@ -2650,7 +2672,9 @@ document.addEventListener("click", (event) => {
   if (!dateButton) return;
 
   state.booking.date = dateButton.dataset.date;
+  state.timeEditorOpen = true;
   render();
+  openBookingTimePicker("start");
 });
 
 window.addEventListener("online", () => {
