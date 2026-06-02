@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-10";
+const APP_VERSION = "2026.06.02-11";
 const releaseNotes = [
-  "У фото теперь переливается только золотистая рамка, само изображение остается спокойным.",
-  "Фото пользователя открывается отдельно с подписью Это вы! И это здорово!",
-  "Время заказа собрано в единую плашку с раскрытием двух полей.",
-  "Главная перестроена: у админа отдельная вкладка Админ, у актера рабочие разделы.",
-  "Взятие комплекта закрепляет реквизит комплекта за человеком.",
+  "Нижнее меню стало горизонтальным скроллом и больше не ломает подписи.",
+  "Добавлен лимит принятия заказа по количеству актеров.",
+  "В профиле отображается реквизит, закрепленный за сотрудником.",
+  "Прошедшие заказы вынесены в отдельный фильтр.",
+  "Экран фото получил хлопушку и краткую статистику.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -66,6 +66,7 @@ const state = {
   versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
   avatarOpen: false,
   timeEditorOpen: false,
+  bonusFormOpen: false,
   acceptedOrders: JSON.parse(localStorage.getItem("acceptedOrders") || "{}"),
   booking: {
     firstName: "",
@@ -363,7 +364,13 @@ function mergeQueuedOrders(remoteOrders) {
 }
 
 function applyCurrentUserAccess(currentUser) {
-  if (!currentUser || currentUser.isActive === false) {
+  if (!currentUser) {
+    state.user.hasAccess = true;
+    ensureCurrentEmployee();
+    return;
+  }
+
+  if (currentUser.isActive === false) {
     state.user.hasAccess = false;
     if (state.route !== "auth-confirm") state.route = "denied";
     return;
@@ -446,17 +453,44 @@ function takeKit(orderId = state.activeOrderId) {
   clearToastLater();
 }
 
+function acceptedListForOrder(orderId) {
+  const accepted = state.acceptedOrders[orderId];
+  if (!accepted) return [];
+  return Array.isArray(accepted) ? accepted : [accepted];
+}
+
+function acceptedByMeForOrder(orderId) {
+  return acceptedListForOrder(orderId).some((accepted) => Number(accepted.actorId) === Number(state.user.id));
+}
+
+function orderActorLimit(order) {
+  const match = String(order?.role || "").match(/(\d+)\s*актер/i);
+  return match ? Number(match[1]) : 1;
+}
+
 function returnProp(propId) {
   props = props.map((item) => (item.id === propId ? { ...item, status: "available", place: "Склад" } : item));
   queueAction("return-prop", { propId, actorId: state.user.id });
 }
 
 function acceptOrder(orderId) {
-  state.acceptedOrders[orderId] = {
+  const order = orders.find((item) => Number(item.id) === Number(orderId));
+  const current = acceptedListForOrder(orderId);
+  if (current.some((accepted) => Number(accepted.actorId) === Number(state.user.id))) return;
+  if (current.length >= orderActorLimit(order)) {
+    state.toast = "Все места актеров уже заняты";
+    render();
+    clearToastLater();
+    return;
+  }
+  state.acceptedOrders[orderId] = [
+    ...current,
+    {
     actorId: state.user.id,
     name: state.user.firstName,
     acceptedAt: new Date().toISOString(),
-  };
+    },
+  ];
   employees = employees.map((employee) =>
     Number(employee.id) === Number(state.user.id)
       ? { ...employee, accepted: Number(employee.accepted || 0) + 1, efficiency: Math.min(100, Number(employee.efficiency || 0) + 5) }
@@ -470,8 +504,14 @@ function acceptOrder(orderId) {
 }
 
 function declineOrder(orderId) {
-  const wasAcceptedByMe = Number(state.acceptedOrders[orderId]?.actorId) === Number(state.user.id);
-  delete state.acceptedOrders[orderId];
+  const current = acceptedListForOrder(orderId);
+  const wasAcceptedByMe = current.some((accepted) => Number(accepted.actorId) === Number(state.user.id));
+  const next = current.filter((accepted) => Number(accepted.actorId) !== Number(state.user.id));
+  if (next.length) {
+    state.acceptedOrders[orderId] = next;
+  } else {
+    delete state.acceptedOrders[orderId];
+  }
   if (wasAcceptedByMe) {
     employees = employees.map((employee) =>
       Number(employee.id) === Number(state.user.id)
@@ -850,8 +890,7 @@ function employeeEarnings(employeeId, period = state.earningsPeriod) {
   const now = startOfDay(new Date());
   const maxDays = period === "week" ? 7 : period === "month" ? 31 : 366;
   const orderIncome = orders.reduce((sum, order) => {
-    const accepted = state.acceptedOrders[order.id];
-    const byEmployee = Number(accepted?.actorId) === Number(employeeId);
+    const byEmployee = acceptedListForOrder(order.id).some((accepted) => Number(accepted.actorId) === Number(employeeId));
     const date = parseUiDate(order.date);
     if (!byEmployee || !date) return sum;
     const diffDays = (startOfDay(date) - now) / 86400000;
@@ -873,11 +912,11 @@ function userEarnings(period = state.earningsPeriod) {
 }
 
 function acceptedOrdersForCurrentUser() {
-  return orders.filter((order) => Number(state.acceptedOrders[order.id]?.actorId) === Number(state.user.id));
+  return orders.filter((order) => acceptedListForOrder(order.id).some((accepted) => Number(accepted.actorId) === Number(state.user.id)));
 }
 
 function acceptedOrdersForEmployee(employeeId) {
-  return orders.filter((order) => Number(state.acceptedOrders[order.id]?.actorId) === Number(employeeId));
+  return orders.filter((order) => acceptedListForOrder(order.id).some((accepted) => Number(accepted.actorId) === Number(employeeId)));
 }
 
 function bonusesForEmployee(employeeId) {
@@ -905,7 +944,7 @@ function setEmployeeTotal(employeeId, targetTotal) {
 
 function monthlyAcceptedCount(employeeId) {
   const now = new Date();
-  return Object.values(state.acceptedOrders).filter((accepted) => {
+  return Object.values(state.acceptedOrders).flatMap((accepted) => (Array.isArray(accepted) ? accepted : [accepted])).filter((accepted) => {
     if (Number(accepted.actorId) !== Number(employeeId)) return false;
     const date = accepted.acceptedAt ? new Date(accepted.acceptedAt) : null;
     return date && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
@@ -917,13 +956,18 @@ function filteredOrders() {
   const maxDays = state.orderFilter === "week" ? 7 : state.orderFilter === "month" ? 31 : null;
 
   return orders.filter((order) => {
+    const date = parseUiDate(order.date);
+    const isPast = date ? startOfDay(date) < startOfDay(now) : false;
+
+    if (state.orderFilter === "past") return isPast;
+    if (isPast) return false;
+
     if (state.orderFilter === "mine" && !order.actors?.includes(state.user.firstName)) {
       return state.user.role === "admin";
     }
 
     if (!maxDays) return true;
 
-    const date = parseUiDate(order.date);
     if (!date) return true;
     const diffDays = (date - startOfDay(now)) / 86400000;
     return diffDays >= 0 && diffDays <= maxDays;
@@ -1081,6 +1125,8 @@ function openVersionScreen() {
 }
 
 function avatarScreen() {
+  const completed = acceptedOrdersForCurrentUser().length;
+  const earned = userEarnings();
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1089,10 +1135,15 @@ function avatarScreen() {
     <h1 class="page-title">Это вы!</h1>
     <div class="content-stack">
       <section class="panel avatar-view-panel">
+        <div class="confetti-burst"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="avatar-view">
           ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
         </div>
         <h2 class="panel-title">Это вы! И это здорово!</h2>
+        <div class="detail-grid avatar-stats">
+          <div class="detail-line"><span>Заказы</span><strong>${completed}</strong></div>
+          <div class="detail-line"><span>Получено</span><strong>${money(earned)}</strong></div>
+        </div>
       </section>
     </div>
   `, true);
@@ -1185,6 +1236,7 @@ function ordersScreen() {
         <button class="chip ${state.orderFilter === "mine" ? "active" : ""}" data-order-filter="mine">Мои</button>
         <button class="chip ${state.orderFilter === "week" ? "active" : ""}" data-order-filter="week">Неделя</button>
         <button class="chip ${state.orderFilter === "month" ? "active" : ""}" data-order-filter="month">Месяц</button>
+        <button class="chip ${state.orderFilter === "past" ? "active" : ""}" data-order-filter="past">Прошедшие</button>
       </div>
       <div class="orders-stack">
         ${
@@ -1288,20 +1340,10 @@ function newOrderScreen() {
           <span>Время</span>
           <strong>${state.booking.start} — ${state.booking.end}</strong>
         </button>
-        ${
-          state.timeEditorOpen
-            ? `<div class="time-editor">
-                <label>
-                  <span>Начало</span>
-                  <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
-                </label>
-                <label>
-                  <span>Окончание</span>
-                  <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
-                </label>
-              </div>`
-            : ""
-        }
+        <div class="hidden-time-inputs">
+          <input type="time" data-booking="start" value="${state.booking.start}" />
+          <input type="time" data-booking="end" value="${state.booking.end}" />
+        </div>
       </section>
 
       <section class="panel legacy-time-panel">
@@ -1387,13 +1429,17 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Начислить дополнительную выплату</h2>
-        <select class="booking-input" data-admin-field="newBonus.employeeId">
-          <option value="">Выберите сотрудника</option>
-          ${employeeOptions()}
-        </select>
-        <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
-        <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>
+        <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
+        ${
+          state.bonusFormOpen
+            ? `<select class="booking-input" data-admin-field="newBonus.employeeId">
+                <option value="">Выберите сотрудника</option>
+                ${employeeOptions()}
+              </select>
+              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
+              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>`
+            : ""
+        }
       </section>
 
       <button class="primary-button" data-action="create-order">Создать заказ</button>
@@ -1454,8 +1500,10 @@ function orderScreen() {
     `, true);
   }
   const isSaved = state.saved.includes(order.id);
-  const accepted = state.acceptedOrders[order.id];
-  const acceptedByMe = accepted?.actorId === state.user.id;
+  const acceptedList = acceptedListForOrder(order.id);
+  const acceptedByMe = acceptedByMeForOrder(order.id);
+  const acceptedNames = acceptedList.map((accepted) => accepted.name).join(", ");
+  const isFull = acceptedList.length >= orderActorLimit(order);
 
   return appFrame(`
     <div class="top-row">
@@ -1471,7 +1519,7 @@ function orderScreen() {
           <div class="detail-line"><span>Адрес</span><strong>${order.address}</strong></div>
           <div class="detail-line"><span>Роль</span><strong>${order.role}</strong></div>
           <div class="detail-line"><span>Актеры</span><strong>${order.actors.join(", ")}</strong></div>
-          <div class="detail-line"><span>Принял</span><strong>${accepted ? accepted.name : "Пока никто"}</strong></div>
+          <div class="detail-line"><span>Приняли</span><strong>${acceptedNames || "Пока никто"}</strong></div>
         </div>
         ${
           state.user.role === "admin"
@@ -1489,19 +1537,19 @@ function orderScreen() {
         true
           ? `<section class="panel">
               <h2 class="panel-title">Подтверждение</h2>
-              <p class="small-text">${accepted ? `Заказ принял: ${accepted.name}` : "Можно принять заказ. Если нет сети, отметка сохранится и отправится позже."}</p>
+              <p class="small-text">${acceptedList.length ? `Приняли: ${acceptedNames}` : "Можно принять заказ. Если нет сети, отметка сохранится и отправится позже."}</p>
               ${
                 acceptedByMe
                   ? `<button class="primary-button accepted-button" style="margin-top: 12px" disabled>Заказ принят</button>
                      <button class="secondary-button danger-button" style="margin-top: 8px" data-action="decline-order" data-order-id="${order.id}">Отказаться</button>`
-                  : `<button class="primary-button" style="margin-top: 12px" data-action="accept-order" data-order-id="${order.id}" ${accepted ? "disabled" : ""}>
-                      ${accepted ? "Занято другим актером" : "Принять заказ"}
+                  : `<button class="primary-button" style="margin-top: 12px" data-action="accept-order" data-order-id="${order.id}" ${isFull ? "disabled" : ""}>
+                      ${isFull ? "Места актеров заняты" : "Принять заказ"}
                     </button>`
               }
             </section>`
           : `<section class="panel">
               <h2 class="panel-title">Кто принял заказ</h2>
-              <p class="small-text">${accepted ? `${accepted.name} · ожидает синхронизации/сохранено` : "Пока никто не принял заказ."}</p>
+              <p class="small-text">${acceptedNames || "Пока никто не принял заказ."}</p>
             </section>`
       }
 
@@ -1737,6 +1785,7 @@ function profileScreen() {
   const earnings = userEarnings();
   const acceptedList = acceptedOrdersForCurrentUser();
   const currentMonthlyAccepted = monthlyAcceptedCount(state.user.id);
+  const myProps = props.filter((item) => item.status === "mine" && String(item.place || "").toLowerCase().includes(String(state.user.firstName).toLowerCase()));
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1783,6 +1832,25 @@ function profileScreen() {
                   )
                   .join("")
               : `<div class="empty-state">Принятых заказов пока нет</div>`
+          }
+        </div>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Реквизит у вас</h2>
+        <div class="orders-stack">
+          ${
+            myProps.length
+              ? myProps
+                  .map(
+                    (item) => `
+                      <button class="prop-row" data-route="props">
+                        <span><strong>${item.name}</strong><span>${item.place}</span></span>
+                        <span class="row-icon return" aria-label="У вас">↩</span>
+                      </button>
+                    `
+                  )
+                  .join("")
+              : `<div class="empty-state">За вами пока нет реквизита</div>`
           }
         </div>
       </section>
@@ -1960,7 +2028,7 @@ function adminEmployeeDetailScreen() {
 function adminEmployeesScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Сотрудник</h1>
@@ -1976,16 +2044,20 @@ function adminEmployeesScreen() {
       </section>
       <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
       <section class="panel">
-        <h2 class="panel-title">Начислить дополнительную выплату</h2>
-        <select class="booking-input" data-admin-field="newBonus.employeeId">
-          <option value="">Выберите сотрудника</option>
-          ${employees
-            .map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`)
-            .join("")}
-        </select>
-        <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
-        <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>
-        <button class="primary-button" data-action="create-bonus" style="margin-top: 8px">Начислить</button>
+        <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
+        ${
+          state.bonusFormOpen
+            ? `<select class="booking-input" data-admin-field="newBonus.employeeId">
+                <option value="">Выберите сотрудника</option>
+                ${employees
+                  .map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`)
+                  .join("")}
+              </select>
+              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
+              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>
+              <button class="primary-button" data-action="create-bonus" style="margin-top: 8px">Начислить</button>`
+            : ""
+        }
       </section>
       <section class="panel">
         <h2 class="panel-title">Список</h2>
@@ -2016,7 +2088,7 @@ function adminEmployeesScreen() {
 function adminProgramScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Программа</h1>
@@ -2043,7 +2115,7 @@ function adminPropScreen() {
   const selectedKitProps = new Set((state.programKits[kitKey] || []).map(Number));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Реквизит</h1>
@@ -2106,7 +2178,7 @@ function adminPropScreen() {
 function adminReportsScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Ошибки</h1>
@@ -2277,7 +2349,13 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "toggle-time-editor") {
-    state.timeEditorOpen = !state.timeEditorOpen;
+    const input = document.querySelector('.hidden-time-inputs [data-booking="start"]');
+    input?.showPicker?.();
+    input?.click?.();
+  }
+
+  if (action === "toggle-bonus-form") {
+    state.bonusFormOpen = !state.bonusFormOpen;
     render();
   }
 
@@ -2508,6 +2586,13 @@ document.addEventListener("change", (event) => {
   if (bookingInput) {
     const key = bookingInput.dataset.booking;
     state.booking[key] = bookingInput.type === "number" || bookingInput.tagName === "SELECT" ? Number(bookingInput.value) : bookingInput.value;
+    if (key === "start" && bookingInput.closest(".hidden-time-inputs")) {
+      const endInput = document.querySelector('.hidden-time-inputs [data-booking="end"]');
+      window.setTimeout(() => {
+        endInput?.showPicker?.();
+        endInput?.click?.();
+      }, 120);
+    }
     render();
     return;
   }
