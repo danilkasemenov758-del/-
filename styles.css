@@ -84,6 +84,64 @@ button:active {
   box-shadow: 0 20px 55px rgba(0, 0, 0, 0.42);
 }
 
+.phone.light-theme {
+  color: #3a2617;
+  background:
+    radial-gradient(circle at 84% 16%, rgba(255, 215, 118, 0.5), transparent 28%),
+    radial-gradient(circle at 18% 88%, rgba(255, 150, 52, 0.22), transparent 26%),
+    linear-gradient(165deg, #fff6dc 0%, #ffd37d 48%, #ff9e45 100%);
+  box-shadow: 0 18px 45px rgba(151, 89, 23, 0.22);
+}
+
+.phone.light-theme .panel,
+.phone.light-theme .orders-stack,
+.phone.light-theme .quick-card,
+.phone.light-theme .brand-card,
+.phone.light-theme .access-card {
+  color: #3a2617;
+  border-color: rgba(114, 72, 22, 0.22);
+  background:
+    radial-gradient(circle at 86% 12%, rgba(255, 255, 255, 0.42), transparent 30%),
+    rgba(255, 255, 255, 0.38);
+}
+
+.phone.light-theme .tabbar {
+  background: rgba(255, 250, 237, 0.84);
+  border-color: rgba(132, 86, 30, 0.28);
+}
+
+.phone.light-theme .tabbar button,
+.phone.light-theme .small-text,
+.phone.light-theme .detail-line span:first-child,
+.phone.light-theme .time-stepper-row > span,
+.phone.light-theme .time-summary-button span {
+  color: rgba(58, 38, 23, 0.72);
+}
+
+.phone.light-theme .tabbar button.active,
+.phone.light-theme .panel-title,
+.phone.light-theme .detail-line strong,
+.phone.light-theme .summary-line strong {
+  color: #3a2617;
+}
+
+.phone.light-theme .booking-input,
+.phone.light-theme .search-input,
+.phone.light-theme .time-summary-button,
+.phone.light-theme .time-value-button,
+.phone.light-theme .time-stepper-control button,
+.phone.light-theme .chip,
+.phone.light-theme .notice {
+  color: #3a2617;
+  border-color: rgba(114, 72, 22, 0.24);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.phone.light-theme .primary-button,
+.phone.light-theme .secondary-button {
+  color: #3a2617;
+}
+
 .phone.admin-mode .tabbar {
   background: rgba(18, 18, 18, 0.74);
 }
@@ -128,7 +186,8 @@ button:active {
   height: 100dvh;
   overflow-y: auto;
   padding: calc(env(safe-area-inset-top) + 54px) 20px calc(env(safe-area-inset-bottom) + 22px);
-  animation: screen-in 180ms ease both;
+  transform-origin: 50% 92%;
+  animation: app-expand-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
   scrollbar-width: thin;
 }
 
@@ -1059,6 +1118,24 @@ div.prop-row {
   }
 }
 
+@keyframes app-expand-in {
+  0% {
+    opacity: 0;
+    border-radius: 28px;
+    transform: translateY(28px) scale(0.86);
+    filter: blur(6px);
+  }
+  48% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    border-radius: 0;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes version-shimmer {
   0% {
     filter: hue-rotate(0deg);
@@ -1404,6 +1481,36 @@ div.prop-row {
 
 .phone.admin-mode .role-switch button.active {
   background: rgba(255, 139, 40, 0.34);
+}
+
+.theme-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.theme-choice button {
+  min-height: 42px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-family: "Dela Gothic One", "Montserrat", system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.theme-choice button.active {
+  background: linear-gradient(rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.12)) padding-box,
+    linear-gradient(120deg, #fff7c8, #ffb332, #fff7c8) border-box;
+  border-color: transparent;
+  box-shadow: 0 0 18px rgba(255, 205, 78, 0.28);
+}
+
+.phone.light-theme .theme-choice button {
+  color: #3a2617;
+  border-color: rgba(114, 72, 22, 0.24);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .efficiency-wrap {

@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-17";
+const APP_VERSION = "2026.06.02-18";
 const releaseNotes = [
-  "Размер фото на главном экране возвращен к компактному виду.",
-  "Фото внутри круга осталось портретным и аккуратно заполняет рамку.",
-  "Добавлена кнопка Как пользоваться рядом с версией.",
-  "Добавлена инструкция отдельно для админа и актера.",
-  "Время можно менять кнопками или выбрать точное значение по тапу.",
+  "В профиль добавлен выбор оформления: темное или светлое.",
+  "Тема сохраняется и применяется при следующем открытии приложения.",
+  "Открытие экранов стало похоже на расширение приложения на iPhone.",
+  "Светлая тема получила отдельный мягкий фон и светлые панели.",
+  "Темная тема сохраняет текущий контрастный стиль.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -52,6 +52,7 @@ const state = {
   route: localStorage.getItem("authConfirmed") === "true" ? "checking" : "auth-confirm",
   justAuthorized: false,
   themeBurst: false,
+  appTheme: localStorage.getItem("appTheme") || "dark",
   user: mockUser,
   syncQueue: readStorage("syncQueue", []),
   saved: readStorage("savedForTrip", []),
@@ -1010,7 +1011,7 @@ function startOfDay(date) {
 function appFrame(content, nav = false) {
   ensureCurrentEmployee();
   return `
-    <main class="phone ${state.user.role === "admin" ? "admin-mode" : ""}">
+    <main class="phone ${state.user.role === "admin" ? "admin-mode" : ""} ${state.appTheme === "light" ? "light-theme" : "dark-theme"}">
       <section class="screen${nav ? " with-nav" : ""}">
         ${content}
       </section>
@@ -1913,6 +1914,13 @@ function profileScreen() {
         </div>
       </section>
       <section class="panel">
+        <h2 class="panel-title">Оформление</h2>
+        <div class="theme-choice">
+          <button class="${state.appTheme === "dark" ? "active" : ""}" data-action="set-app-theme" data-app-theme="dark">Темное</button>
+          <button class="${state.appTheme === "light" ? "active" : ""}" data-action="set-app-theme" data-app-theme="light">Светлое</button>
+        </div>
+      </section>
+      <section class="panel">
         <h2 class="panel-title">Заработок</h2>
         <div class="chips">
           <button class="chip ${state.earningsPeriod === "week" ? "active" : ""}" data-earnings-period="week">Неделя</button>
@@ -2468,6 +2476,17 @@ document.addEventListener("click", (event) => {
   if (action === "adjust-booking-time") {
     adjustBookingTime(actionButton.dataset.timeField, Number(actionButton.dataset.timeDelta || 0));
     render();
+  }
+
+  if (action === "set-app-theme") {
+    state.appTheme = actionButton.dataset.appTheme || "dark";
+    state.themeBurst = true;
+    localStorage.setItem("appTheme", state.appTheme);
+    render();
+    window.setTimeout(() => {
+      state.themeBurst = false;
+      render();
+    }, 850);
   }
 
   if (action === "open-native-time") {
