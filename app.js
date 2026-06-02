@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-20";
+const APP_VERSION = "2026.06.03-01";
 const releaseNotes = [
-  "Убран горизонтальный скролл при открытии приложения.",
-  "Верхние плашки теперь переносятся внутри экрана, а не растягивают его.",
-  "Светлое оформление остается оранжевым стилем актера.",
-  "Темное оформление остается черным стилем админа.",
-  "Анимация открытия экранов остается в стиле расширения.",
+  "Починен поиск по реквизиту.",
+  "Добавлен фильтр реквизита по номеру ячейки.",
+  "Поиск теперь смотрит название и место хранения.",
+  "Фильтр статуса, поиск и ячейка работают вместе.",
+  "Список ячеек собирается автоматически из реквизита.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -61,6 +61,8 @@ const state = {
   activeProgramId: 1,
   activeEmployeeId: 101,
   filter: "all",
+  propSearch: "",
+  propCellFilter: "all",
   orderFilter: "active",
   toast: "",
   reportText: "",
@@ -153,6 +155,18 @@ let props = [
   { id: 5, name: "Реквизитный ящик", status: "available", place: "Склад", kit: true },
   { id: 6, name: "Кнопка ответа", status: "repair", place: "На проверке", kit: false },
 ];
+
+props = readStorage("props", window.TOCHKA_PROP_SEED || props);
+if (Array.isArray(window.TOCHKA_PROP_SEED)) {
+  const existingPropIds = new Set(props.map((item) => String(item.id)));
+  const existingPropNames = new Set(props.map((item) => String(item.name || "").trim().toLowerCase()));
+  props = [
+    ...props,
+    ...window.TOCHKA_PROP_SEED.filter(
+      (item) => !existingPropIds.has(String(item.id)) && !existingPropNames.has(String(item.name || "").trim().toLowerCase())
+    ),
+  ];
+}
 
 let programs = [
   {
@@ -252,6 +266,7 @@ function saveState() {
   localStorage.setItem("acceptedOrders", JSON.stringify(state.acceptedOrders));
   localStorage.setItem("deletedEntities", JSON.stringify(state.deletedEntities));
   localStorage.setItem("orders", JSON.stringify(orders));
+  localStorage.setItem("props", JSON.stringify(props));
   localStorage.setItem("programs", JSON.stringify(programs));
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
   localStorage.setItem("bonuses", JSON.stringify(state.bonuses));
@@ -304,7 +319,8 @@ async function loadRemoteData() {
 
     employees = withoutDeleted(data.employees || employees, "employees");
     orders = mergeQueuedOrders(withoutDeleted(data.orders || [], "orders"));
-    props = withoutDeleted(data.props || props, "props");
+    const remoteProps = withoutDeleted(data.props || [], "props");
+    props = remoteProps.length ? remoteProps : props;
     programs = withoutDeleted(data.programs || programs, "programs");
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
     state.bonuses = data.bonuses || state.bonuses;
@@ -996,6 +1012,37 @@ function filteredOrders() {
   });
 }
 
+function normalizeSearch(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function propCellNumber(item) {
+  const match = String(item.place || "").match(/ячейка\s*([^\s,.;]+)/i);
+  return match?.[1] || "";
+}
+
+function propCellOptions() {
+  const cells = [...new Set(props.map(propCellNumber).filter(Boolean))];
+  return cells.sort((a, b) => {
+    const numberA = Number(a);
+    const numberB = Number(b);
+    if (!Number.isNaN(numberA) && !Number.isNaN(numberB)) return numberA - numberB;
+    return a.localeCompare(b, "ru");
+  });
+}
+
+function filteredProps() {
+  const query = normalizeSearch(state.propSearch);
+  return props.filter((item) => {
+    const statusOk = state.filter === "all" || item.status === state.filter;
+    const cell = propCellNumber(item);
+    const cellOk = state.propCellFilter === "all" || cell === state.propCellFilter;
+    const text = normalizeSearch(`${item.name} ${item.place}`);
+    const searchOk = !query || text.includes(query);
+    return statusOk && cellOk && searchOk;
+  });
+}
+
 function parseUiDate(value) {
   if (!value) return null;
   if (value.includes("-")) return new Date(`${value}T00:00:00`);
@@ -1681,7 +1728,8 @@ function orderScreen() {
 }
 
 function propsScreen() {
-  const list = props.filter((item) => state.filter === "all" || item.status === state.filter);
+  const list = filteredProps();
+  const cells = propCellOptions();
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1689,7 +1737,11 @@ function propsScreen() {
     </div>
     <h1 class="page-title">Реквизит</h1>
     <div class="content-stack">
-      <input class="search-input" placeholder="Найти реквизит" />
+      <input class="search-input" data-prop-search placeholder="Найти реквизит" value="${state.propSearch}" />
+      <select class="booking-input" data-prop-cell-filter>
+        <option value="all" ${state.propCellFilter === "all" ? "selected" : ""}>Все ячейки</option>
+        ${cells.map((cell) => `<option value="${cell}" ${state.propCellFilter === cell ? "selected" : ""}>Ячейка ${cell}</option>`).join("")}
+      </select>
       ${
         state.user.role === "admin"
           ? `<button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>`
@@ -1707,9 +1759,10 @@ function propsScreen() {
           .join("")}
       </div>
       <div class="orders-stack">
-        ${list
-          .map(
-            (item) => `
+        ${
+          list.length
+            ? list.map(
+                (item) => `
               <div class="managed-row">
                 <button class="prop-row" data-action="${item.status === "mine" ? "return-prop" : "take-prop"}" data-prop-id="${item.id}">
                   <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
@@ -1724,8 +1777,10 @@ function propsScreen() {
                 }
               </div>
             `
-          )
-          .join("")}
+              )
+              .join("")
+            : `<div class="empty-state">Реквизит не найден</div>`
+        }
       </div>
     </div>
   `, true);
@@ -2345,7 +2400,11 @@ function statusText(status) {
 
 function render() {
   const previousRoute = render.previousRoute;
-  const previousScrollTop = document.querySelector(".screen")?.scrollTop || 0;
+  const previousScreen = document.querySelector(".screen");
+  const previousScrollTop = previousScreen?.scrollTop || 0;
+  const activeElement = document.activeElement;
+  const restorePropSearch = activeElement?.matches?.("[data-prop-search]");
+  const propSearchSelection = restorePropSearch ? activeElement.selectionStart : null;
   const screens = {
     "auth-confirm": authConfirmScreen,
     avatar: avatarScreen,
@@ -2376,6 +2435,11 @@ function render() {
   if (previousRoute === state.route) {
     const screen = document.querySelector(".screen");
     if (screen) screen.scrollTop = previousScrollTop;
+  }
+  if (restorePropSearch) {
+    const input = document.querySelector("[data-prop-search]");
+    input?.focus?.();
+    if (input && propSearchSelection !== null) input.setSelectionRange(propSearchSelection, propSearchSelection);
   }
   render.previousRoute = state.route;
 }
@@ -2722,6 +2786,13 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("input", (event) => {
+  const propSearchInput = event.target.closest("[data-prop-search]");
+  if (propSearchInput) {
+    state.propSearch = propSearchInput.value;
+    render();
+    return;
+  }
+
   const input = event.target.closest("[data-admin-field]");
   if (!input) return;
 
@@ -2730,6 +2801,13 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("change", (event) => {
+  const propCellSelect = event.target.closest("[data-prop-cell-filter]");
+  if (propCellSelect) {
+    state.propCellFilter = propCellSelect.value;
+    render();
+    return;
+  }
+
   const bookingInput = event.target.closest("[data-booking]");
   if (bookingInput) {
     const key = bookingInput.dataset.booking;
