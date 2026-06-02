@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-18";
+const APP_VERSION = "2026.06.02-20";
 const releaseNotes = [
-  "В профиль добавлен выбор оформления: темное или светлое.",
-  "Тема сохраняется и применяется при следующем открытии приложения.",
-  "Открытие экранов стало похоже на расширение приложения на iPhone.",
-  "Светлая тема получила отдельный мягкий фон и светлые панели.",
-  "Темная тема сохраняет текущий контрастный стиль.",
+  "Убран горизонтальный скролл при открытии приложения.",
+  "Верхние плашки теперь переносятся внутри экрана, а не растягивают его.",
+  "Светлое оформление остается оранжевым стилем актера.",
+  "Темное оформление остается черным стилем админа.",
+  "Анимация открытия экранов остается в стиле расширения.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -1011,7 +1011,7 @@ function startOfDay(date) {
 function appFrame(content, nav = false) {
   ensureCurrentEmployee();
   return `
-    <main class="phone ${state.user.role === "admin" ? "admin-mode" : ""} ${state.appTheme === "light" ? "light-theme" : "dark-theme"}">
+    <main class="phone ${state.appTheme === "dark" ? "admin-mode dark-theme" : "actor-theme light-theme"}">
       <section class="screen${nav ? " with-nav" : ""}">
         ${content}
       </section>
