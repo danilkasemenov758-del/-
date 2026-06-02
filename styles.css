@@ -1299,6 +1299,10 @@ div.prop-row {
   display: none;
 }
 
+.legacy-time-panel {
+  display: none;
+}
+
 .panel:has([data-action="create-bonus"]) {
   display: none;
 }
@@ -1412,6 +1416,13 @@ div.prop-row {
 .check-line span,
 .radio-line span {
   padding-top: 2px;
+}
+
+.editable-extra-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 8px;
+  align-items: center;
 }
 
 .long-list-panel {

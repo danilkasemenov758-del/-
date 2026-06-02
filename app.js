@@ -76,6 +76,7 @@ const state = {
   newBonus: { employeeId: "", amount: 0, comment: "" },
   propEditMode: false,
   earningsPeriod: "month",
+  extraDraft: "",
   newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
@@ -171,6 +172,8 @@ const extras = [
   "Попкорн",
 ];
 
+let editableExtras = readStorage("editableExtras", extras);
+
 const animationPrograms = [
   "Уэнсдей и Энид",
   "Барби и Кен",
@@ -221,6 +224,7 @@ function saveState() {
   localStorage.setItem("acceptedOrders", JSON.stringify(state.acceptedOrders));
   localStorage.setItem("deletedEntities", JSON.stringify(state.deletedEntities));
   localStorage.setItem("orders", JSON.stringify(orders));
+  localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
 }
 
 async function apiFetch(path, options = {}) {
@@ -487,6 +491,29 @@ function addBonus() {
   });
   state.newBonus = { employeeId: "", amount: 0, comment: "" };
   setRoute("admin-employees");
+}
+
+function employeeOptions() {
+  const list = employees.length ? employees : [{ id: state.user.id, name: state.user.firstName }];
+  return list
+    .map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`)
+    .join("");
+}
+
+function addEditableExtra() {
+  const title = state.extraDraft.trim();
+  if (!title) return;
+  editableExtras = [...new Set([...editableExtras, title])];
+  localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
+  state.extraDraft = "";
+  render();
+}
+
+function removeEditableExtra(title) {
+  editableExtras = editableExtras.filter((item) => item !== title);
+  state.booking.extras = state.booking.extras.filter((item) => item !== `extra:${title}`);
+  localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
+  render();
 }
 
 function deleteEmployee(id) {
@@ -915,7 +942,7 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Календарь</h2>
+        <h2 class="panel-title">Дата и время</h2>
         <div class="calendar-head">
           <button class="icon-button" data-action="calendar-prev">‹</button>
           <strong>${monthName(selectedDate)} ${selectedDate.getFullYear()}</strong>
@@ -936,9 +963,19 @@ function newOrderScreen() {
             )
             .join("")}
         </div>
+        <div class="booking-grid time-grid" style="margin-top: 12px">
+          <label>
+            <span>Начало</span>
+            <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
+          </label>
+          <label>
+            <span>Окончание</span>
+            <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
+          </label>
+        </div>
       </section>
 
-      <section class="panel">
+      <section class="panel legacy-time-panel">
         <h2 class="panel-title">Время</h2>
         <div class="booking-grid time-grid">
           <label>
@@ -965,7 +1002,7 @@ function newOrderScreen() {
             )
             .join("")}
         </select>
-        <p class="small-text" style="margin-top: 10px">${calc.program.duration} · ${calc.program.age}</p>
+        <p class="small-text" style="margin-top: 10px">Длительность заказа: ${calc.durationMinutes} мин · ${calc.program.age || ""}</p>
       </section>
 
       <section class="panel">
@@ -985,37 +1022,22 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Шоу программы</h2>
-        <div class="option-list">
-          ${showPrograms.map((item) => checkboxLine(item, "show")).join("")}
-        </div>
-      </section>
-
-      <section class="panel">
         <h2 class="panel-title">Дополнительно</h2>
         <div class="option-list">
-          ${extras.map((item) => checkboxLine(item, "extra")).join("")}
+          ${editableExtras
+            .map(
+              (item) => `
+                <div class="editable-extra-row">
+                  ${checkboxLine(item, "extra")}
+                  <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item}">×</button>
+                </div>
+              `
+            )
+            .join("")}
         </div>
-      </section>
-
-      <section class="panel long-list-panel">
-        <h2 class="panel-title">Анимационные программы</h2>
-        <div class="option-list">
-          ${animationPrograms.map((item) => checkboxLine(item, "animation")).join("")}
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2 class="panel-title">Экспресс-поздравления</h2>
-        <div class="option-list">
-          ${expressPrograms.map((item) => checkboxLine(item, "express")).join("")}
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2 class="panel-title">Мастер-класс</h2>
-        <div class="option-list">
-          ${masterClasses.map((item) => checkboxLine(item, "master")).join("")}
+        <div class="discount-row" style="margin-top: 8px">
+          <input class="booking-input" data-extra-draft placeholder="Добавить пункт" value="${state.extraDraft}" />
+          <button class="secondary-button" data-action="add-extra">Добавить</button>
         </div>
       </section>
 
@@ -1033,7 +1055,7 @@ function newOrderScreen() {
         <h2 class="panel-title">Начислить премию</h2>
         <select class="booking-input" data-admin-field="newBonus.employeeId">
           <option value="">Выберите сотрудника</option>
-          ${employees.map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`).join("")}
+          ${employeeOptions()}
         </select>
         <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма премии" value="${state.newBonus.amount}" style="margin-top: 8px" />
         <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="Комментарий к премии">${state.newBonus.comment}</textarea>
@@ -1730,9 +1752,18 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "program-kit-builder") {
-    state.toast = "Комплект программы скоро можно будет собрать";
-    render();
+    state.propEditMode = true;
+    state.toast = "Выберите реквизит для комплекта программы";
+    setRoute("admin-prop");
     clearToastLater();
+  }
+
+  if (action === "add-extra") {
+    addEditableExtra();
+  }
+
+  if (action === "delete-extra") {
+    removeEditableExtra(actionButton.dataset.extraTitle);
   }
 
   if (action === "create-bonus") {
@@ -1789,6 +1820,12 @@ document.addEventListener("click", (event) => {
 });
 
 document.addEventListener("input", (event) => {
+  const extraDraftInput = event.target.closest("[data-extra-draft]");
+  if (extraDraftInput) {
+    state.extraDraft = extraDraftInput.value;
+    return;
+  }
+
   const reportInput = event.target.closest("[data-report-text]");
   if (reportInput) {
     state.reportText = reportInput.value;
@@ -1811,6 +1848,14 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("change", (event) => {
+  const bookingInput = event.target.closest("[data-booking]");
+  if (bookingInput) {
+    const key = bookingInput.dataset.booking;
+    state.booking[key] = bookingInput.type === "number" || bookingInput.tagName === "SELECT" ? Number(bookingInput.value) : bookingInput.value;
+    render();
+    return;
+  }
+
   const input = event.target.closest("[data-admin-field]");
   if (!input) return;
 
