@@ -10,10 +10,12 @@ if (tg) {
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
 
+const telegramUser = tg?.initDataUnsafe?.user;
+
 const mockUser = {
-  id: tg?.initDataUnsafe?.user?.id ?? 101,
+  id: telegramUser?.id ?? 101,
   firstName: tg?.initDataUnsafe?.user?.first_name ?? "Даша",
-  username: tg?.initDataUnsafe?.user?.username ?? "dasha_actor",
+  username: telegramUser?.username ?? "local_user",
   role: "actor",
   hasAccess: true,
 };
@@ -69,8 +71,9 @@ const state = {
     package: "2 актера, до 20 человек",
     extras: [],
   },
-  newEmployee: { name: "", username: "", role: "actor" },
-  newProgram: { title: "", driveUrl: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
+  newEmployee: { name: "", username: "", isAdmin: false },
+  newProgram: { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
+  newBonus: { employeeId: "", amount: 0, comment: "" },
   newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
@@ -152,6 +155,8 @@ const packageOptions = [
   { label: "2 актера, до 30 человек", actors: 2, multiplier: 1.55 },
   { label: "3 актера, до 35 человек", actors: 3, multiplier: 1.9 },
 ];
+
+const packageRates = [0, 416.67, 500, 666.67, 833.33];
 
 const showPrograms = ["Научное шоу", "Шоу мыльных пузырей", "Бумажное шоу"];
 
@@ -239,7 +244,7 @@ async function loadRemoteData() {
   if (!API_BASE) return;
 
   try {
-    const data = await apiFetch("/api/bootstrap");
+    const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(state.user.id)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
     if (!data) return;
 
     employees = withoutDeleted(data.employees || employees, "employees");
@@ -248,6 +253,7 @@ async function loadRemoteData() {
     programs = withoutDeleted(data.programs || programs, "programs");
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
     reports = data.reports || reports;
+    applyCurrentUserAccess(data.currentUser);
     saveState();
     render();
   } catch (error) {
@@ -300,6 +306,20 @@ function mergeQueuedOrders(remoteOrders) {
     .filter((order) => !remoteIds.has(String(order.id)) && !deleted.has(String(order.id)));
 
   return [...queuedOrders, ...remoteOrders];
+}
+
+function applyCurrentUserAccess(currentUser) {
+  if (!currentUser || currentUser.isActive === false) {
+    state.user.hasAccess = false;
+    if (state.route !== "auth-confirm") state.route = "denied";
+    return;
+  }
+
+  state.user.id = currentUser.id ?? state.user.id;
+  state.user.firstName = currentUser.name || state.user.firstName;
+  state.user.username = currentUser.username || state.user.username;
+  state.user.role = currentUser.role === "admin" ? "admin" : "actor";
+  state.user.hasAccess = true;
 }
 
 function rememberDeleted(type, id) {
@@ -384,6 +404,7 @@ function actionToast(type) {
     "accept-order": "Заказ принят",
     "decline-order": "Отказ от заказа сохранен",
     "create-order": "Заказ добавлен",
+    "create-bonus": "Премия начислена",
     report: "Ошибка отправлена",
   }[type] || "Действие сохранено";
 }
@@ -391,20 +412,21 @@ function actionToast(type) {
 function addEmployee() {
   const name = state.newEmployee.name.trim();
   if (!name) return;
+  const role = state.newEmployee.isAdmin ? "admin" : "actor";
   employees = [
     ...employees,
     {
       id: Date.now(),
       name,
-      role: state.newEmployee.role,
+      role,
       efficiency: 0,
       accepted: 0,
       late: 0,
       rating: 0,
     },
   ];
-  queueAction("create-employee", { ...state.newEmployee });
-  state.newEmployee = { name: "", username: "", role: "actor" };
+  queueAction("create-employee", { ...state.newEmployee, role });
+  state.newEmployee = { name: "", username: "", isAdmin: false };
   setRoute("profile");
 }
 
@@ -421,11 +443,12 @@ function addProgram() {
       pricePerHour: Number(state.newProgram.pricePerHour || 0),
       actorPayPerHour: Number(state.newProgram.actorPayPerHour || 0),
       driveUrl: state.newProgram.driveUrl,
+      script: state.newProgram.script,
       tracks: [],
     },
   ];
   queueAction("create-program", { ...state.newProgram });
-  state.newProgram = { title: "", driveUrl: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 };
+  state.newProgram = { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 };
   setRoute("programs");
 }
 
@@ -445,6 +468,19 @@ function addProp() {
   queueAction("create-prop", { ...state.newProp });
   state.newProp = { name: "", place: "Склад", status: "available", kit: true };
   setRoute("props");
+}
+
+function addBonus() {
+  if (!state.newBonus.employeeId || Number(state.newBonus.amount || 0) <= 0) return;
+  const employee = employees.find((item) => String(item.id) === String(state.newBonus.employeeId));
+  queueAction("create-bonus", {
+    employeeId: Number(state.newBonus.employeeId),
+    employeeName: employee?.name || "",
+    amount: Number(state.newBonus.amount || 0),
+    comment: state.newBonus.comment,
+  });
+  state.newBonus = { employeeId: "", amount: 0, comment: "" };
+  setRoute("admin-employees");
 }
 
 function deleteEmployee(id) {
@@ -539,17 +575,29 @@ function getBookingProgram() {
 function calculateBooking() {
   const program = getBookingProgram();
   const selectedPackage = packageOptions.find((item) => item.label === state.booking.package) || packageOptions[1];
+  const packageIndex = Math.max(0, packageOptions.findIndex((item) => item.label === selectedPackage.label));
+  const ratePerFive = packageRates[packageIndex] ?? 0;
+  const durationMinutes = Math.max(0, timeToMinutes(state.booking.end) - timeToMinutes(state.booking.start));
+  const billableSteps = Math.ceil(durationMinutes / 5);
+  const actorHours = durationMinutes / 60;
   const extrasTotal = (state.booking.extras?.length || 0) * 1200;
   const discount = Number(state.booking.discount || 0);
-  const orderTotal = Math.max(0, Math.round(program.pricePerHour * Number(state.booking.duration || 0) * selectedPackage.multiplier + extrasTotal - discount));
-  const actorTotal = program.actorPayPerHour * Number(state.booking.duration || 0) * Number(selectedPackage.actors || 0);
+  const orderTotal = Math.max(0, Math.round(ratePerFive * billableSteps + extrasTotal - discount));
+  const actorTotal = Math.round(actorHours * 1000 * Number(selectedPackage.actors || 0));
   return {
     program,
     selectedPackage,
+    ratePerFive,
+    durationMinutes,
     orderTotal,
     actorTotal,
     agencyTotal: orderTotal - actorTotal,
   };
+}
+
+function timeToMinutes(value) {
+  const [hours, minutes] = String(value || "00:00").split(":").map(Number);
+  return (hours || 0) * 60 + (minutes || 0);
 }
 
 function filteredOrders() {
@@ -944,6 +992,8 @@ function newOrderScreen() {
       <section class="panel summary-panel">
         <h2 class="panel-title">Расчет</h2>
         <div class="summary-line"><span>Состав</span><strong>${calc.selectedPackage.label}</strong></div>
+        <div class="summary-line"><span>Тариф / 5 мин</span><strong>${money(calc.ratePerFive)}</strong></div>
+        <div class="summary-line"><span>Длительность</span><strong>${calc.durationMinutes} мин</strong></div>
         <div class="summary-line"><span>Сумма заказа</span><strong>${money(calc.orderTotal)}</strong></div>
         <div class="summary-line"><span>ЗП актеров</span><strong>${money(calc.actorTotal)}</strong></div>
         <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
@@ -996,6 +1046,16 @@ function localIsoDate(date) {
 
 function orderScreen() {
   const order = getActiveOrder();
+  if (!order) {
+    return appFrame(`
+      <div class="top-row">
+        <button class="icon-button" data-route="orders">‹</button>
+        ${syncPill()}
+      </div>
+      <h1 class="page-title">Заказ</h1>
+      <div class="content-stack"><div class="empty-state">Заказ не найден</div></div>
+    `, true);
+  }
   const isSaved = state.saved.includes(order.id);
   const accepted = state.acceptedOrders[order.id];
   const acceptedByMe = accepted?.actorId === state.user.id;
@@ -1210,7 +1270,7 @@ function programDetailScreen() {
       </section>
       <section class="panel">
         <h2 class="panel-title">Сценарий</h2>
-        <p class="small-text">Встреча гостей, разогрев, челленджи, финальная активность и вручение подарков.</p>
+        <p class="small-text script-text">${program.script || "Сценарий пока не добавлен."}</p>
       </section>
       <button class="primary-button" data-action="save-trip" data-order-id="1">Сохранить для выезда</button>
     </div>
@@ -1250,7 +1310,12 @@ function savedScreen() {
 }
 
 function profileScreen() {
-  const currentEmployee = employees.find((employee) => employee.id === state.user.id) || employees[0];
+  const currentEmployee = employees.find((employee) => employee.id === state.user.id) || {
+    name: state.user.firstName,
+    efficiency: 0,
+    accepted: 0,
+    rating: 0,
+  };
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1276,7 +1341,6 @@ function profileScreen() {
                 </div>
                 <div class="efficiency-stats">
                   <div><span>Принято</span><strong>${currentEmployee.accepted}</strong></div>
-                  <div><span>Опоздания</span><strong>${currentEmployee.late}</strong></div>
                   <div><span>Оценка</span><strong>${currentEmployee.rating}</strong></div>
                 </div>
               </div>
@@ -1289,7 +1353,7 @@ function profileScreen() {
                     (employee) => `
                       <div class="employee-row">
                         <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
-                        <span><strong>${employee.name}</strong><small>Принято: ${employee.accepted} · опоздания: ${employee.late}</small></span>
+                        <span><strong>${employee.name}</strong><small>Принято: ${employee.accepted}</small></span>
                         <b>${employee.rating}</b>
                       </div>
                     `
@@ -1298,16 +1362,6 @@ function profileScreen() {
               </div>
             </section>`
       }
-      <section class="panel">
-        <h2 class="panel-title">Доступ</h2>
-        <div class="role-switch">
-          <button class="${state.user.role === "actor" ? "active" : ""}" data-role="actor">Актер</button>
-          <button class="${state.user.role === "admin" ? "active" : ""}" data-role="admin">Админ</button>
-        </div>
-        <p class="small-text" style="margin-top: 10px">
-          У администратора появляется создание заказов и темный режим управления.
-        </p>
-      </section>
       <button class="primary-button" data-action="refresh-data">Обновить данные</button>
       <button class="secondary-button" data-action="report">Сообщить об ошибке</button>
     </div>
@@ -1326,12 +1380,24 @@ function adminEmployeesScreen() {
         <h2 class="panel-title">Добавить сотрудника</h2>
         <input class="booking-input" data-admin-field="newEmployee.name" placeholder="Имя" value="${state.newEmployee.name}" />
         <input class="booking-input" data-admin-field="newEmployee.username" placeholder="Telegram username" value="${state.newEmployee.username}" style="margin-top: 8px" />
-        <select class="booking-input" data-admin-field="newEmployee.role" style="margin-top: 8px">
-          <option value="actor" ${state.newEmployee.role === "actor" ? "selected" : ""}>Актер</option>
-          <option value="admin" ${state.newEmployee.role === "admin" ? "selected" : ""}>Админ</option>
-        </select>
+        <label class="check-line admin-check-line" style="margin-top: 8px">
+          <input type="checkbox" data-admin-field="newEmployee.isAdmin" ${state.newEmployee.isAdmin ? "checked" : ""} />
+          <span>Дополнительно дать функции админа</span>
+        </label>
       </section>
       <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
+      <section class="panel">
+        <h2 class="panel-title">Начислить премию</h2>
+        <select class="booking-input" data-admin-field="newBonus.employeeId">
+          <option value="">Выберите сотрудника</option>
+          ${employees
+            .map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`)
+            .join("")}
+        </select>
+        <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма премии" value="${state.newBonus.amount}" style="margin-top: 8px" />
+        <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="Комментарий">${state.newBonus.comment}</textarea>
+        <button class="primary-button" data-action="create-bonus" style="margin-top: 8px">Начислить</button>
+      </section>
       <section class="panel">
         <h2 class="panel-title">Список</h2>
         <div class="employee-list">
@@ -1368,6 +1434,7 @@ function adminProgramScreen() {
         <input class="booking-input" data-admin-field="newProgram.duration" placeholder="Длительность" value="${state.newProgram.duration}" style="margin-top: 8px" />
         <input class="booking-input" data-admin-field="newProgram.pricePerHour" type="number" placeholder="Цена за час" value="${state.newProgram.pricePerHour}" style="margin-top: 8px" />
         <input class="booking-input" data-admin-field="newProgram.actorPayPerHour" type="number" placeholder="ЗП актера за час" value="${state.newProgram.actorPayPerHour}" style="margin-top: 8px" />
+        <textarea class="booking-input booking-textarea" data-admin-field="newProgram.script" placeholder="Сценарий программы целиком">${state.newProgram.script}</textarea>
       </section>
       <button class="primary-button" data-action="create-program">Добавить программу</button>
     </div>
@@ -1597,6 +1664,10 @@ document.addEventListener("click", (event) => {
     addProp();
   }
 
+  if (action === "create-bonus") {
+    addBonus();
+  }
+
   if (action === "delete-employee") {
     deleteEmployee(Number(actionButton.dataset.employeeId));
   }
@@ -1656,7 +1727,7 @@ document.addEventListener("input", (event) => {
   if (!input) return;
 
   const [group, key] = input.dataset.adminField.split(".");
-  state[group][key] = input.type === "number" ? Number(input.value) : input.value;
+  state[group][key] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
 });
 
 document.addEventListener("change", (event) => {
@@ -1664,7 +1735,7 @@ document.addEventListener("change", (event) => {
   if (!input) return;
 
   const [group, key] = input.dataset.adminField.split(".");
-  state[group][key] = input.value;
+  state[group][key] = input.type === "checkbox" ? input.checked : input.value;
 });
 
 document.addEventListener("change", (event) => {

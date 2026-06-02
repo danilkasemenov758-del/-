@@ -542,7 +542,7 @@ button:active {
 .prop-row,
 .track-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   min-height: 52px;
@@ -552,6 +552,12 @@ button:active {
   background: rgba(255, 255, 255, 0.12);
   color: var(--white);
   text-align: left;
+}
+
+.order-row > span,
+.prop-row > span,
+.track-row > span {
+  min-width: 0;
 }
 
 div.prop-row {
@@ -1269,6 +1275,11 @@ div.prop-row {
   margin-top: 8px;
   padding: 12px;
   resize: vertical;
+}
+
+.script-text {
+  white-space: pre-wrap;
+  line-height: 1.45;
 }
 
 .booking-input::placeholder {
