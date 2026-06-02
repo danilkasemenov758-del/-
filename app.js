@@ -16,6 +16,7 @@ const mockUser = {
   id: telegramUser?.id ?? 101,
   firstName: tg?.initDataUnsafe?.user?.first_name ?? "Даша",
   username: telegramUser?.username ?? "local_user",
+  photoUrl: telegramUser?.photo_url ?? "",
   role: "actor",
   hasAccess: true,
 };
@@ -73,10 +74,15 @@ const state = {
   },
   newEmployee: { name: "", username: "", isAdmin: false },
   newProgram: { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
-  newBonus: { employeeId: "", amount: 0, comment: "" },
+  newBonus: { employeeId: "", amount: "", comment: "" },
   propEditMode: false,
   earningsPeriod: "month",
   extraDraft: "",
+  extraDraftPrice: "",
+  extraEditMode: false,
+  bonuses: readStorage("bonuses", []),
+  programKits: readStorage("programKits", {}),
+  kitBuilderProgramId: null,
   newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
@@ -172,7 +178,9 @@ const extras = [
   "Попкорн",
 ];
 
-let editableExtras = readStorage("editableExtras", extras);
+let editableExtras = readStorage("editableExtras", extras).map((item) =>
+  typeof item === "string" ? { title: item, price: 0 } : { title: item.title, price: Number(item.price || 0) }
+);
 
 const animationPrograms = [
   "Уэнсдей и Энид",
@@ -225,6 +233,8 @@ function saveState() {
   localStorage.setItem("deletedEntities", JSON.stringify(state.deletedEntities));
   localStorage.setItem("orders", JSON.stringify(orders));
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
+  localStorage.setItem("bonuses", JSON.stringify(state.bonuses));
+  localStorage.setItem("programKits", JSON.stringify(state.programKits));
 }
 
 async function apiFetch(path, options = {}) {
@@ -258,6 +268,7 @@ async function loadRemoteData() {
     props = withoutDeleted(data.props || props, "props");
     programs = withoutDeleted(data.programs || programs, "programs");
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
+    state.bonuses = data.bonuses || state.bonuses;
     reports = data.reports || reports;
     applyCurrentUserAccess(data.currentUser);
     saveState();
@@ -390,6 +401,11 @@ function acceptOrder(orderId) {
     name: state.user.firstName,
     acceptedAt: new Date().toISOString(),
   };
+  employees = employees.map((employee) =>
+    Number(employee.id) === Number(state.user.id)
+      ? { ...employee, accepted: Number(employee.accepted || 0) + 1, efficiency: Math.min(100, Number(employee.efficiency || 0) + 5) }
+      : employee
+  );
   queueAction("accept-order", { orderId, actorId: state.user.id });
   state.toast = "Заказ принят";
   saveState();
@@ -398,7 +414,15 @@ function acceptOrder(orderId) {
 }
 
 function declineOrder(orderId) {
+  const wasAcceptedByMe = Number(state.acceptedOrders[orderId]?.actorId) === Number(state.user.id);
   delete state.acceptedOrders[orderId];
+  if (wasAcceptedByMe) {
+    employees = employees.map((employee) =>
+      Number(employee.id) === Number(state.user.id)
+        ? { ...employee, accepted: Math.max(0, Number(employee.accepted || 0) - 1), efficiency: Math.max(0, Number(employee.efficiency || 0) - 5) }
+        : employee
+    );
+  }
   queueAction("decline-order", { orderId, actorId: state.user.id });
   state.toast = "Вы отказались от заказа";
   saveState();
@@ -443,10 +467,11 @@ function addEmployee() {
 function addProgram() {
   const title = state.newProgram.title.trim();
   if (!title) return;
+  const id = Date.now();
   programs = [
     ...programs,
     {
-      id: Date.now(),
+      id,
       title,
       age: state.newProgram.age,
       duration: state.newProgram.duration,
@@ -457,8 +482,14 @@ function addProgram() {
       tracks: [],
     },
   ];
-  queueAction("create-program", { ...state.newProgram });
+  if (state.programKits.draft?.length) {
+    state.programKits[id] = state.programKits.draft;
+    delete state.programKits.draft;
+  }
+  queueAction("create-program", { ...state.newProgram, id, kitPropIds: state.programKits[id] || [] });
+  queueAction("save-program-kit", { programId: id, propIds: state.programKits[id] || [] });
   state.newProgram = { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 };
+  state.kitBuilderProgramId = null;
   setRoute("programs");
 }
 
@@ -480,17 +511,21 @@ function addProp() {
   setRoute("props");
 }
 
-function addBonus() {
+function addBonus(options = {}) {
   if (!state.newBonus.employeeId || Number(state.newBonus.amount || 0) <= 0) return;
   const employee = employees.find((item) => String(item.id) === String(state.newBonus.employeeId));
-  queueAction("create-bonus", {
+  const bonus = {
+    id: Date.now(),
     employeeId: Number(state.newBonus.employeeId),
     employeeName: employee?.name || "",
     amount: Number(state.newBonus.amount || 0),
     comment: state.newBonus.comment,
-  });
-  state.newBonus = { employeeId: "", amount: 0, comment: "" };
-  setRoute("admin-employees");
+    createdAt: new Date().toISOString(),
+  };
+  state.bonuses = [bonus, ...state.bonuses];
+  queueAction("create-bonus", bonus);
+  state.newBonus = { employeeId: "", amount: "", comment: "" };
+  if (options.redirect !== false) setRoute("admin-employees");
 }
 
 function employeeOptions() {
@@ -503,17 +538,47 @@ function employeeOptions() {
 function addEditableExtra() {
   const title = state.extraDraft.trim();
   if (!title) return;
-  editableExtras = [...new Set([...editableExtras, title])];
+  const price = Number(state.extraDraftPrice || 0);
+  editableExtras = [...editableExtras.filter((item) => item.title !== title), { title, price }];
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
   state.extraDraft = "";
+  state.extraDraftPrice = "";
   render();
 }
 
 function removeEditableExtra(title) {
-  editableExtras = editableExtras.filter((item) => item !== title);
+  editableExtras = editableExtras.filter((item) => item.title !== title);
   state.booking.extras = state.booking.extras.filter((item) => item !== `extra:${title}`);
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
   render();
+}
+
+function updateEditableExtraPrice(title, price) {
+  editableExtras = editableExtras.map((item) => (item.title === title ? { ...item, price: Number(price || 0) } : item));
+  localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
+}
+
+function currentKitKey() {
+  return String(state.kitBuilderProgramId || "draft");
+}
+
+function toggleProgramKitProp(propId) {
+  const key = currentKitKey();
+  const current = new Set((state.programKits[key] || []).map(Number));
+  current.has(propId) ? current.delete(propId) : current.add(propId);
+  state.programKits[key] = [...current];
+  saveState();
+  render();
+}
+
+function saveProgramKit() {
+  const key = currentKitKey();
+  queueAction("save-program-kit", { programId: key, propIds: state.programKits[key] || [] });
+  state.toast = "Комплект программы сохранен";
+  state.kitBuilderProgramId = null;
+  state.propEditMode = false;
+  render();
+  clearToastLater();
 }
 
 function deleteEmployee(id) {
@@ -563,7 +628,7 @@ function createOrder() {
   state.orderFilter = "month";
   queueAction("create-order", { ...state.booking, order, actorId: state.user.id });
   if (state.newBonus.employeeId && Number(state.newBonus.amount || 0) > 0) {
-    addBonus();
+    addBonus({ redirect: false });
   }
   state.toast = "Заказ добавлен";
   setRoute("orders");
@@ -623,7 +688,11 @@ function calculateBooking() {
   const durationMinutes = Math.max(0, timeToMinutes(state.booking.end) - timeToMinutes(state.booking.start));
   const billableSteps = Math.ceil(durationMinutes / 5);
   const actorHours = durationMinutes / 60;
-  const extrasTotal = (state.booking.extras?.length || 0) * 1200;
+  const extrasTotal = (state.booking.extras || []).reduce((sum, value) => {
+    const title = String(value).replace(/^extra:/, "");
+    const item = editableExtras.find((extra) => extra.title === title);
+    return sum + Number(item?.price || 0);
+  }, 0);
   const discount = Number(state.booking.discount || 0);
   const orderTotal = Math.max(0, Math.round(ratePerFive * billableSteps + extrasTotal - discount));
   const actorTotal = Math.round(actorHours * 1000 * Number(selectedPackage.actors || 0));
@@ -646,15 +715,27 @@ function timeToMinutes(value) {
 function userEarnings(period = state.earningsPeriod) {
   const now = startOfDay(new Date());
   const maxDays = period === "week" ? 7 : period === "month" ? 31 : 366;
-  return orders.reduce((sum, order) => {
+  const orderIncome = orders.reduce((sum, order) => {
     const accepted = state.acceptedOrders[order.id];
-    const byMe = accepted?.actorId === state.user.id || order.actors?.includes(state.user.firstName);
+    const byMe = Number(accepted?.actorId) === Number(state.user.id);
     const date = parseUiDate(order.date);
     if (!byMe || !date) return sum;
     const diffDays = (startOfDay(date) - now) / 86400000;
     if (diffDays < -maxDays || diffDays > maxDays) return sum;
     return sum + Number(order.actorPay || 0);
   }, 0);
+  const bonusIncome = state.bonuses.reduce((sum, bonus) => {
+    if (Number(bonus.employeeId) !== Number(state.user.id)) return sum;
+    const date = bonus.createdAt ? new Date(bonus.createdAt) : now;
+    const diffDays = (startOfDay(date) - now) / 86400000;
+    if (diffDays < -maxDays || diffDays > maxDays) return sum;
+    return sum + Number(bonus.amount || 0);
+  }, 0);
+  return orderIncome + bonusIncome;
+}
+
+function acceptedOrdersForCurrentUser() {
+  return orders.filter((order) => Number(state.acceptedOrders[order.id]?.actorId) === Number(state.user.id));
 }
 
 function filteredOrders() {
@@ -802,7 +883,9 @@ function homeScreen() {
     </div>
     <div class="hero-row">
       <h1 class="hero-title">Сегодня,<br>${firstName}</h1>
-      <div class="actor-avatar" aria-label="Фото актера">${state.user.firstName.slice(0, 1)}</div>
+      <div class="actor-avatar" aria-label="Фото актера">
+        ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
+      </div>
     </div>
     <span class="role-pill hero-role">${state.user.role === "admin" ? "админ" : "актер"}</span>
 
@@ -1023,13 +1106,19 @@ function newOrderScreen() {
 
       <section class="panel">
         <h2 class="panel-title">Дополнительно</h2>
+        <button class="secondary-button" data-action="toggle-extra-edit">${state.extraEditMode ? "Готово" : "Изменить"}</button>
         <div class="option-list">
           ${editableExtras
             .map(
               (item) => `
                 <div class="editable-extra-row">
-                  ${checkboxLine(item, "extra")}
-                  <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item}">×</button>
+                  ${checkboxLine(`${item.title} · ${money(item.price)}`, "extra", item.title)}
+                  ${
+                    state.extraEditMode
+                      ? `<input class="booking-input extra-price-input" type="number" min="0" data-extra-price="${item.title}" value="${item.price}" />
+                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">×</button>`
+                      : ""
+                  }
                 </div>
               `
             )
@@ -1037,6 +1126,7 @@ function newOrderScreen() {
         </div>
         <div class="discount-row" style="margin-top: 8px">
           <input class="booking-input" data-extra-draft placeholder="Добавить пункт" value="${state.extraDraft}" />
+          <input class="booking-input" data-extra-draft-price type="number" min="0" placeholder="₽" value="${state.extraDraftPrice}" />
           <button class="secondary-button" data-action="add-extra">Добавить</button>
         </div>
       </section>
@@ -1044,7 +1134,6 @@ function newOrderScreen() {
       <section class="panel summary-panel">
         <h2 class="panel-title">Расчет</h2>
         <div class="summary-line"><span>Состав</span><strong>${calc.selectedPackage.label}</strong></div>
-        <div class="summary-line"><span>Тариф / 5 мин</span><strong>${money(calc.ratePerFive)}</strong></div>
         <div class="summary-line"><span>Длительность</span><strong>${calc.durationMinutes} мин</strong></div>
         <div class="summary-line"><span>Сумма заказа</span><strong>${money(calc.orderTotal)}</strong></div>
         <div class="summary-line"><span>ЗП актеров</span><strong>${money(calc.actorTotal)}</strong></div>
@@ -1066,8 +1155,8 @@ function newOrderScreen() {
   `, true);
 }
 
-function checkboxLine(label, group) {
-  const value = `${group}:${label}`;
+function checkboxLine(label, group, rawValue = label) {
+  const value = `${group}:${rawValue}`;
   return `
     <label class="check-line">
       <input type="checkbox" data-extra="${value}" ${state.booking.extras.includes(value) ? "checked" : ""} />
@@ -1196,6 +1285,11 @@ function propsScreen() {
     <h1 class="page-title">Реквизит</h1>
     <div class="content-stack">
       <input class="search-input" placeholder="Найти реквизит" />
+      ${
+        state.user.role === "admin"
+          ? `<button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>`
+          : ""
+      }
       <div class="chips">
         ${[
           ["all", "Все"],
@@ -1219,7 +1313,7 @@ function propsScreen() {
                   </span>
                 </button>
                 ${
-                  state.user.role === "admin"
+                  state.user.role === "admin" && state.propEditMode
                     ? `<button class="delete-row-button" data-action="delete-prop" data-prop-id="${item.id}">Удалить</button>`
                     : ""
                 }
@@ -1379,6 +1473,7 @@ function profileScreen() {
     rating: 0,
   };
   const earnings = userEarnings();
+  const acceptedList = acceptedOrdersForCurrentUser();
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1402,6 +1497,25 @@ function profileScreen() {
           <button class="chip ${state.earningsPeriod === "year" ? "active" : ""}" data-earnings-period="year">Год</button>
         </div>
         <div class="summary-line" style="margin-top: 10px"><span>Начислено</span><strong>${money(earnings)}</strong></div>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Принятые заказы</h2>
+        <div class="orders-stack">
+          ${
+            acceptedList.length
+              ? acceptedList
+                  .map(
+                    (order) => `
+                      <button class="order-row" data-route="order" data-order-id="${order.id}">
+                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${money(order.actorPay || 0)}</span></span>
+                        <span class="row-icon" aria-label="Открыть">›</span>
+                      </button>
+                    `
+                  )
+                  .join("")
+              : `<div class="empty-state">Принятых заказов пока нет</div>`
+          }
+        </div>
       </section>
       ${
         state.user.role === "actor"
@@ -1515,6 +1629,9 @@ function adminProgramScreen() {
 }
 
 function adminPropScreen() {
+  const kitKey = currentKitKey();
+  const kitMode = Boolean(state.kitBuilderProgramId);
+  const selectedKitProps = new Set((state.programKits[kitKey] || []).map(Number));
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1533,6 +1650,15 @@ function adminPropScreen() {
         </select>
       </section>
       <button class="primary-button" data-action="create-prop">Добавить реквизит</button>
+      ${
+        kitMode
+          ? `<section class="panel kit-builder-panel">
+              <h2 class="panel-title">Комплект программы</h2>
+              <p class="small-text">Выберите реквизит для этой программы. Выбор сохраняется локально и отправится в очередь синхронизации.</p>
+              <button class="primary-button" style="margin-top: 10px" data-action="save-program-kit">Сохранить комплект</button>
+            </section>`
+          : ""
+      }
       <section class="panel">
         <h2 class="panel-title">Реквизит</h2>
         <button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>
@@ -1547,7 +1673,15 @@ function adminPropScreen() {
                           <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
                           <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${statusText(item.status)}">${item.status === "mine" ? "↩" : "+"}</span>
                         </div>
-                        ${state.propEditMode ? `<button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="Удалить реквизит">×</button>` : ""}
+                        ${
+                          kitMode
+                            ? `<button class="secondary-button kit-toggle-button ${selectedKitProps.has(Number(item.id)) ? "active" : ""}" data-action="toggle-program-kit-prop" data-prop-id="${item.id}">
+                                ${selectedKitProps.has(Number(item.id)) ? "В комплекте" : "В комплект"}
+                              </button>`
+                            : state.propEditMode
+                              ? `<button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="Удалить реквизит">×</button>`
+                              : ""
+                        }
                       </div>
                     `
                   )
@@ -1752,14 +1886,28 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "program-kit-builder") {
+    state.kitBuilderProgramId = state.activeProgramId || "draft";
     state.propEditMode = true;
     state.toast = "Выберите реквизит для комплекта программы";
     setRoute("admin-prop");
     clearToastLater();
   }
 
+  if (action === "toggle-program-kit-prop") {
+    toggleProgramKitProp(Number(actionButton.dataset.propId));
+  }
+
+  if (action === "save-program-kit") {
+    saveProgramKit();
+  }
+
   if (action === "add-extra") {
     addEditableExtra();
+  }
+
+  if (action === "toggle-extra-edit") {
+    state.extraEditMode = !state.extraEditMode;
+    render();
   }
 
   if (action === "delete-extra") {
@@ -1826,6 +1974,18 @@ document.addEventListener("input", (event) => {
     return;
   }
 
+  const extraDraftPriceInput = event.target.closest("[data-extra-draft-price]");
+  if (extraDraftPriceInput) {
+    state.extraDraftPrice = extraDraftPriceInput.value;
+    return;
+  }
+
+  const extraPriceInput = event.target.closest("[data-extra-price]");
+  if (extraPriceInput) {
+    updateEditableExtraPrice(extraPriceInput.dataset.extraPrice, extraPriceInput.value);
+    return;
+  }
+
   const reportInput = event.target.closest("[data-report-text]");
   if (reportInput) {
     state.reportText = reportInput.value;
@@ -1844,7 +2004,7 @@ document.addEventListener("input", (event) => {
   if (!input) return;
 
   const [group, key] = input.dataset.adminField.split(".");
-  state[group][key] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
+  state[group][key] = input.type === "checkbox" ? input.checked : group === "newBonus" && key === "amount" ? input.value : input.type === "number" ? Number(input.value) : input.value;
 });
 
 document.addEventListener("change", (event) => {

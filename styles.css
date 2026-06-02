@@ -318,6 +318,13 @@ button:active {
   font-weight: 1000;
   text-transform: uppercase;
   box-shadow: 0 12px 28px rgba(153, 68, 0, 0.2);
+  overflow: hidden;
+}
+
+.actor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .empty-state {
@@ -1199,6 +1206,10 @@ div.prop-row {
   align-items: stretch;
 }
 
+.inline-managed-row:has(.kit-toggle-button) {
+  grid-template-columns: minmax(0, 1fr) minmax(104px, auto);
+}
+
 .inline-managed-row .order-row {
   min-width: 0;
 }
@@ -1420,9 +1431,33 @@ div.prop-row {
 
 .editable-extra-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-items: center;
+}
+
+.editable-extra-row:has(.extra-price-input) {
+  grid-template-columns: minmax(0, 1fr) 88px 34px;
+}
+
+.extra-price-input {
+  min-height: 38px;
+  padding: 0 8px;
+}
+
+.kit-builder-panel {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.kit-toggle-button {
+  min-height: 100%;
+  padding: 0 10px;
+  font-size: 9px;
+}
+
+.kit-toggle-button.active {
+  background: rgba(255, 194, 87, 0.28);
+  border-color: rgba(255, 232, 166, 0.55);
 }
 
 .long-list-panel {
