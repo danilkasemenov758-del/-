@@ -344,23 +344,23 @@ button:active {
 
 .hero-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 64px;
+  grid-template-columns: minmax(0, 1fr) 84px;
   align-items: start;
   gap: 12px;
 }
 
 .actor-avatar {
   position: relative;
-  width: 58px;
-  height: 58px;
-  margin-top: 32px;
+  width: 74px;
+  height: 74px;
+  margin-top: 18px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   border: 0;
   background: linear-gradient(145deg, #ffd35d, #ff8d27);
   color: var(--white);
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 1000;
   text-transform: uppercase;
   box-shadow: 0 0 22px rgba(255, 186, 57, 0.34), 0 12px 28px rgba(153, 68, 0, 0.2);
@@ -372,7 +372,7 @@ button:active {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 2px;
+  padding: 3px;
   background: conic-gradient(from 0deg, #8f5a08, #fff1a6, #ffbd3d, #b9770d, #fff7c8, #8f5a08);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -383,8 +383,8 @@ button:active {
 }
 
 .actor-avatar img {
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
   object-fit: contain;
   position: relative;
   z-index: 1;
@@ -1621,11 +1621,11 @@ button.employee-row {
 
 .time-summary-button {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   width: 100%;
-  min-height: 50px;
+  min-height: 54px;
   margin-top: 12px;
   padding: 0 14px;
   border-radius: 8px;
@@ -1643,7 +1643,8 @@ button.employee-row {
 }
 
 .time-summary-button strong {
-  font-size: 14px;
+  font-size: 17px;
+  line-height: 1.1;
 }
 
 .time-editor {
@@ -1651,9 +1652,11 @@ button.employee-row {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   margin-top: 8px;
+  max-width: 100%;
 }
 
 .time-editor label {
+  min-width: 0;
   display: grid;
   gap: 5px;
 }
@@ -1663,6 +1666,17 @@ button.employee-row {
   font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.time-editor .booking-input {
+  min-width: 0;
+  width: 100%;
+  padding: 0 10px;
+  text-align: center;
+}
+
+.static-version-pill {
+  pointer-events: none;
 }
 
 .hidden-time-inputs {
@@ -1932,6 +1946,25 @@ button.employee-row {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
+  }
+
+  .hero-row {
+    grid-template-columns: minmax(0, 1fr) 76px;
+    gap: 8px;
+  }
+
+  .actor-avatar {
+    width: 68px;
+    height: 68px;
+    margin-top: 18px;
+  }
+
+  .time-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .time-summary-button {
+    padding: 10px 12px;
   }
 }
 

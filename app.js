@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-13";
+const APP_VERSION = "2026.06.02-14";
 const releaseNotes = [
-  "Декоративная рамка возвращена на корпус приложения, чтобы экран не уезжал вбок.",
-  "Фото сотрудника осталось круглым с золотистой переливающейся рамкой.",
-  "В заказах первым идет фильтр Актуальные.",
-  "Выбор даты открывает выбор времени, а интервал виден под календарем.",
-  "Назад из добавления заказа для админа возвращает в админку.",
+  "Фото на главном экране стало ближе к большому экрану фотографии.",
+  "Выбор времени в новом заказе адаптирован под iPhone.",
+  "Экран версии больше не уводит в проверку доступа при случайном тапе.",
+  "История версии закрывается обратно в рабочий экран.",
+  "Сохранены правки по актуальным заказам и выбору даты.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -1109,7 +1109,7 @@ function versionScreen() {
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-action="close-version">‹</button>
-      ${syncPill()}
+      <span class="version-pill static-version-pill">v${APP_VERSION}</span>
     </div>
     <h1 class="page-title">Версия</h1>
     <div class="content-stack">
@@ -1129,7 +1129,7 @@ function versionScreen() {
 }
 
 function openVersionScreen() {
-  state.previousRoute = state.route === "version" ? "home" : state.route;
+  state.previousRoute = state.route === "version" ? state.previousRoute || "home" : state.route;
   setRoute("version");
 }
 
@@ -2328,6 +2328,7 @@ document.addEventListener("click", (event) => {
 
   if (routeButton) {
     if (routeButton.dataset.route === "version") {
+      if (state.route === "version") return;
       openVersionScreen();
       return;
     }
@@ -2383,7 +2384,8 @@ document.addEventListener("click", (event) => {
   if (action === "close-version") {
     state.versionGlow = false;
     localStorage.setItem("versionSeen", APP_VERSION);
-    setRoute(state.previousRoute || "home");
+    const target = ["checking", "denied", "auth-confirm", "version"].includes(state.previousRoute) ? "home" : state.previousRoute || "home";
+    setRoute(target);
   }
 
   if (action === "toggle-order-edit") {
