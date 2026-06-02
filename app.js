@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-15";
+const APP_VERSION = "2026.06.02-16";
 const releaseNotes = [
-  "Выбор времени в новом заказе заменен на компактные кнопки без растягивания.",
-  "Время меняется шагом 15 минут и не ломает верстку на iPhone.",
-  "Окончание заказа автоматически держится позже начала.",
-  "Фото на главном экране осталось в стиле большого экрана фотографии.",
-  "Экран версии закрывается обратно в рабочий экран.",
+  "По нажатию на время между кнопками открывается системный выбор времени.",
+  "Главное фото стало большим круглым портретом с золотой рамкой.",
+  "Степпер времени остался компактным и не растягивает экран.",
+  "Время можно менять и кнопками, и через выбор точного значения.",
+  "Сохранены мобильные правки экрана добавления заказа.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -1370,7 +1370,8 @@ function newOrderScreen() {
                   <span>Начало</span>
                   <div class="time-stepper-control">
                     <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="-15">−</button>
-                    <strong>${state.booking.start}</strong>
+                    <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="start">${state.booking.start}</button>
+                    <input class="native-time-input" type="time" data-native-time="start" value="${state.booking.start}" />
                     <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="15">+</button>
                   </div>
                 </div>
@@ -1378,7 +1379,8 @@ function newOrderScreen() {
                   <span>Окончание</span>
                   <div class="time-stepper-control">
                     <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="-15">−</button>
-                    <strong>${state.booking.end}</strong>
+                    <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="end">${state.booking.end}</button>
+                    <input class="native-time-input" type="time" data-native-time="end" value="${state.booking.end}" />
                     <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="15">+</button>
                   </div>
                 </div>
@@ -2400,6 +2402,13 @@ document.addEventListener("click", (event) => {
     render();
   }
 
+  if (action === "open-native-time") {
+    const input = document.querySelector(`[data-native-time="${actionButton.dataset.timeField}"]`);
+    input?.focus?.();
+    input?.showPicker?.();
+    input?.click?.();
+  }
+
   if (action === "toggle-bonus-form") {
     state.bonusFormOpen = !state.bonusFormOpen;
     render();
@@ -2633,6 +2642,16 @@ document.addEventListener("change", (event) => {
   if (bookingInput) {
     const key = bookingInput.dataset.booking;
     state.booking[key] = bookingInput.type === "number" || bookingInput.tagName === "SELECT" ? Number(bookingInput.value) : bookingInput.value;
+    render();
+    return;
+  }
+
+  const nativeTimeInput = event.target.closest("[data-native-time]");
+  if (nativeTimeInput) {
+    state.booking[nativeTimeInput.dataset.nativeTime] = nativeTimeInput.value;
+    const start = timeToMinutes(state.booking.start);
+    const end = timeToMinutes(state.booking.end);
+    if (end <= start) state.booking.end = minutesToTime(start + 60);
     render();
     return;
   }

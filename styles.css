@@ -344,26 +344,26 @@ button:active {
 
 .hero-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 84px;
+  grid-template-columns: minmax(0, 1fr) clamp(108px, 32vw, 138px);
   align-items: start;
-  gap: 12px;
+  gap: 10px;
 }
 
 .actor-avatar {
   position: relative;
-  width: 74px;
-  height: 74px;
-  margin-top: 18px;
+  width: clamp(106px, 32vw, 136px);
+  height: clamp(106px, 32vw, 136px);
+  margin-top: 0;
   display: grid;
   place-items: center;
   border-radius: 50%;
   border: 0;
   background: linear-gradient(145deg, #ffd35d, #ff8d27);
   color: var(--white);
-  font-size: 30px;
+  font-size: 42px;
   font-weight: 1000;
   text-transform: uppercase;
-  box-shadow: 0 0 22px rgba(255, 186, 57, 0.34), 0 12px 28px rgba(153, 68, 0, 0.2);
+  box-shadow: 0 0 22px rgba(255, 199, 74, 0.28), 0 12px 28px rgba(153, 68, 0, 0.22);
   overflow: visible;
 }
 
@@ -372,8 +372,8 @@ button:active {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 3px;
-  background: conic-gradient(from 0deg, #8f5a08, #fff1a6, #ffbd3d, #b9770d, #fff7c8, #8f5a08);
+  padding: 4px;
+  background: conic-gradient(from 0deg, #9f6208, #fff1a6, #ffb332, #cc7a10, #fff0a2, #9f6208);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -383,9 +383,10 @@ button:active {
 }
 
 .actor-avatar img {
-  width: calc(100% - 8px);
-  height: calc(100% - 8px);
-  object-fit: contain;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  object-fit: cover;
+  object-position: center;
   position: relative;
   z-index: 1;
   border-radius: 50%;
@@ -1671,6 +1672,7 @@ button.employee-row {
 .time-stepper-control {
   display: grid;
   grid-template-columns: 38px minmax(70px, 1fr) 38px;
+  position: relative;
   align-items: center;
   gap: 6px;
   min-width: 0;
@@ -1690,7 +1692,7 @@ button.employee-row {
   line-height: 1;
 }
 
-.time-stepper-control strong {
+.time-value-button {
   min-width: 0;
   height: 38px;
   display: grid;
@@ -1702,6 +1704,16 @@ button.employee-row {
   font-size: 16px;
   font-weight: 900;
   text-align: center;
+}
+
+.native-time-input {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .static-version-pill {
@@ -1978,14 +1990,14 @@ button.employee-row {
   }
 
   .hero-row {
-    grid-template-columns: minmax(0, 1fr) 76px;
+    grid-template-columns: minmax(0, 1fr) min(30vw, 118px);
     gap: 8px;
   }
 
   .actor-avatar {
-    width: 68px;
-    height: 68px;
-    margin-top: 18px;
+    width: min(30vw, 118px);
+    height: min(30vw, 118px);
+    margin-top: 0;
   }
 
   .time-stepper-row {
