@@ -74,6 +74,8 @@ const state = {
   newEmployee: { name: "", username: "", isAdmin: false },
   newProgram: { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
   newBonus: { employeeId: "", amount: 0, comment: "" },
+  propEditMode: false,
+  earningsPeriod: "month",
   newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
@@ -329,6 +331,10 @@ function rememberDeleted(type, id) {
   saveState();
 }
 
+function confirmDelete(label = "элемент") {
+  return window.confirm(`Точно удалить ${label}? Это действие нельзя отменить.`);
+}
+
 function setRoute(route, options = {}) {
   Object.assign(state, options);
   state.route = route;
@@ -524,9 +530,14 @@ function createOrder() {
     kitStatus: "Комплект не взят",
     available: "Проверяется",
   };
+  order.total = calc.orderTotal;
+  order.actorPay = calc.actorTotal;
   orders = [order, ...orders];
   state.orderFilter = "month";
   queueAction("create-order", { ...state.booking, order, actorId: state.user.id });
+  if (state.newBonus.employeeId && Number(state.newBonus.amount || 0) > 0) {
+    addBonus();
+  }
   state.toast = "Заказ добавлен";
   setRoute("orders");
   clearToastLater();
@@ -552,6 +563,11 @@ function sendReport() {
   queueAction("report", { text, actorId: state.user.id, actorName: state.user.firstName, route: state.route });
   state.reportText = "";
   setRoute("profile");
+}
+
+function deleteReport(id) {
+  reports = reports.filter((report) => String(report.id) !== String(id));
+  queueAction("delete-report", { id });
 }
 
 function saveForTrip(orderId) {
@@ -598,6 +614,20 @@ function calculateBooking() {
 function timeToMinutes(value) {
   const [hours, minutes] = String(value || "00:00").split(":").map(Number);
   return (hours || 0) * 60 + (minutes || 0);
+}
+
+function userEarnings(period = state.earningsPeriod) {
+  const now = startOfDay(new Date());
+  const maxDays = period === "week" ? 7 : period === "month" ? 31 : 366;
+  return orders.reduce((sum, order) => {
+    const accepted = state.acceptedOrders[order.id];
+    const byMe = accepted?.actorId === state.user.id || order.actors?.includes(state.user.firstName);
+    const date = parseUiDate(order.date);
+    if (!byMe || !date) return sum;
+    const diffDays = (startOfDay(date) - now) / 86400000;
+    if (diffDays < -maxDays || diffDays > maxDays) return sum;
+    return sum + Number(order.actorPay || 0);
+  }, 0);
 }
 
 function filteredOrders() {
@@ -999,6 +1029,16 @@ function newOrderScreen() {
         <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
       </section>
 
+      <section class="panel">
+        <h2 class="panel-title">Начислить премию</h2>
+        <select class="booking-input" data-admin-field="newBonus.employeeId">
+          <option value="">Выберите сотрудника</option>
+          ${employees.map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`).join("")}
+        </select>
+        <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма премии" value="${state.newBonus.amount}" style="margin-top: 8px" />
+        <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="Комментарий к премии">${state.newBonus.comment}</textarea>
+      </section>
+
       <button class="primary-button" data-action="create-order">Создать заказ</button>
     </div>
   `, true);
@@ -1084,7 +1124,7 @@ function orderScreen() {
       </section>
 
       ${
-        state.user.role === "actor"
+        true
           ? `<section class="panel">
               <h2 class="panel-title">Подтверждение</h2>
               <p class="small-text">${accepted ? `Заказ принял: ${accepted.name}` : "Можно принять заказ. Если нет сети, отметка сохранится и отправится позже."}</p>
@@ -1316,6 +1356,7 @@ function profileScreen() {
     accepted: 0,
     rating: 0,
   };
+  const earnings = userEarnings();
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="home">‹</button>
@@ -1330,6 +1371,15 @@ function profileScreen() {
           <div class="detail-line"><span>Роль</span><strong>${state.user.role === "admin" ? "админ" : "актер"}</strong></div>
           <div class="detail-line"><span>Очередь</span><strong>${state.syncQueue.length}</strong></div>
         </div>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Заработок</h2>
+        <div class="chips">
+          <button class="chip ${state.earningsPeriod === "week" ? "active" : ""}" data-earnings-period="week">Неделя</button>
+          <button class="chip ${state.earningsPeriod === "month" ? "active" : ""}" data-earnings-period="month">Месяц</button>
+          <button class="chip ${state.earningsPeriod === "year" ? "active" : ""}" data-earnings-period="year">Год</button>
+        </div>
+        <div class="summary-line" style="margin-top: 10px"><span>Начислено</span><strong>${money(earnings)}</strong></div>
       </section>
       ${
         state.user.role === "actor"
@@ -1436,6 +1486,7 @@ function adminProgramScreen() {
         <input class="booking-input" data-admin-field="newProgram.actorPayPerHour" type="number" placeholder="ЗП актера за час" value="${state.newProgram.actorPayPerHour}" style="margin-top: 8px" />
         <textarea class="booking-input booking-textarea" data-admin-field="newProgram.script" placeholder="Сценарий программы целиком">${state.newProgram.script}</textarea>
       </section>
+      <button class="secondary-button" data-action="program-kit-builder">Собрать комплект для программы</button>
       <button class="primary-button" data-action="create-program">Добавить программу</button>
     </div>
   `, true);
@@ -1461,7 +1512,8 @@ function adminPropScreen() {
       </section>
       <button class="primary-button" data-action="create-prop">Добавить реквизит</button>
       <section class="panel">
-        <h2 class="panel-title">Удалить реквизит</h2>
+        <h2 class="panel-title">Реквизит</h2>
+        <button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>
         <div class="orders-stack">
           ${
             props.length
@@ -1473,7 +1525,7 @@ function adminPropScreen() {
                           <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
                           <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${statusText(item.status)}">${item.status === "mine" ? "↩" : "+"}</span>
                         </div>
-                        <button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="Удалить реквизит">×</button>
+                        ${state.propEditMode ? `<button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="Удалить реквизит">×</button>` : ""}
                       </div>
                     `
                   )
@@ -1503,6 +1555,7 @@ function adminReportsScreen() {
                     <h2 class="panel-title">${report.actorName || `Сотрудник #${report.actor_id || ""}`}</h2>
                     <p class="small-text">${report.text}</p>
                     <p class="small-text" style="margin-top: 8px">${report.createdAt || report.created_at || ""}</p>
+                    <button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-report" data-report-id="${report.id}">Очистить</button>
                   </section>
                 `
               )
@@ -1571,6 +1624,7 @@ document.addEventListener("click", (event) => {
   const urlButton = event.target.closest("[data-open-url]");
   const filterButton = event.target.closest("[data-filter]");
   const orderFilterButton = event.target.closest("[data-order-filter]");
+  const earningsPeriodButton = event.target.closest("[data-earnings-period]");
   const roleButton = event.target.closest("[data-role]");
 
   if (roleButton) {
@@ -1586,6 +1640,12 @@ document.addEventListener("click", (event) => {
 
   if (orderFilterButton) {
     state.orderFilter = orderFilterButton.dataset.orderFilter;
+    render();
+    return;
+  }
+
+  if (earningsPeriodButton) {
+    state.earningsPeriod = earningsPeriodButton.dataset.earningsPeriod;
     render();
     return;
   }
@@ -1664,24 +1724,44 @@ document.addEventListener("click", (event) => {
     addProp();
   }
 
+  if (action === "toggle-prop-edit") {
+    state.propEditMode = !state.propEditMode;
+    render();
+  }
+
+  if (action === "program-kit-builder") {
+    state.toast = "Комплект программы скоро можно будет собрать";
+    render();
+    clearToastLater();
+  }
+
   if (action === "create-bonus") {
     addBonus();
   }
 
   if (action === "delete-employee") {
+    if (!confirmDelete("сотрудника")) return;
     deleteEmployee(Number(actionButton.dataset.employeeId));
   }
 
   if (action === "delete-order") {
+    if (!confirmDelete("заказ")) return;
     deleteOrder(Number(actionButton.dataset.orderId));
   }
 
   if (action === "delete-program") {
+    if (!confirmDelete("программу")) return;
     deleteProgram(Number(actionButton.dataset.programId));
   }
 
   if (action === "delete-prop") {
+    if (!confirmDelete("реквизит")) return;
     deleteProp(Number(actionButton.dataset.propId));
+  }
+
+  if (action === "delete-report") {
+    if (!confirmDelete("сообщение об ошибке")) return;
+    deleteReport(Number(actionButton.dataset.reportId));
   }
 
   if (action === "return-prop") {

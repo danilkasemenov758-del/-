@@ -1019,6 +1019,18 @@ div.prop-row {
   color: var(--white);
 }
 
+.quick-card {
+  order: 1;
+}
+
+.add-order-card {
+  order: 4;
+}
+
+.admin-card {
+  order: 5;
+}
+
 .content-stack {
   display: grid;
   gap: 10px;
@@ -1280,6 +1292,15 @@ div.prop-row {
 .script-text {
   white-space: pre-wrap;
   line-height: 1.45;
+}
+
+[data-admin-field="newProgram.pricePerHour"],
+[data-admin-field="newProgram.actorPayPerHour"] {
+  display: none;
+}
+
+.panel:has([data-action="create-bonus"]) {
+  display: none;
 }
 
 .booking-input::placeholder {
