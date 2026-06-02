@@ -1647,31 +1647,60 @@ button.employee-row {
   line-height: 1.1;
 }
 
-.time-editor {
+.time-stepper {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   margin-top: 8px;
-  max-width: 100%;
 }
 
-.time-editor label {
-  min-width: 0;
+.time-stepper-row {
   display: grid;
-  gap: 5px;
+  grid-template-columns: 86px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.time-editor label span {
+.time-stepper-row > span {
   color: rgba(255, 255, 255, 0.74);
   font-size: 10px;
   font-weight: 900;
   text-transform: uppercase;
 }
 
-.time-editor .booking-input {
+.time-stepper-control {
+  display: grid;
+  grid-template-columns: 38px minmax(70px, 1fr) 38px;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
   width: 100%;
-  padding: 0 10px;
+  min-height: 42px;
+}
+
+.time-stepper-control button {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.time-stepper-control strong {
+  min-width: 0;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 900;
   text-align: center;
 }
 
@@ -1959,8 +1988,13 @@ button.employee-row {
     margin-top: 18px;
   }
 
-  .time-editor {
+  .time-stepper-row {
     grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .time-stepper-control {
+    grid-template-columns: 36px minmax(64px, 1fr) 36px;
   }
 
   .time-summary-button {

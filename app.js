@@ -9,13 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.02-14";
+const APP_VERSION = "2026.06.02-15";
 const releaseNotes = [
-  "Фото на главном экране стало ближе к большому экрану фотографии.",
-  "Выбор времени в новом заказе адаптирован под iPhone.",
-  "Экран версии больше не уводит в проверку доступа при случайном тапе.",
-  "История версии закрывается обратно в рабочий экран.",
-  "Сохранены правки по актуальным заказам и выбору даты.",
+  "Выбор времени в новом заказе заменен на компактные кнопки без растягивания.",
+  "Время меняется шагом 15 минут и не ломает верстку на iPhone.",
+  "Окончание заказа автоматически держится позже начала.",
+  "Фото на главном экране осталось в стиле большого экрана фотографии.",
+  "Экран версии закрывается обратно в рабочий экран.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -886,6 +886,27 @@ function timeToMinutes(value) {
   return (hours || 0) * 60 + (minutes || 0);
 }
 
+function minutesToTime(value) {
+  const normalized = Math.max(0, Math.min(23 * 60 + 45, value));
+  const hours = Math.floor(normalized / 60);
+  const minutes = normalized % 60;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function adjustBookingTime(field, delta) {
+  const next = timeToMinutes(state.booking[field]) + delta;
+  state.booking[field] = minutesToTime(next);
+
+  const start = timeToMinutes(state.booking.start);
+  const end = timeToMinutes(state.booking.end);
+  if (field === "start" && start >= end) {
+    state.booking.end = minutesToTime(start + 60);
+  }
+  if (field === "end" && end <= start) {
+    state.booking.start = minutesToTime(end - 60);
+  }
+}
+
 function employeeEarnings(employeeId, period = state.earningsPeriod) {
   const now = startOfDay(new Date());
   const maxDays = period === "week" ? 7 : period === "month" ? 31 : 366;
@@ -1006,15 +1027,6 @@ function clearToastLater() {
     state.toast = "";
     render();
   }, 1500);
-}
-
-function openBookingTimePicker(key = "start") {
-  window.setTimeout(() => {
-    const input = document.querySelector(`.time-editor [data-booking="${key}"]`);
-    input?.focus?.();
-    input?.showPicker?.();
-    input?.click?.();
-  }, 80);
 }
 
 function tabbar() {
@@ -1353,15 +1365,23 @@ function newOrderScreen() {
         </button>
         ${
           state.timeEditorOpen
-            ? `<div class="time-editor">
-                <label>
+            ? `<div class="time-stepper">
+                <div class="time-stepper-row">
                   <span>Начало</span>
-                  <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
-                </label>
-                <label>
+                  <div class="time-stepper-control">
+                    <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="-15">−</button>
+                    <strong>${state.booking.start}</strong>
+                    <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="15">+</button>
+                  </div>
+                </div>
+                <div class="time-stepper-row">
                   <span>Окончание</span>
-                  <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
-                </label>
+                  <div class="time-stepper-control">
+                    <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="-15">−</button>
+                    <strong>${state.booking.end}</strong>
+                    <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="15">+</button>
+                  </div>
+                </div>
               </div>`
             : ""
         }
@@ -2373,7 +2393,11 @@ document.addEventListener("click", (event) => {
   if (action === "toggle-time-editor") {
     state.timeEditorOpen = true;
     render();
-    openBookingTimePicker("start");
+  }
+
+  if (action === "adjust-booking-time") {
+    adjustBookingTime(actionButton.dataset.timeField, Number(actionButton.dataset.timeDelta || 0));
+    render();
   }
 
   if (action === "toggle-bonus-form") {
@@ -2609,14 +2633,6 @@ document.addEventListener("change", (event) => {
   if (bookingInput) {
     const key = bookingInput.dataset.booking;
     state.booking[key] = bookingInput.type === "number" || bookingInput.tagName === "SELECT" ? Number(bookingInput.value) : bookingInput.value;
-    if (key === "start" && bookingInput.closest(".time-editor")) {
-      const endInput = document.querySelector('.time-editor [data-booking="end"]');
-      window.setTimeout(() => {
-        endInput?.focus?.();
-        endInput?.showPicker?.();
-        endInput?.click?.();
-      }, 120);
-    }
     render();
     return;
   }
@@ -2676,7 +2692,6 @@ document.addEventListener("click", (event) => {
   state.booking.date = dateButton.dataset.date;
   state.timeEditorOpen = true;
   render();
-  openBookingTimePicker("start");
 });
 
 window.addEventListener("online", () => {
