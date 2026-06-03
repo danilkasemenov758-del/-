@@ -9,10 +9,12 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-07";
+const APP_VERSION = "2026.06.03-08";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Добавлен экран очереди синхронизации с отменой операций.",
+  "Зависшие операции теперь можно удалить вручную.",
   "На экране доступа показывается Telegram ID и username для проверки сотрудника.",
   "Исправлена зависшая очередь синхронизации.",
   "Ошибки API теперь отображаются понятнее.",
@@ -430,17 +432,35 @@ async function sendAction(action) {
       body: JSON.stringify(action),
     });
     action.status = "synced";
+    delete action.error;
     state.syncQueue = state.syncQueue.filter((item) => item.id !== action.id);
     saveState();
     render();
   } catch (error) {
     console.warn("Action sync failed", action.type, error);
-    state.toast = `Ошибка синхронизации: ${error.message || "API"}`;
+    action.error = shortError(error.message || "API");
+    state.toast = `Ошибка синхронизации: ${action.error}`;
     action.status = "offline";
     saveState();
     render();
     clearToastLater();
   }
+}
+
+function shortError(message = "") {
+  const text = String(message);
+  if (text.includes("ambassador_code") || text.includes("BUNNY-")) return "Код амбассадора уже есть в базе";
+  if (text.includes("duplicate key")) return "Такая запись уже есть в базе";
+  if (text.includes("violates unique constraint")) return "Нарушена уникальность записи";
+  return text.length > 120 ? `${text.slice(0, 120)}...` : text;
+}
+
+function cancelSyncAction(id) {
+  state.syncQueue = state.syncQueue.filter((action) => Number(action.id) !== Number(id));
+  saveState();
+  state.toast = "Операция отменена";
+  render();
+  clearToastLater();
 }
 
 function pendingActions() {
@@ -1329,7 +1349,7 @@ function tabbar() {
 function syncPill() {
   const pending = pendingActions().length;
   const text = pending ? `к отправке: ${pending}` : "все синхронизировано";
-  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-action="refresh-data">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button><button class="help-pill glow" data-route="help">Как пользоваться</button></div>`;
+  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-route="sync">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button><button class="help-pill glow" data-route="help">Как пользоваться</button></div>`;
 }
 
 function money(value) {
@@ -2723,6 +2743,65 @@ function reportScreen() {
   `, true);
 }
 
+function actionTitle(action) {
+  const payload = action.payload || {};
+  return {
+    "create-employee": `Добавить сотрудника: ${payload.name || ""}`,
+    "create-order": `Добавить заказ: ${payload.order?.title || payload.title || ""}`,
+    "create-promo": `Добавить промокод: ${payload.code || ""}`,
+    "withdraw-bunny": `Вывод банни: ${payload.amount || 0}`,
+    report: "Сообщить об ошибке",
+    "take-prop": `Взять реквизит #${payload.propId || ""}`,
+    "return-prop": `Вернуть реквизит #${payload.propId || ""}`,
+    "take-kit": "Взять комплект",
+    "accept-order": `Принять заказ #${payload.orderId || ""}`,
+    "decline-order": `Отказаться от заказа #${payload.orderId || ""}`,
+    "delete-order": `Удалить заказ #${payload.id || ""}`,
+    "delete-employee": `Удалить сотрудника #${payload.id || ""}`,
+    "create-program": `Добавить программу: ${payload.title || ""}`,
+    "create-prop": `Добавить реквизит: ${payload.name || ""}`,
+  }[action.type] || actionToast(action.type);
+}
+
+function syncScreen() {
+  const queue = state.syncQueue.filter((action) => action.status !== "synced");
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="${state.user.hasAccess ? "home" : "denied"}">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Синхронизация</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">К отправке: ${queue.length}</h2>
+        <p class="small-text">Здесь можно повторить отправку или отменить зависшую операцию.</p>
+      </section>
+      <button class="primary-button" data-action="refresh-data">Повторить отправку</button>
+      <div class="orders-stack">
+        ${
+          queue.length
+            ? queue
+                .map(
+                  (action) => `
+                    <section class="panel">
+                      <h2 class="panel-title">${actionTitle(action)}</h2>
+                      <div class="detail-grid">
+                        <div class="detail-line"><span>Статус</span><strong>${action.status || "ready"}</strong></div>
+                        <div class="detail-line"><span>Создано</span><strong>${new Date(action.createdAt).toLocaleString("ru-RU")}</strong></div>
+                      </div>
+                      ${action.error ? `<p class="small-text" style="margin-top: 8px">${action.error}</p>` : ""}
+                      <button class="secondary-button danger-button" style="margin-top: 10px" data-action="cancel-sync-action" data-sync-id="${action.id}">Отменить операцию</button>
+                    </section>
+                  `
+                )
+                .join("")
+            : `<div class="empty-state">Очередь пуста</div>`
+        }
+      </div>
+    </div>
+  `, true);
+}
+
 function statusText(status) {
   return {
     available: "Доступно",
@@ -2760,6 +2839,7 @@ function render() {
     "admin-employee-detail": adminEmployeeDetailScreen,
     company: companyScreen,
     report: reportScreen,
+    sync: syncScreen,
     "admin-employees": adminEmployeesScreen,
     "admin-promos": adminPromosScreen,
     "admin-program": adminProgramScreen,
@@ -2866,11 +2946,16 @@ document.addEventListener("click", async (event) => {
   if (action === "refresh-data") {
     state.toast = "Синхронизируем...";
     render();
-    syncPendingActions();
+    await Promise.all(pendingActions().map((item) => sendAction(item)));
     const hasAccess = await loadRemoteData({ renderAfter: false });
     state.toast = hasAccess ? "Доступ обновлен" : "Доступ не найден";
     setRoute(hasAccess ? state.route : "denied");
     clearToastLater();
+  }
+
+  if (action === "cancel-sync-action") {
+    if (!confirmDelete("операцию из очереди")) return;
+    cancelSyncAction(Number(actionButton.dataset.syncId));
   }
 
   if (action === "toggle-time-editor") {
