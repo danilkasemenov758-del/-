@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-01";
+const APP_VERSION = "2026.06.03-02";
 const releaseNotes = [
   "Починен поиск по реквизиту.",
   "Добавлен фильтр реквизита по номеру ячейки.",
@@ -168,7 +168,7 @@ if (Array.isArray(window.TOCHKA_PROP_SEED)) {
   ];
 }
 
-let programs = [
+const defaultPrograms = [
   {
     id: 1,
     title: "Челлендж Пати Влада А4",
@@ -189,7 +189,7 @@ let programs = [
   },
 ];
 
-programs = readStorage("programs", programs);
+let programs = readStorage("programs", defaultPrograms);
 
 const packageOptions = [
   { label: "Шоу программа", actors: 1, multiplier: 1 },
@@ -321,7 +321,8 @@ async function loadRemoteData() {
     orders = mergeQueuedOrders(withoutDeleted(data.orders || [], "orders"));
     const remoteProps = withoutDeleted(data.props || [], "props");
     props = remoteProps.length ? remoteProps : props;
-    programs = withoutDeleted(data.programs || programs, "programs");
+    const remotePrograms = withoutDeleted(data.programs || [], "programs");
+    programs = remotePrograms.length ? remotePrograms : programs;
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
     state.bonuses = data.bonuses || state.bonuses;
     reports = data.reports || reports;
@@ -795,6 +796,12 @@ function deleteProp(id) {
 
 function createOrder() {
   const calc = calculateBooking();
+  if (!calc.program) {
+    state.toast = "Сначала добавьте программу";
+    render();
+    clearToastLater();
+    return;
+  }
   const id = Date.now();
   const order = {
     id,
@@ -868,7 +875,7 @@ function getProgramForOrder(order) {
 }
 
 function getBookingProgram() {
-  return programs.find((program) => program.id === Number(state.booking.programId)) || programs[0];
+  return programs.find((program) => program.id === Number(state.booking.programId)) || programs[0] || null;
 }
 
 function calculateBooking() {
@@ -1516,17 +1523,21 @@ function newOrderScreen() {
       <section class="panel">
         <h2 class="panel-title">Программа</h2>
         <select class="booking-input" data-booking="programId">
-          ${programs
-            .map(
-              (program) => `
-                <option value="${program.id}" ${Number(state.booking.programId) === program.id ? "selected" : ""}>
-                  ${program.title}
-                </option>
-              `
-            )
-            .join("")}
+          ${
+            programs.length
+              ? programs
+                  .map(
+                    (program) => `
+                      <option value="${program.id}" ${Number(state.booking.programId) === program.id ? "selected" : ""}>
+                        ${program.title}
+                      </option>
+                    `
+                  )
+                  .join("")
+              : `<option value="">Сначала добавьте программу</option>`
+          }
         </select>
-        <p class="small-text" style="margin-top: 10px">Длительность заказа: ${calc.durationMinutes} мин · ${calc.program.age || ""}</p>
+        <p class="small-text" style="margin-top: 10px">Длительность заказа: ${calc.durationMinutes} мин · ${calc.program?.age || ""}</p>
       </section>
 
       <section class="panel">
