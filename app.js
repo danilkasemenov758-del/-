@@ -9,10 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-03";
+const APP_VERSION = "2026.06.03-04";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Проверка доступа теперь ждет ответ базы.",
+  "Кнопка обновления доступа корректно перепроверяет сотрудника.",
+  "Экран обращения к админу возвращает на экран доступа.",
   "Добавлена роль амбассадора.",
   "Админ может добавлять промокоды.",
   "Доступ в приложение выдает только администратор.",
@@ -58,6 +61,8 @@ const state = {
   route: localStorage.getItem("authConfirmed") === "true" ? "checking" : "auth-confirm",
   justAuthorized: false,
   themeBurst: false,
+  accessLoading: false,
+  accessChecked: false,
   appTheme: localStorage.getItem("appTheme") || "dark",
   user: mockUser,
   syncQueue: readStorage("syncQueue", []),
@@ -347,8 +352,12 @@ async function apiFetch(path, options = {}) {
   return response.json();
 }
 
-async function loadRemoteData() {
-  if (!API_BASE) return;
+async function loadRemoteData(options = {}) {
+  if (!API_BASE) {
+    state.user.hasAccess = true;
+    ensureCurrentEmployee();
+    return true;
+  }
 
   try {
     const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(state.user.id)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
@@ -366,10 +375,19 @@ async function loadRemoteData() {
     state.promoCodes = data.promoCodes || state.promoCodes;
     state.ambassadorWithdrawals = data.ambassadorWithdrawals || state.ambassadorWithdrawals;
     applyCurrentUserAccess(data.currentUser);
+    state.accessChecked = true;
     saveState();
-    render();
+    if (options.renderAfter !== false) render();
+    return state.user.hasAccess;
   } catch (error) {
     console.warn("Bootstrap failed", error);
+    state.accessChecked = true;
+    if (options.renderAfter !== false) {
+      state.toast = "Не удалось проверить доступ";
+      render();
+      clearToastLater();
+    }
+    return false;
   }
 }
 
@@ -1018,7 +1036,7 @@ function sendReport() {
   reports = [report, ...reports];
   queueAction("report", { text, actorId: state.user.id, actorName: state.user.firstName, route: state.route });
   state.reportText = "";
-  setRoute("profile");
+  setRoute(state.user.hasAccess ? "profile" : "denied");
 }
 
 function deleteReport(id) {
@@ -1300,11 +1318,18 @@ function money(value) {
 }
 
 function checkingScreen() {
-  setTimeout(() => {
-    if (state.route === "checking") {
-      setRoute(state.user.hasAccess ? "home" : "denied", { justAuthorized: state.user.hasAccess });
-    }
-  }, 900);
+  if (!state.accessLoading) {
+    state.accessLoading = true;
+    Promise.all([
+      loadRemoteData({ renderAfter: false }),
+      new Promise((resolve) => window.setTimeout(resolve, 700)),
+    ]).then(([hasAccess]) => {
+      state.accessLoading = false;
+      if (state.route === "checking") {
+        setRoute(hasAccess ? "home" : "denied", { justAuthorized: Boolean(hasAccess) });
+      }
+    });
+  }
 
   return appFrame(`
     <div class="brand-card">
@@ -2657,9 +2682,10 @@ function adminReportsScreen() {
 }
 
 function reportScreen() {
+  const backRoute = state.user.hasAccess ? "home" : "denied";
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="${backRoute}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Ошибка</h1>
@@ -2731,7 +2757,7 @@ function render() {
   render.previousRoute = state.route;
 }
 
-document.addEventListener("click", (event) => {
+document.addEventListener("click", async (event) => {
   const routeButton = event.target.closest("[data-route]");
   const actionButton = event.target.closest("[data-action]");
   const urlButton = event.target.closest("[data-open-url]");
@@ -2815,8 +2841,13 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "refresh-data") {
-    loadRemoteData();
+    state.toast = "Проверяем доступ...";
+    render();
+    const hasAccess = await loadRemoteData({ renderAfter: false });
+    state.toast = hasAccess ? "Доступ обновлен" : "Доступ не найден";
+    setRoute(hasAccess ? state.route : "denied");
     syncPendingActions();
+    clearToastLater();
   }
 
   if (action === "toggle-time-editor") {
@@ -3011,7 +3042,6 @@ document.addEventListener("click", (event) => {
   if (action === "confirm-auth") {
     localStorage.setItem("authConfirmed", "true");
     setRoute("checking");
-    loadRemoteData();
   }
 
   if (action === "deny-auth") {
