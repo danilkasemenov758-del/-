@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-11";
+const APP_VERSION = "2026.06.03-12";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
@@ -989,7 +989,7 @@ function deleteOrder(id) {
   delete state.acceptedOrders[id];
   rememberDeleted("orders", id);
   queueAction("delete-order", { id });
-  setRoute(state.user.role === "ambassador" ? "profile" : "orders");
+  setRoute(state.user.role === "ambassador" ? "home" : "orders");
 }
 
 function annulOrder(orderId) {
@@ -1378,7 +1378,7 @@ function tabbar() {
         ? [
             ["home", "Сегодня"],
             ["new-order", "Заказ"],
-            ["profile", "Профиль"],
+            ["company", "О компании"],
           ]
         : [
           ["home", "Сегодня"],
@@ -1659,8 +1659,7 @@ function homeScreen() {
       }
       ${
         state.user.role === "ambassador"
-          ? `<button class="quick-card" data-route="profile"><strong>Профиль</strong><span>Я</span></button>
-             <button class="quick-card dark" data-route="company"><strong>О компании</strong><span>i</span></button>`
+          ? `<button class="quick-card dark" data-route="company"><strong>О компании</strong></button>`
           : `      <button class="quick-card" data-route="orders">
         <strong>Заказы</strong>
         <img src="./assets/orders.svg" alt="" />
@@ -1677,10 +1676,12 @@ function homeScreen() {
           `
       }    </div>
 
+    ${state.user.role === "ambassador" ? "" : `
     <div class="bottom-actions">
       <button class="secondary-button" data-route="profile">Профиль</button>
       <button class="secondary-button" data-action="report">Сообщить<br>об ошибке</button>
     </div>
+    `}
   `, true);
 }
 
@@ -1925,6 +1926,7 @@ function newOrderScreen() {
         <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
       </section>
 
+      ${state.user.role === "admin" ? `
       <section class="panel">
         <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
         ${
@@ -1938,6 +1940,7 @@ function newOrderScreen() {
             : ""
         }
       </section>
+      ` : ""}
 
       <button class="primary-button" data-action="create-order">Создать заказ</button>
     </div>
@@ -2557,7 +2560,7 @@ function adminEmployeeDetailScreen() {
 function companyScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="profile">‹</button>
+      <button class="icon-button" data-route="${state.user.role === "ambassador" ? "home" : "profile"}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">О компании</h1>
@@ -2692,6 +2695,7 @@ function adminEmployeesScreen() {
         }
       </section>
       <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
+      ${state.user.role === "admin" ? `
       <section class="panel">
         <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
         ${
@@ -2708,6 +2712,7 @@ function adminEmployeesScreen() {
             : ""
         }
       </section>
+      ` : ""}
       <section class="panel">
         <h2 class="panel-title">Список</h2>
         <div class="employee-list">
