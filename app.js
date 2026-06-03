@@ -17,29 +17,29 @@ const releaseNotes = [
   "У амбассадора скрыты разделы заказов, программ, реквизита и сохраненного.",
   "В добавлении заказа у амбассадора снова отображается его личный код.",
   "Редактирование амбассадора теперь синхронизируется с Supabase.",
-  "РљРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР° С‚РµРїРµСЂСЊ Р·Р°РґР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїСЂРё РІС‹РґР°С‡Рµ РїСЂР°РІ Р°РјР±Р°СЃСЃР°РґРѕСЂР°.",
-  "РџРѕР»Рµ РєРѕРґР° Р°РјР±Р°СЃСЃР°РґРѕСЂР° СѓР±СЂР°РЅРѕ РёР· СЃРѕР·РґР°РЅРёСЏ Р·Р°РєР°Р·Р°.",
-  "РСЃРїСЂР°РІР»РµРЅР° РїСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° РїРѕСЃР»Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.",
-  "Telegram ID Рё ID СЃРѕС‚СЂСѓРґРЅРёРєР° С‚РµРїРµСЂСЊ С…СЂР°РЅСЏС‚СЃСЏ РѕС‚РґРµР»СЊРЅРѕ.",
-  "Р”РѕР±Р°РІР»РµРЅ СЌРєСЂР°РЅ РѕС‡РµСЂРµРґРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё СЃ РѕС‚РјРµРЅРѕР№ РѕРїРµСЂР°С†РёР№.",
-  "Р—Р°РІРёСЃС€РёРµ РѕРїРµСЂР°С†РёРё С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ РІСЂСѓС‡РЅСѓСЋ.",
-  "РќР° СЌРєСЂР°РЅРµ РґРѕСЃС‚СѓРїР° РїРѕРєР°Р·С‹РІР°РµС‚СЃСЏ Telegram ID Рё username РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃРѕС‚СЂСѓРґРЅРёРєР°.",
-  "РСЃРїСЂР°РІР»РµРЅР° Р·Р°РІРёСЃС€Р°СЏ РѕС‡РµСЂРµРґСЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.",
-  "РћС€РёР±РєРё API С‚РµРїРµСЂСЊ РѕС‚РѕР±СЂР°Р¶Р°СЋС‚СЃСЏ РїРѕРЅСЏС‚РЅРµРµ.",
-  "РСЃРїСЂР°РІР»РµРЅР° РІС‹РґР°С‡Р° РґРѕСЃС‚СѓРїР° РЅРѕРІС‹Рј СЃРѕС‚СЂСѓРґРЅРёРєР°Рј.",
-  "РСЃРїСЂР°РІР»РµРЅР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ Р±РµР· РєРѕРґР° Р°РјР±Р°СЃСЃР°РґРѕСЂР°.",
-  "РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР° С‚РµРїРµСЂСЊ Р¶РґРµС‚ РѕС‚РІРµС‚ Р±Р°Р·С‹.",
-  "РљРЅРѕРїРєР° РѕР±РЅРѕРІР»РµРЅРёСЏ РґРѕСЃС‚СѓРїР° РєРѕСЂСЂРµРєС‚РЅРѕ РїРµСЂРµРїСЂРѕРІРµСЂСЏРµС‚ СЃРѕС‚СЂСѓРґРЅРёРєР°.",
-  "Р­РєСЂР°РЅ РѕР±СЂР°С‰РµРЅРёСЏ Рє Р°РґРјРёРЅСѓ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅР° СЌРєСЂР°РЅ РґРѕСЃС‚СѓРїР°.",
-  "Р”РѕР±Р°РІР»РµРЅР° СЂРѕР»СЊ Р°РјР±Р°СЃСЃР°РґРѕСЂР°.",
-  "РђРґРјРёРЅ РјРѕР¶РµС‚ РґРѕР±Р°РІР»СЏС‚СЊ РїСЂРѕРјРѕРєРѕРґС‹.",
-  "Р”РѕСЃС‚СѓРї РІ РїСЂРёР»РѕР¶РµРЅРёРµ РІС‹РґР°РµС‚ С‚РѕР»СЊРєРѕ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ.",
-  "РЈ Р°РјР±Р°СЃСЃР°РґРѕСЂР° РїРѕСЏРІРёР»РёСЃСЊ Р»РёС‡РЅС‹Р№ РєРѕРґ, Р±Р°РЅРЅРё Рё Р·Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ.",
-  "РџРѕС‡РёРЅРµРЅ РїРѕРёСЃРє РїРѕ СЂРµРєРІРёР·РёС‚Сѓ.",
-  "Р”РѕР±Р°РІР»РµРЅ С„РёР»СЊС‚СЂ СЂРµРєРІРёР·РёС‚Р° РїРѕ РЅРѕРјРµСЂСѓ СЏС‡РµР№РєРё.",
-  "РџРѕРёСЃРє С‚РµРїРµСЂСЊ СЃРјРѕС‚СЂРёС‚ РЅР°Р·РІР°РЅРёРµ Рё РјРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ.",
-  "Р¤РёР»СЊС‚СЂ СЃС‚Р°С‚СѓСЃР°, РїРѕРёСЃРє Рё СЏС‡РµР№РєР° СЂР°Р±РѕС‚Р°СЋС‚ РІРјРµСЃС‚Рµ.",
-  "РЎРїРёСЃРѕРє СЏС‡РµРµРє СЃРѕР±РёСЂР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РёР· СЂРµРєРІРёР·РёС‚Р°.",
+  "Код амбассадора теперь задается только при выдаче прав амбассадора.",
+  "Поле кода амбассадора убрано из создания заказа.",
+  "Исправлена проверка доступа после синхронизации.",
+  "Telegram ID и ID сотрудника теперь хранятся отдельно.",
+  "Добавлен экран очереди синхронизации с отменой операций.",
+  "Зависшие операции теперь можно удалить вручную.",
+  "На экране доступа показывается Telegram ID и username для проверки сотрудника.",
+  "Исправлена зависшая очередь синхронизации.",
+  "Ошибки API теперь отображаются понятнее.",
+  "Исправлена выдача доступа новым сотрудникам.",
+  "Исправлена синхронизация сотрудников без кода амбассадора.",
+  "Проверка доступа теперь ждет ответ базы.",
+  "Кнопка обновления доступа корректно перепроверяет сотрудника.",
+  "Экран обращения к админу возвращает на экран доступа.",
+  "Добавлена роль амбассадора.",
+  "Админ может добавлять промокоды.",
+  "Доступ в приложение выдает только администратор.",
+  "У амбассадора появились личный код, банни и заявка на вывод.",
+  "Починен поиск по реквизиту.",
+  "Добавлен фильтр реквизита по номеру ячейки.",
+  "Поиск теперь смотрит название и место хранения.",
+  "Фильтр статуса, поиск и ячейка работают вместе.",
+  "Список ячеек собирается автоматически из реквизита.",
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
@@ -48,7 +48,7 @@ const initialTelegramId = telegramUser?.id ?? 101;
 const mockUser = {
   id: initialTelegramId,
   telegramId: initialTelegramId,
-  firstName: tg?.initDataUnsafe?.user?.first_name ?? "Р”Р°С€Р°",
+  firstName: tg?.initDataUnsafe?.user?.first_name ?? "Даша",
   username: telegramUser?.username ?? "local_user",
   photoUrl: telegramUser?.photo_url ?? "",
   role: "actor",
@@ -56,14 +56,14 @@ const mockUser = {
 };
 
 let employees = [
-  { id: 101, name: "Р”Р°С€Р°", efficiency: 86, accepted: 12, late: 1, rating: 4.8 },
-  { id: 102, name: "РР»СЊСЏ", efficiency: 74, accepted: 8, late: 2, rating: 4.4 },
-  { id: 103, name: "РњР°С€Р°", efficiency: 92, accepted: 16, late: 0, rating: 4.9 },
+  { id: 101, name: "Даша", efficiency: 86, accepted: 12, late: 1, rating: 4.8 },
+  { id: 102, name: "Илья", efficiency: 74, accepted: 8, late: 2, rating: 4.4 },
+  { id: 103, name: "Маша", efficiency: 92, accepted: 16, late: 0, rating: 4.9 },
 ];
 
 let reports = [
-  { id: 1, actorName: "Р”Р°С€Р°", text: "РќРµ РѕС‚РєСЂС‹Р»Р°СЃСЊ РјСѓР·С‹РєР° РІ РїСЂРѕРіСЂР°РјРјРµ", createdAt: "01.06.2026 14:20", status: "new" },
-  { id: 2, actorName: "РР»СЊСЏ", text: "РќРµС‚ Р±Р°РЅРЅРµСЂР° РІ РєРѕРјРїР»РµРєС‚Рµ", createdAt: "01.06.2026 15:05", status: "new" },
+  { id: 1, actorName: "Даша", text: "Не открылась музыка в программе", createdAt: "01.06.2026 14:20", status: "new" },
+  { id: 2, actorName: "Илья", text: "Нет баннера в комплекте", createdAt: "01.06.2026 15:05", status: "new" },
 ];
 
 function readStorage(key, fallback) {
@@ -117,7 +117,7 @@ const state = {
     duration: 2,
     programId: 1,
     actors: 2,
-    package: "2 Р°РєС‚РµСЂР°, РґРѕ 20 С‡РµР»РѕРІРµРє",
+    package: "2 актера, до 20 человек",
     extras: [],
   },
   newEmployee: { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" },
@@ -137,57 +137,57 @@ const state = {
   programKits: readStorage("programKits", {}),
   kitBuilderProgramId: null,
   kitBuilderReturnRoute: "",
-  newProp: { name: "", place: "РЎРєР»Р°Рґ", status: "available", kit: true },
+  newProp: { name: "", place: "Склад", status: "available", kit: true },
 };
 
 let orders = [
   {
     id: 1,
-    title: "Р§РµР»Р»РµРЅРґР¶ РџР°С‚Рё Р’Р»Р°РґР° Рђ4",
+    title: "Челлендж Пати Влада А4",
     date: "01.06.2026",
     time: "18:00",
-    address: "СѓР». РЎРѕР»РЅРµС‡РЅР°СЏ, 14",
-    role: "Р’РµРґСѓС‰Р°СЏ",
-    actors: ["Р”Р°С€Р°", "РР»СЊСЏ"],
-    status: "РџРѕРґС‚РІРµСЂР¶РґРµРЅ",
-    kitStatus: "РљРѕРјРїР»РµРєС‚ РЅРµ РІР·СЏС‚",
-    available: "14 РёР· 16 РґРѕСЃС‚СѓРїРЅРѕ",
+    address: "ул. Солнечная, 14",
+    role: "Ведущая",
+    actors: ["Даша", "Илья"],
+    status: "Подтвержден",
+    kitStatus: "Комплект не взят",
+    available: "14 из 16 доступно",
   },
   {
     id: 2,
-    title: "Р§РµР»Р»РµРЅРґР¶ РџР°С‚Рё Р’Р»Р°РґР° Рђ4",
+    title: "Челлендж Пати Влада А4",
     date: "02.06.2026",
     time: "18:00",
-    address: "РїСЂ-С‚ РњРёСЂР°, 8",
-    role: "РђРєС‚РµСЂ",
-    actors: ["Р”Р°С€Р°"],
-    status: "РќРѕРІС‹Р№",
-    kitStatus: "РљРѕРјРїР»РµРєС‚ РЅРµ РІР·СЏС‚",
-    available: "16 РёР· 16 РґРѕСЃС‚СѓРїРЅРѕ",
+    address: "пр-т Мира, 8",
+    role: "Актер",
+    actors: ["Даша"],
+    status: "Новый",
+    kitStatus: "Комплект не взят",
+    available: "16 из 16 доступно",
   },
   {
     id: 3,
-    title: "Р§РµР»Р»РµРЅРґР¶ РџР°С‚Рё Р’Р»Р°РґР° Рђ4",
+    title: "Челлендж Пати Влада А4",
     date: "03.06.2026",
     time: "18:00",
-    address: "СѓР». РџР°СЂРєРѕРІР°СЏ, 2",
-    role: "Р’РµРґСѓС‰Р°СЏ",
-    actors: ["Р”Р°С€Р°", "РњР°С€Р°"],
-    status: "РџРѕРґС‚РІРµСЂР¶РґРµРЅ",
-    kitStatus: "РљРѕРјРїР»РµРєС‚ Сѓ РІР°СЃ",
-    available: "16 РёР· 16 РґРѕСЃС‚СѓРїРЅРѕ",
+    address: "ул. Парковая, 2",
+    role: "Ведущая",
+    actors: ["Даша", "Маша"],
+    status: "Подтвержден",
+    kitStatus: "Комплект у вас",
+    available: "16 из 16 доступно",
   },
 ];
 
 orders = readStorage("orders", []);
 
 let props = [
-  { id: 1, name: "РљРѕР»РѕРЅРєР° JBL #1", status: "available", place: "РЎРєР»Р°Рґ", kit: true },
-  { id: 2, name: "РњРёРєСЂРѕС„РѕРЅ #2", status: "mine", place: "РЈ Р”Р°С€Рё", kit: true },
-  { id: 3, name: "РљР°СЂС‚РѕС‡РєРё Р·Р°РґР°РЅРёР№ Рђ4", status: "available", place: "РЎРєР»Р°Рґ", kit: true },
-  { id: 4, name: "Р‘Р°РЅРЅРµСЂ С‡РµР»Р»РµРЅРґР¶", status: "busy", place: "РЈ РР»СЊРё", kit: true },
-  { id: 5, name: "Р РµРєРІРёР·РёС‚РЅС‹Р№ СЏС‰РёРє", status: "available", place: "РЎРєР»Р°Рґ", kit: true },
-  { id: 6, name: "РљРЅРѕРїРєР° РѕС‚РІРµС‚Р°", status: "repair", place: "РќР° РїСЂРѕРІРµСЂРєРµ", kit: false },
+  { id: 1, name: "Колонка JBL #1", status: "available", place: "Склад", kit: true },
+  { id: 2, name: "Микрофон #2", status: "mine", place: "У Даши", kit: true },
+  { id: 3, name: "Карточки заданий А4", status: "available", place: "Склад", kit: true },
+  { id: 4, name: "Баннер челлендж", status: "busy", place: "У Ильи", kit: true },
+  { id: 5, name: "Реквизитный ящик", status: "available", place: "Склад", kit: true },
+  { id: 6, name: "Кнопка ответа", status: "repair", place: "На проверке", kit: false },
 ];
 
 props = readStorage("props", window.TOCHKA_PROP_SEED || props);
@@ -205,45 +205,45 @@ if (Array.isArray(window.TOCHKA_PROP_SEED)) {
 const defaultPrograms = [
   {
     id: 1,
-    title: "Р§РµР»Р»РµРЅРґР¶ РџР°С‚Рё Р’Р»Р°РґР° Рђ4",
-    age: "7-12 Р»РµС‚",
-    duration: "120 РјРёРЅСѓС‚",
+    title: "Челлендж Пати Влада А4",
+    age: "7-12 лет",
+    duration: "120 минут",
     pricePerHour: 4500,
     actorPayPerHour: 1600,
-    tracks: ["Р’С‹С…РѕРґ РІРµРґСѓС‰РµРіРѕ", "РљРѕРЅРєСѓСЂСЃ 1", "Р¤РёРЅР°Р»"],
+    tracks: ["Выход ведущего", "Конкурс 1", "Финал"],
   },
   {
     id: 2,
-    title: "РљСЂРёРѕ-С€РѕСѓ",
-    age: "5-12 Р»РµС‚",
-    duration: "60 РјРёРЅСѓС‚",
+    title: "Крио-шоу",
+    age: "5-12 лет",
+    duration: "60 минут",
     pricePerHour: 6200,
     actorPayPerHour: 1900,
-    tracks: ["РЎС‚Р°СЂС‚ С€РѕСѓ", "Р­РєСЃРїРµСЂРёРјРµРЅС‚", "Р¤РёРЅР°Р»"],
+    tracks: ["Старт шоу", "Эксперимент", "Финал"],
   },
 ];
 
 let programs = readStorage("programs", defaultPrograms);
 
 const packageOptions = [
-  { label: "РЁРѕСѓ РїСЂРѕРіСЂР°РјРјР°", actors: 1, multiplier: 1 },
-  { label: "1 Р°РєС‚РµСЂ РґРѕ 10 С‡РµР»РѕРІРµРє", actors: 1, multiplier: 1 },
-  { label: "2 Р°РєС‚РµСЂР°, РґРѕ 20 С‡РµР»РѕРІРµРє", actors: 2, multiplier: 1.35 },
-  { label: "2 Р°РєС‚РµСЂР°, РґРѕ 30 С‡РµР»РѕРІРµРє", actors: 2, multiplier: 1.55 },
-  { label: "3 Р°РєС‚РµСЂР°, РґРѕ 35 С‡РµР»РѕРІРµРє", actors: 3, multiplier: 1.9 },
+  { label: "Шоу программа", actors: 1, multiplier: 1 },
+  { label: "1 актер до 10 человек", actors: 1, multiplier: 1 },
+  { label: "2 актера, до 20 человек", actors: 2, multiplier: 1.35 },
+  { label: "2 актера, до 30 человек", actors: 2, multiplier: 1.55 },
+  { label: "3 актера, до 35 человек", actors: 3, multiplier: 1.9 },
 ];
 
 const packageRates = [0, 416.67, 500, 666.67, 833.33];
 
-const showPrograms = ["РќР°СѓС‡РЅРѕРµ С€РѕСѓ", "РЁРѕСѓ РјС‹Р»СЊРЅС‹С… РїСѓР·С‹СЂРµР№", "Р‘СѓРјР°Р¶РЅРѕРµ С€РѕСѓ"];
+const showPrograms = ["Научное шоу", "Шоу мыльных пузырей", "Бумажное шоу"];
 
 const extras = [
-  "Р“РµРЅРµСЂР°С‚РѕСЂ РјС‹Р»СЊРЅС‹С… РїСѓР·С‹СЂРµР№",
-  "РќСЏРЅСЏ РґР»СЏ РґРµС‚РµР№",
-  "РђРєРІР°РіСЂРёРј",
-  "РћС„РѕСЂРјР»РµРЅРёРµ С„РѕС‚Рѕ Р·РѕРЅС‹",
-  "РЁРѕСѓ РєСЂР°СЃРѕРє РҐРѕР»Р»Рё",
-  "РџРѕРїРєРѕСЂРЅ",
+  "Генератор мыльных пузырей",
+  "Няня для детей",
+  "Аквагрим",
+  "Оформление фото зоны",
+  "Шоу красок Холли",
+  "Попкорн",
 ];
 
 let editableExtras = readStorage("editableExtras", extras).map((item) =>
@@ -251,47 +251,47 @@ let editableExtras = readStorage("editableExtras", extras).map((item) =>
 );
 
 const animationPrograms = [
-  "РЈСЌРЅСЃРґРµР№ Рё Р­РЅРёРґ",
-  "Р‘Р°СЂР±Рё Рё РљРµРЅ",
-  "РҐРѕР»РѕРґРЅРѕРµ СЃРµСЂРґС†Рµ",
-  "Р’РµС‡РµСЂРёРЅРєР° Р’Р»Р°РґР° Рђ4",
-  "РўСЂРё РљРѕС‚Р°",
-  "Р‘СЂРµРјРµРЅСЃРєРёРµ РјСѓР·С‹РєР°РЅС‚С‹",
-  "РџРёР¶Р°РјРЅР°СЏ РІРµС‡РµСЂРёРЅРєР°",
-  "Р’РµС‡РµСЂ РЅР°СЃС‚РѕР»СЊРЅС‹С… РёРіСЂ",
-  "РљСѓР»РёРЅР°СЂРЅРѕРµ С€РѕСѓ",
-  "Р’РµС‡РµСЂРёРЅРєР° РІ С†РёСЂРєРµ",
-  "РџРѕСЃР»РµРґРЅРёР№ РіРµСЂРѕР№",
-  "РњРёС€РєРё РњРћ Рё РњР",
-  "РџСЂРёРєР»СЋС‡РµРЅРёРµ Р“Р°СЂСЂРё РџРѕС‚С‚РµСЂР° Рё Р“РµСЂРјРёРѕРЅС‹",
-  "РЈСЌРЅСЃРґРµР№",
-  "Р‘Р°СЂР±Рё",
-  "Р§РµР»РѕРІРµРє РїР°СѓРє",
-  "РљРѕСЂР°Р»РёРЅР° РІ СЃС‚СЂР°РЅРµ РєРѕС€РјР°СЂРѕРІ",
-  "РРіСЂР° РІ РєР°Р»СЊРјР°СЂР° 2",
-  "РЁРїРёРѕРЅ (РїРѕ РјРѕС‚РёРІР°Рј Р°РјРѕРЅРі Р°СЃ)",
-  "Р›РµРѕРЅ (РїРѕ РјРѕС‚РёРІР°Рј Р±СЂР°РІР» РЎС‚Р°СЂСЃ)",
-  "РЎРёРјРєР° Рё РќРѕР»РёРє",
-  "Р›РµРґРё Р±Р°Рі Рё СЃСѓРїРµСЂ РєРѕС‚",
-  "РњР°С„РёСЏ",
-  "Р—РѕРјР±Рё-Р°РїРѕРєР°Р»РёРїСЃРёСЃ",
+  "Уэнсдей и Энид",
+  "Барби и Кен",
+  "Холодное сердце",
+  "Вечеринка Влада А4",
+  "Три Кота",
+  "Бременские музыканты",
+  "Пижамная вечеринка",
+  "Вечер настольных игр",
+  "Кулинарное шоу",
+  "Вечеринка в цирке",
+  "Последний герой",
+  "Мишки МО и МИ",
+  "Приключение Гарри Поттера и Гермионы",
+  "Уэнсдей",
+  "Барби",
+  "Человек паук",
+  "Коралина в стране кошмаров",
+  "Игра в кальмара 2",
+  "Шпион (по мотивам амонг ас)",
+  "Леон (по мотивам бравл Старс)",
+  "Симка и Нолик",
+  "Леди баг и супер кот",
+  "Мафия",
+  "Зомби-апокалипсис",
 ];
 
 const expressPrograms = [
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ РїР°РЅРґС‹ РЇС€Рё",
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ РіСѓСЃСЏ Р’РёС‚Р°Р»Рё",
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ РјРёС€РєРё Р›РµРѕ",
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ Р—Р°Р№РєРё Р›РёРё",
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ РґРёРЅРѕР·Р°РІСЂР° Р­СЂРёРєР°",
-  "Р­РєСЃРїСЂРµСЃСЃ-РїРѕР·РґСЂР°РІР»РµРЅРёРµ РЈС‚Рё РџСѓС‚Рё",
+  "Экспресс-поздравление панды Яши",
+  "Экспресс-поздравление гуся Витали",
+  "Экспресс-поздравление мишки Лео",
+  "Экспресс-поздравление Зайки Лии",
+  "Экспресс-поздравление динозавра Эрика",
+  "Экспресс-поздравление Ути Пути",
 ];
 
 const masterClasses = [
-  "РњР°СЃС‚РµСЂ-РєР»Р°СЃСЃ СЃР»Р°Р№Рј",
-  "РњР°СЃС‚РµСЂ-РєР»Р°СЃСЃ РїРѕ СЂРѕСЃРїРёСЃРё РїСЂСЏРЅРёРєРѕРІ",
-  "РњР°СЃС‚РµСЂ-РєР»Р°СЃСЃ С‚Р°Р±Р° Р»Р°РїРєР°",
-  "РњР°СЃС‚РµСЂ-РєР»Р°СЃСЃ РїРѕ СЂРёСЃРѕРІР°РЅРёСЋ РєР°СЂС‚РёРЅ",
-  "РњР°СЃС‚РµСЂ-РєР»Р°СЃСЃ СѓРєСЂР°С€РµРЅРёРµ РёР· СЌРїРѕРєСЃРёРґРЅРѕР№ СЃРјРѕР»С‹",
+  "Мастер-класс слайм",
+  "Мастер-класс по росписи пряников",
+  "Мастер-класс таба лапка",
+  "Мастер-класс по рисованию картин",
+  "Мастер-класс украшение из эпоксидной смолы",
 ];
 
 function saveState() {
@@ -311,10 +311,10 @@ function saveState() {
 
 function roleLabel(role = state.user.role) {
   return {
-    admin: "Р°РґРјРёРЅ",
-    ambassador: "Р°РјР±Р°СЃСЃР°РґРѕСЂ",
-    actor: "Р°РєС‚РµСЂ",
-  }[role] || "Р°РєС‚РµСЂ";
+    admin: "админ",
+    ambassador: "амбассадор",
+    actor: "актер",
+  }[role] || "актер";
 }
 
 function canAddOrder() {
@@ -416,7 +416,7 @@ async function loadRemoteData(options = {}) {
     state.accessChecked = true;
     const stillAllowed = Boolean(state.user.hasAccess);
     if (options.renderAfter !== false) {
-      state.toast = "РќРµ СѓРґР°Р»РѕСЃСЊ РїСЂРѕРІРµСЂРёС‚СЊ РґРѕСЃС‚СѓРї";
+      state.toast = "Не удалось проверить доступ";
       render();
       clearToastLater();
     }
@@ -455,7 +455,7 @@ async function sendAction(action) {
   } catch (error) {
     console.warn("Action sync failed", action.type, error);
     action.error = shortError(error.message || "API");
-    state.toast = `РћС€РёР±РєР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё: ${action.error}`;
+    state.toast = `Ошибка синхронизации: ${action.error}`;
     action.status = "offline";
     saveState();
     render();
@@ -465,16 +465,16 @@ async function sendAction(action) {
 
 function shortError(message = "") {
   const text = String(message);
-  if (text.includes("ambassador_code") || text.includes("BUNNY-")) return "РљРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР° СѓР¶Рµ РµСЃС‚СЊ РІ Р±Р°Р·Рµ";
-  if (text.includes("duplicate key")) return "РўР°РєР°СЏ Р·Р°РїРёСЃСЊ СѓР¶Рµ РµСЃС‚СЊ РІ Р±Р°Р·Рµ";
-  if (text.includes("violates unique constraint")) return "РќР°СЂСѓС€РµРЅР° СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ Р·Р°РїРёСЃРё";
+  if (text.includes("ambassador_code") || text.includes("BUNNY-")) return "Код амбассадора уже есть в базе";
+  if (text.includes("duplicate key")) return "Такая запись уже есть в базе";
+  if (text.includes("violates unique constraint")) return "Нарушена уникальность записи";
   return text.length > 120 ? `${text.slice(0, 120)}...` : text;
 }
 
 function cancelSyncAction(id) {
   state.syncQueue = state.syncQueue.filter((action) => Number(action.id) !== Number(id));
   saveState();
-  state.toast = "РћРїРµСЂР°С†РёСЏ РѕС‚РјРµРЅРµРЅР°";
+  state.toast = "Операция отменена";
   render();
   clearToastLater();
 }
@@ -536,8 +536,8 @@ function rememberDeleted(type, id) {
   saveState();
 }
 
-function confirmDelete(label = "СЌР»РµРјРµРЅС‚") {
-  return window.confirm(`РўРѕС‡РЅРѕ СѓРґР°Р»РёС‚СЊ ${label}? Р­С‚Рѕ РґРµР№СЃС‚РІРёРµ РЅРµР»СЊР·СЏ РѕС‚РјРµРЅРёС‚СЊ.`);
+function confirmDelete(label = "элемент") {
+  return window.confirm(`Точно удалить ${label}? Это действие нельзя отменить.`);
 }
 
 function setRoute(route, options = {}) {
@@ -549,7 +549,7 @@ function setRoute(route, options = {}) {
 function setRole(role) {
   state.user.role = role;
   state.themeBurst = true;
-  state.toast = `Р РµР¶РёРј: ${roleLabel(role)}`;
+  state.toast = `Режим: ${roleLabel(role)}`;
   render();
   window.setTimeout(() => {
     state.themeBurst = false;
@@ -576,7 +576,7 @@ function queueAction(type, payload) {
 }
 
 function takeProp(propId) {
-  props = props.map((item) => (item.id === propId ? { ...item, status: "mine", place: `РЈ ${state.user.firstName}` } : item));
+  props = props.map((item) => (item.id === propId ? { ...item, status: "mine", place: `У ${state.user.firstName}` } : item));
   queueAction("take-prop", { propId, actorId: state.user.id });
 }
 
@@ -586,13 +586,13 @@ function takeKit(orderId = state.activeOrderId) {
   const kitIds = new Set((state.programKits[String(program?.id)] || []).map(Number));
   const targetIds = kitIds.size ? kitIds : new Set(props.filter((item) => item.kit).map((item) => Number(item.id)));
   props = props.map((item) =>
-    targetIds.has(Number(item.id)) ? { ...item, status: "mine", place: `РЈ ${state.user.firstName}` } : item
+    targetIds.has(Number(item.id)) ? { ...item, status: "mine", place: `У ${state.user.firstName}` } : item
   );
   orders = orders.map((item) =>
-    Number(item.id) === Number(orderId) ? { ...item, kitStatus: `РљРѕРјРїР»РµРєС‚ Сѓ ${state.user.firstName}` } : item
+    Number(item.id) === Number(orderId) ? { ...item, kitStatus: `Комплект у ${state.user.firstName}` } : item
   );
   queueAction("take-kit", { orderId, actorId: state.user.id, propIds: [...targetIds] });
-  state.toast = `РљРѕРјРїР»РµРєС‚ Сѓ ${state.user.firstName}`;
+  state.toast = `Комплект у ${state.user.firstName}`;
   saveState();
   render();
   clearToastLater();
@@ -609,12 +609,12 @@ function acceptedByMeForOrder(orderId) {
 }
 
 function orderActorLimit(order) {
-  const match = String(order?.role || "").match(/(\d+)\s*Р°РєС‚РµСЂ/i);
+  const match = String(order?.role || "").match(/(\d+)\s*актер/i);
   return match ? Number(match[1]) : 1;
 }
 
 function returnProp(propId) {
-  props = props.map((item) => (item.id === propId ? { ...item, status: "available", place: "РЎРєР»Р°Рґ" } : item));
+  props = props.map((item) => (item.id === propId ? { ...item, status: "available", place: "Склад" } : item));
   queueAction("return-prop", { propId, actorId: state.user.id });
 }
 
@@ -623,7 +623,7 @@ function acceptOrder(orderId) {
   const current = acceptedListForOrder(orderId);
   if (current.some((accepted) => Number(accepted.actorId) === Number(state.user.id))) return;
   if (current.length >= orderActorLimit(order)) {
-    state.toast = "Р’СЃРµ РјРµСЃС‚Р° Р°РєС‚РµСЂРѕРІ СѓР¶Рµ Р·Р°РЅСЏС‚С‹";
+    state.toast = "Все места актеров уже заняты";
     render();
     clearToastLater();
     return;
@@ -642,7 +642,7 @@ function acceptOrder(orderId) {
       : employee
   );
   queueAction("accept-order", { orderId, actorId: state.user.id });
-  state.toast = "Р—Р°РєР°Р· РїСЂРёРЅСЏС‚";
+  state.toast = "Заказ принят";
   saveState();
   render();
   clearToastLater();
@@ -665,7 +665,7 @@ function declineOrder(orderId) {
     );
   }
   queueAction("decline-order", { orderId, actorId: state.user.id });
-  state.toast = "Р’С‹ РѕС‚РєР°Р·Р°Р»РёСЃСЊ РѕС‚ Р·Р°РєР°Р·Р°";
+  state.toast = "Вы отказались от заказа";
   saveState();
   render();
   clearToastLater();
@@ -673,21 +673,21 @@ function declineOrder(orderId) {
 
 function actionToast(type) {
   return {
-    "take-kit": "РљРѕРјРїР»РµРєС‚ РґРѕР±Р°РІР»РµРЅ РІ РѕС‡РµСЂРµРґСЊ",
-    "take-prop": "Р РµРєРІРёР·РёС‚ Сѓ РІР°СЃ",
-    "return-prop": "Р РµРєРІРёР·РёС‚ РІРѕР·РІСЂР°С‰РµРЅ",
-    "accept-order": "Р—Р°РєР°Р· РїСЂРёРЅСЏС‚",
-    "decline-order": "РћС‚РєР°Р· РѕС‚ Р·Р°РєР°Р·Р° СЃРѕС…СЂР°РЅРµРЅ",
-    "create-order": "Р—Р°РєР°Р· РґРѕР±Р°РІР»РµРЅ",
-    "create-bonus": "Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅР°СЏ РІС‹РїР»Р°С‚Р° РЅР°С‡РёСЃР»РµРЅР°",
-    "create-promo": "РџСЂРѕРјРѕРєРѕРґ РґРѕР±Р°РІР»РµРЅ",
-    "withdraw-bunny": "Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ РѕС‚РїСЂР°РІР»РµРЅР°",
+    "take-kit": "Комплект добавлен в очередь",
+    "take-prop": "Реквизит у вас",
+    "return-prop": "Реквизит возвращен",
+    "accept-order": "Заказ принят",
+    "decline-order": "Отказ от заказа сохранен",
+    "create-order": "Заказ добавлен",
+    "create-bonus": "Дополнительная выплата начислена",
+    "create-promo": "Промокод добавлен",
+    "withdraw-bunny": "Заявка на вывод отправлена",
     "update-ambassador": "Амбассадор обновлен",
-    "update-order-pay": "Р—Р°СЂРїР»Р°С‚Р° СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅР°",
-    "delete-order-pay": "Р—Р°СЂРїР»Р°С‚Р° СѓРґР°Р»РµРЅР°",
-    "annul-order": "РџСЂРёРЅСЏС‚РёРµ Р·Р°РєР°Р·Р° Р°РЅРЅСѓР»РёСЂРѕРІР°РЅРѕ",
-    report: "РћС€РёР±РєР° РѕС‚РїСЂР°РІР»РµРЅР°",
-  }[type] || "Р”РµР№СЃС‚РІРёРµ СЃРѕС…СЂР°РЅРµРЅРѕ";
+    "update-order-pay": "Зарплата скорректирована",
+    "delete-order-pay": "Зарплата удалена",
+    "annul-order": "Принятие заказа аннулировано",
+    report: "Ошибка отправлена",
+  }[type] || "Действие сохранено";
 }
 
 function addEmployee() {
@@ -733,7 +733,7 @@ function addPromoCode() {
   state.promoCodes = [promo, ...state.promoCodes.filter((item) => item.code !== code)];
   queueAction("create-promo", promo);
   state.newPromo = { code: "", discount: "", description: "" };
-  state.toast = "РџСЂРѕРјРѕРєРѕРґ РґРѕР±Р°РІР»РµРЅ";
+  state.toast = "Промокод добавлен";
   render();
   clearToastLater();
 }
@@ -746,13 +746,13 @@ function findPromoCode(code) {
 function applyDiscountCode() {
   const promo = findPromoCode(state.booking.promoCode);
   if (!promo) {
-    state.toast = "РџСЂРѕРјРѕРєРѕРґ РЅРµ РЅР°Р№РґРµРЅ";
+    state.toast = "Промокод не найден";
     render();
     clearToastLater();
     return;
   }
   state.booking.discount = Number(promo.discount || 0);
-  state.toast = `РЎРєРёРґРєР° ${money(state.booking.discount)}`;
+  state.toast = `Скидка ${money(state.booking.discount)}`;
   render();
   clearToastLater();
 }
@@ -779,13 +779,13 @@ function requestBunnyWithdraw() {
   const employee = currentEmployee();
   const balance = Number(employee?.bunnyBalance || state.user.bunnyBalance || 0);
   if (balance <= 0) {
-    state.toast = "Р‘Р°Р»Р»РѕРІ РїРѕРєР° РЅРµС‚";
+    state.toast = "Баллов пока нет";
     render();
     clearToastLater();
     return;
   }
   if (!canWithdrawBunny()) {
-    state.toast = "Р’С‹РІРѕРґ РґРѕСЃС‚СѓРїРµРЅ 30/31 С‡РёСЃР»Р°";
+    state.toast = "Вывод доступен 30/31 числа";
     render();
     clearToastLater();
     return;
@@ -805,7 +805,7 @@ function requestBunnyWithdraw() {
   state.user.bunnyBalance = 0;
   state.user.bunnyPending = Number(state.user.bunnyPending || 0) + balance;
   queueAction("withdraw-bunny", withdrawal);
-  state.toast = "Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ РѕС‚РїСЂР°РІР»РµРЅР°";
+  state.toast = "Заявка на вывод отправлена";
   render();
   clearToastLater();
 }
@@ -881,12 +881,12 @@ function addProp() {
       id: Date.now(),
       name,
       status: state.newProp.status,
-      place: state.newProp.place || "РЎРєР»Р°Рґ",
+      place: state.newProp.place || "Склад",
       kit: Boolean(state.newProp.kit),
     },
   ];
   queueAction("create-prop", { ...state.newProp });
-  state.newProp = { name: "", place: "РЎРєР»Р°Рґ", status: "available", kit: true };
+  state.newProp = { name: "", place: "Склад", status: "available", kit: true };
   setRoute("props");
 }
 
@@ -965,7 +965,7 @@ function toggleProgramKitProp(propId) {
 function saveProgramKit() {
   const key = currentKitKey();
   queueAction("save-program-kit", { programId: key, propIds: state.programKits[key] || [] });
-  state.toast = "РљРѕРјРїР»РµРєС‚ РїСЂРѕРіСЂР°РјРјС‹ СЃРѕС…СЂР°РЅРµРЅ";
+  state.toast = "Комплект программы сохранен";
   const returnRoute = state.kitBuilderReturnRoute;
   state.kitBuilderProgramId = null;
   state.kitBuilderReturnRoute = "";
@@ -1002,7 +1002,7 @@ function annulOrder(orderId) {
       : employee
   );
   queueAction("decline-order", { orderId, actorId: accepted.actorId });
-  state.toast = "РџСЂРёРЅСЏС‚РёРµ Р·Р°РєР°Р·Р° Р°РЅРЅСѓР»РёСЂРѕРІР°РЅРѕ";
+  state.toast = "Принятие заказа аннулировано";
   saveState();
   render();
   clearToastLater();
@@ -1016,7 +1016,7 @@ function updateOrderPay(orderId, value) {
 function deleteOrderPay(orderId) {
   updateOrderPay(orderId, 0);
   queueAction("delete-order-pay", { orderId });
-  state.toast = "Р—Р°СЂРїР»Р°С‚Р° РїРѕ Р·Р°РєР°Р·Сѓ СѓРґР°Р»РµРЅР°";
+  state.toast = "Зарплата по заказу удалена";
   render();
   clearToastLater();
 }
@@ -1045,7 +1045,7 @@ function saveProgramChanges(programId) {
   const program = programs.find((item) => Number(item.id) === Number(programId));
   if (!program) return;
   queueAction("update-program", program);
-  state.toast = "РџСЂРѕРіСЂР°РјРјР° РѕР±РЅРѕРІР»РµРЅР°";
+  state.toast = "Программа обновлена";
   render();
   clearToastLater();
 }
@@ -1059,7 +1059,7 @@ function deleteProp(id) {
 function createOrder() {
   const calc = calculateBooking();
   if (!calc.program) {
-    state.toast = "РЎРЅР°С‡Р°Р»Р° РґРѕР±Р°РІСЊС‚Рµ РїСЂРѕРіСЂР°РјРјСѓ";
+    state.toast = "Сначала добавьте программу";
     render();
     clearToastLater();
     return;
@@ -1070,15 +1070,15 @@ function createOrder() {
     title: calc.program.title,
     date: formatUiDate(state.booking.date),
     time: state.booking.start,
-    address: state.booking.address || "РђРґСЂРµСЃ РЅРµ СѓРєР°Р·Р°РЅ",
+    address: state.booking.address || "Адрес не указан",
     role: state.booking.package,
     actors: [state.user.firstName],
     programId: calc.program.id,
     promoCode: state.booking.promoCode || "",
     ambassadorCode: state.user.role === "ambassador" ? (state.booking.ambassadorCode || currentAmbassadorCode()) : "",
-    status: "РќРѕРІС‹Р№",
-    kitStatus: "РљРѕРјРїР»РµРєС‚ РЅРµ РІР·СЏС‚",
-    available: "РџСЂРѕРІРµСЂСЏРµС‚СЃСЏ",
+    status: "Новый",
+    kitStatus: "Комплект не взят",
+    available: "Проверяется",
   };
   order.total = calc.orderTotal;
   order.actorPay = calc.actorTotal;
@@ -1102,7 +1102,7 @@ function createOrder() {
   if (state.newBonus.employeeId && Number(state.newBonus.amount || 0) > 0) {
     addBonus({ redirect: false });
   }
-  state.toast = "Р—Р°РєР°Р· РґРѕР±Р°РІР»РµРЅ";
+  state.toast = "Заказ добавлен";
   setRoute("orders");
   clearToastLater();
 }
@@ -1139,7 +1139,7 @@ function saveForTrip(orderId) {
     state.saved.push(orderId);
     saveState();
   }
-  state.toast = "РЎРѕС…СЂР°РЅРµРЅРѕ РґР»СЏ РІС‹РµР·РґР°";
+  state.toast = "Сохранено для выезда";
   setRoute("saved");
   clearToastLater();
 }
@@ -1257,7 +1257,7 @@ function setEmployeeTotal(employeeId, targetTotal) {
     employeeId: Number(employeeId),
     employeeName: employee.name,
     amount: delta,
-    comment: "РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РѕР±С‰РµР№ СЃСѓРјРјС‹",
+    comment: "Корректировка общей суммы",
     createdById: state.user.id,
     createdByName: state.user.firstName,
     createdAt: new Date().toISOString(),
@@ -1303,7 +1303,7 @@ function normalizeSearch(value) {
 }
 
 function propCellNumber(item) {
-  const match = String(item.place || "").match(/СЏС‡РµР№РєР°\s*([^\s,.;]+)/i);
+  const match = String(item.place || "").match(/ячейка\s*([^\s,.;]+)/i);
   return match?.[1] || "";
 }
 
@@ -1367,25 +1367,25 @@ function tabbar() {
   const tabs =
     state.user.role === "admin"
       ? [
-          ["home", "РЎРµРіРѕРґРЅСЏ"],
-          ["admin", "РђРґРјРёРЅ"],
-          ["orders", "Р—Р°РєР°Р·С‹"],
-          ["programs", "РџСЂРѕРіСЂР°РјРјС‹"],
-          ["props", "Р РµРєРІРёР·РёС‚"],
-          ["saved", "РЎРѕС…СЂР°РЅРµРЅРѕ"],
+          ["home", "Сегодня"],
+          ["admin", "Админ"],
+          ["orders", "Заказы"],
+          ["programs", "Программы"],
+          ["props", "Реквизит"],
+          ["saved", "Сохранено"],
         ]
       : state.user.role === "ambassador"
         ? [
-            ["home", "РЎРµРіРѕРґРЅСЏ"],
-            ["new-order", "Р—Р°РєР°Р·"],
-            ["profile", "РџСЂРѕС„РёР»СЊ"],
+            ["home", "Сегодня"],
+            ["new-order", "Заказ"],
+            ["profile", "Профиль"],
           ]
         : [
-          ["home", "РЎРµРіРѕРґРЅСЏ"],
-          ["orders", "Р—Р°РєР°Р·С‹"],
-          ["programs", "РџСЂРѕРіСЂР°РјРјС‹"],
-          ["props", "Р РµРєРІРёР·РёС‚"],
-          ["saved", "РЎРѕС…СЂР°РЅРµРЅРѕ"],
+          ["home", "Сегодня"],
+          ["orders", "Заказы"],
+          ["programs", "Программы"],
+          ["props", "Реквизит"],
+          ["saved", "Сохранено"],
         ];
 
   return `
@@ -1405,12 +1405,12 @@ function tabbar() {
 
 function syncPill() {
   const pending = pendingActions().length;
-  const text = pending ? `Рє РѕС‚РїСЂР°РІРєРµ: ${pending}` : "РІСЃРµ СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРѕ";
-  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-route="sync">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button><button class="help-pill glow" data-route="help">РљР°Рє РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ</button></div>`;
+  const text = pending ? `к отправке: ${pending}` : "все синхронизировано";
+  return `<div class="sync-cluster"><button class="status-pill sync-pill-button ${pending ? "glow" : ""}" data-route="sync">${text}</button><button class="version-pill ${state.versionGlow ? "glow" : ""}" data-route="version">v${APP_VERSION}</button><button class="help-pill glow" data-route="help">Как пользоваться</button></div>`;
 }
 
 function money(value) {
-  return `${Number(value).toLocaleString("ru-RU")} в‚Ѕ`;
+  return `${Number(value).toLocaleString("ru-RU")} ?`;
 }
 
 function checkingScreen() {
@@ -1430,22 +1430,22 @@ function checkingScreen() {
   return appFrame(`
     <div class="brand-card">
       <img class="asset asset-triangle" src="./assets/hero-triangle.svg" alt="" />
-      <img class="brand-logo" src="./assets/logo.svg" alt="РўРѕС‡РєР° РїСЂР°Р·РґРЅРёРєР°" />
+      <img class="brand-logo" src="./assets/logo.svg" alt="Точка праздника" />
       <div class="loading-ring"></div>
     </div>
-    <p class="loading-note">РџСЂРѕРІРµСЂСЏРµРј РґРѕСЃС‚СѓРї...</p>
+    <p class="loading-note">Проверяем доступ...</p>
   `);
 }
 
 function authConfirmScreen() {
   return appFrame(`
     <div class="auth-card">
-      <img class="brand-logo auth-logo" src="./assets/logo.svg" alt="РўРѕС‡РєР° РїСЂР°Р·РґРЅРёРєР°" />
+      <img class="brand-logo auth-logo" src="./assets/logo.svg" alt="Точка праздника" />
       <div class="auth-telegram">TG</div>
-      <h1 class="page-title">РџРѕРґС‚РІРµСЂРґРёС‚Рµ РІС…РѕРґ</h1>
-      <p class="small-text">РџСЂРёР»РѕР¶РµРЅРёРµ РїРѕР»СѓС‡РёС‚ РІР°С€Рµ РёРјСЏ, Telegram ID Рё username, С‡С‚РѕР±С‹ РїСЂРѕРІРµСЂРёС‚СЊ РґРѕСЃС‚СѓРї СЃРѕС‚СЂСѓРґРЅРёРєР°.</p>
-      <button class="primary-button" data-action="confirm-auth">Р Р°Р·СЂРµС€РёС‚СЊ Рё РІРѕР№С‚Рё</button>
-      <button class="ghost-link" data-action="deny-auth">РћС‚РјРµРЅР°</button>
+      <h1 class="page-title">Подтвердите вход</h1>
+      <p class="small-text">Приложение получит ваше имя, Telegram ID и username, чтобы проверить доступ сотрудника.</p>
+      <button class="primary-button" data-action="confirm-auth">Разрешить и войти</button>
+      <button class="ghost-link" data-action="deny-auth">Отмена</button>
     </div>
   `);
 }
@@ -1455,38 +1455,38 @@ function deniedScreen() {
     <div class="tiny-pill access-code">404</div>
     <div class="access-card">
       <img class="asset asset-cross" src="./assets/access-cross.svg" alt="" />
-      <h1 class="page-title">Р”РѕСЃС‚СѓРї РЅРµ РЅР°Р№РґРµРЅ</h1>
-      <p class="small-text">Р’Р°СЃ РїРѕРєР° РЅРµС‚ РІ СЃРїРёСЃРєРµ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ. РћР±СЂР°С‚РёС‚РµСЃСЊ Рє Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂСѓ.</p>
+      <h1 class="page-title">Доступ не найден</h1>
+      <p class="small-text">Вас пока нет в списке сотрудников. Обратитесь к администратору.</p>
       <div class="notice" style="margin-top: 10px">
         Telegram ID: ${state.user.telegramId || telegramUser?.id || state.user.id}<br>
-        Username: @${state.user.username || "РЅРµ СѓРєР°Р·Р°РЅ"}
+        Username: @${state.user.username || "не указан"}
       </div>
-      <button class="primary-button" data-action="contact-admin">РќР°РїРёСЃР°С‚СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂСѓ</button>
-      <button class="ghost-link" data-route="checking">РћР±РЅРѕРІРёС‚СЊ РґРѕСЃС‚СѓРї</button>
+      <button class="primary-button" data-action="contact-admin">Написать администратору</button>
+      <button class="ghost-link" data-route="checking">Обновить доступ</button>
     </div>
-    <div class="footer-brand">РўРѕС‡РєР° РїСЂР°Р·РґРЅРёРєР°<span>РїСЂРѕРµРєС‚ Р‘Р°РЅРЅРё Р‘РѕРЅ</span></div>
+    <div class="footer-brand">Точка праздника<span>проект Банни Бон</span></div>
   `);
 }
 
 function versionScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-action="close-version">вЂ№</button>
+      <button class="icon-button" data-action="close-version">?</button>
       <span class="version-pill static-version-pill">v${APP_VERSION}</span>
     </div>
-    <h1 class="page-title">Р’РµСЂСЃРёСЏ</h1>
+    <h1 class="page-title">Версия</h1>
     <div class="content-stack">
       <section class="panel version-panel">
         <h2 class="panel-title">v${APP_VERSION}</h2>
-        <p class="small-text">РСЃС‚РѕСЂРёСЏ РїРѕСЃР»РµРґРЅРёС… РёР·РјРµРЅРµРЅРёР№ РїСЂРёР»РѕР¶РµРЅРёСЏ.</p>
+        <p class="small-text">История последних изменений приложения.</p>
       </section>
       <section class="panel">
-        <h2 class="panel-title">Р§С‚Рѕ РёР·РјРµРЅРёР»РѕСЃСЊ</h2>
+        <h2 class="panel-title">Что изменилось</h2>
         <div class="orders-stack">
           ${releaseNotes.map((note) => `<div class="notice">${note}</div>`).join("")}
         </div>
       </section>
-      <button class="primary-button" data-action="close-version">Р—Р°РєСЂС‹С‚СЊ</button>
+      <button class="primary-button" data-action="close-version">Закрыть</button>
     </div>
   `, true);
 }
@@ -1498,41 +1498,41 @@ function openVersionScreen() {
 
 function helpScreen() {
   const actorGuide = [
-    ["РџСЂРёРЅСЏС‚СЊ Р·Р°РєР°Р·", "РћС‚РєСЂРѕР№С‚Рµ Р—Р°РєР°Р·С‹, РІС‹Р±РµСЂРёС‚Рµ Р°РєС‚СѓР°Р»СЊРЅС‹Р№ Р·Р°РєР°Р· Рё РЅР°Р¶РјРёС‚Рµ РџСЂРёРЅСЏС‚СЊ. Р•СЃР»Рё РјРµСЃС‚ СѓР¶Рµ РЅРµС‚, РєРЅРѕРїРєР° РїСЂРёРЅСЏС‚РёСЏ СЃС‚Р°РЅРµС‚ РЅРµРґРѕСЃС‚СѓРїРЅРѕР№."],
-    ["РћС‚РєР°Р·Р°С‚СЊСЃСЏ РѕС‚ Р·Р°РєР°Р·Р°", "РћС‚РєСЂРѕР№С‚Рµ РїСЂРёРЅСЏС‚С‹Р№ Р·Р°РєР°Р· Рё РЅР°Р¶РјРёС‚Рµ РћС‚РєР°Р·Р°С‚СЊСЃСЏ. Р—Р°РєР°Р· СѓР№РґРµС‚ РёР· РІР°С€РёС… РїСЂРёРЅСЏС‚С‹С…, Р° РЅР°С‡РёСЃР»РµРЅРёРµ РїРѕ РЅРµРјСѓ РїРµСЂРµСЃС‡РёС‚Р°РµС‚СЃСЏ."],
-    ["Р’Р·СЏС‚СЊ СЂРµРєРІРёР·РёС‚", "РџРµСЂРµР№РґРёС‚Рµ РІ Р РµРєРІРёР·РёС‚ РёР»Рё РѕС‚РєСЂРѕР№С‚Рµ РєРѕРјРїР»РµРєС‚ РїСЂРѕРіСЂР°РјРјС‹. РќР°Р¶РјРёС‚Рµ Р’Р·СЏС‚СЊ, Рё СЂРµРєРІРёР·РёС‚ СЃСЂР°Р·Сѓ Р·Р°РєСЂРµРїРёС‚СЃСЏ Р·Р° РІР°РјРё, РґР°Р¶Рµ РµСЃР»Рё РІС‹ РѕС„Р»Р°Р№РЅ."],
-    ["Р’РµСЂРЅСѓС‚СЊ СЂРµРєРІРёР·РёС‚", "РћС‚РєСЂРѕР№С‚Рµ Р РµРєРІРёР·РёС‚, РЅР°Р№РґРёС‚Рµ РїСЂРµРґРјРµС‚ СЃРѕ СЃС‚Р°С‚СѓСЃРѕРј РЈ РјРµРЅСЏ Рё РЅР°Р¶РјРёС‚Рµ Р’РµСЂРЅСѓС‚СЊ. РџРѕСЃР»Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё РѕС‚РјРµС‚РєР° СѓР№РґРµС‚ РІ Р±Р°Р·Сѓ."],
-    ["РџСЂРѕРіСЂР°РјРјС‹", "Р’Рѕ РІРєР»Р°РґРєРµ РџСЂРѕРіСЂР°РјРјС‹ РѕС‚РєСЂРѕР№С‚Рµ РЅСѓР¶РЅСѓСЋ РїСЂРѕРіСЂР°РјРјСѓ, СЃРјРѕС‚СЂРёС‚Рµ СЃС†РµРЅР°СЂРёР№, СЃСЃС‹Р»РєСѓ РЅР° РґРёСЃРє Рё РєРѕРјРїР»РµРєС‚ СЂРµРєРІРёР·РёС‚Р°."],
-    ["РџСЂРѕС„РёР»СЊ", "Р’ РїСЂРѕС„РёР»Рµ РІРёРґРЅС‹ РїСЂРёРЅСЏС‚С‹Рµ Р·Р°РєР°Р·С‹, Р·Р°СЂР°Р±РѕС‚РѕРє Р·Р° РїРµСЂРёРѕРґ, СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ Рё СЂРµРєРІРёР·РёС‚, Р·Р°РєСЂРµРїР»РµРЅРЅС‹Р№ Р·Р° РІР°РјРё."],
-    ["РћС€РёР±РєР°", "Р•СЃР»Рё С‡С‚Рѕ-С‚Рѕ СЂР°Р±РѕС‚Р°РµС‚ РЅРµ С‚Р°Рє, РЅР°Р¶РјРёС‚Рµ РЎРѕРѕР±С‰РёС‚СЊ РѕР± РѕС€РёР±РєРµ. РЎРѕРѕР±С‰РµРЅРёРµ СЃРѕС…СЂР°РЅРёС‚СЃСЏ Рё РїРѕРїР°РґРµС‚ Р°РґРјРёРЅСѓ РїРѕСЃР»Рµ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё."],
+    ["Принять заказ", "Откройте Заказы, выберите актуальный заказ и нажмите Принять. Если мест уже нет, кнопка принятия станет недоступной."],
+    ["Отказаться от заказа", "Откройте принятый заказ и нажмите Отказаться. Заказ уйдет из ваших принятых, а начисление по нему пересчитается."],
+    ["Взять реквизит", "Перейдите в Реквизит или откройте комплект программы. Нажмите Взять, и реквизит сразу закрепится за вами, даже если вы офлайн."],
+    ["Вернуть реквизит", "Откройте Реквизит, найдите предмет со статусом У меня и нажмите Вернуть. После синхронизации отметка уйдет в базу."],
+    ["Программы", "Во вкладке Программы откройте нужную программу, смотрите сценарий, ссылку на диск и комплект реквизита."],
+    ["Профиль", "В профиле видны принятые заказы, заработок за период, эффективность и реквизит, закрепленный за вами."],
+    ["Ошибка", "Если что-то работает не так, нажмите Сообщить об ошибке. Сообщение сохранится и попадет админу после синхронизации."],
   ];
   const adminGuide = [
-    ["Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·", "Р’Рѕ РІРєР»Р°РґРєРµ РђРґРјРёРЅ РЅР°Р¶РјРёС‚Рµ Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·: РІС‹Р±РµСЂРёС‚Рµ РєР»РёРµРЅС‚Р°, РґР°С‚Сѓ, РІСЂРµРјСЏ, РїСЂРѕРіСЂР°РјРјСѓ, СЃРѕСЃС‚Р°РІ, РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїСѓРЅРєС‚С‹ Рё СЃРѕР·РґР°Р№С‚Рµ Р·Р°РєР°Р·."],
-    ["РЎРѕС‚СЂСѓРґРЅРёРєРё", "Р’Рѕ РІРєР»Р°РґРєРµ РђРґРјРёРЅ РґРѕР±Р°РІСЊС‚Рµ СЃРѕС‚СЂСѓРґРЅРёРєР°. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РѕРЅ Р°РєС‚РµСЂ, Р° РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ РґР°РµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°."],
-    ["РџСЂРёРЅСЏС‚РёРµ Р·Р°РєР°Р·РѕРІ", "РђРґРјРёРЅ С‚РѕР¶Рµ РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ Р·Р°РєР°Р·С‹. Р’ РєР°СЂС‚РѕС‡РєРµ Р·Р°РєР°Р·Р° РІРёРґРЅРѕ, РєС‚Рѕ СѓР¶Рµ РїСЂРёРЅСЏР» Р·Р°РєР°Р· Рё СЃРєРѕР»СЊРєРѕ РјРµСЃС‚ РѕСЃС‚Р°Р»РѕСЃСЊ."],
-    ["РџСЂРѕРіСЂР°РјРјС‹", "Р”РѕР±Р°РІР»СЏР№С‚Рµ РїСЂРѕРіСЂР°РјРјСѓ, СЃСЃС‹Р»РєСѓ РЅР° РґРёСЃРє Рё РїРѕР»РЅС‹Р№ СЃС†РµРЅР°СЂРёР№. Р§РµСЂРµР· РЎРѕР±СЂР°С‚СЊ РєРѕРјРїР»РµРєС‚ Р·Р°РєСЂРµРїР»СЏР№С‚Рµ РЅСѓР¶РЅС‹Р№ СЂРµРєРІРёР·РёС‚ Р·Р° РїСЂРѕРіСЂР°РјРјРѕР№."],
-    ["Р РµРєРІРёР·РёС‚", "Р”РѕР±Р°РІР»СЏР№С‚Рµ СЂРµРєРІРёР·РёС‚ Рё СЂРµРґР°РєС‚РёСЂСѓР№С‚Рµ СЃРїРёСЃРѕРє. РЈРґР°Р»РµРЅРёРµ РґРѕСЃС‚СѓРїРЅРѕ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ СЂРµР¶РёРјР° РР·РјРµРЅРёС‚СЊ Рё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ."],
-    ["РћС€РёР±РєРё", "Р’Рѕ РІРєР»Р°РґРєРµ РђРґРјРёРЅ РѕС‚РєСЂРѕР№С‚Рµ РћС€РёР±РєРё, С‡С‚РѕР±С‹ РїРѕСЃРјРѕС‚СЂРµС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ Рё РѕС‡РёСЃС‚РёС‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ."],
-    ["Р’С‹РїР»Р°С‚С‹", "Р’ РїСЂРѕС„РёР»Рµ СЃРѕС‚СЂСѓРґРЅРёРєР° РјРѕР¶РЅРѕ СЃРјРѕС‚СЂРµС‚СЊ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ, РїСЂРёРЅСЏС‚С‹Рµ Р·Р°РєР°Р·С‹, РІС‹РїР»Р°С‚С‹ Рё РєРѕСЂСЂРµРєС‚РёСЂРѕРІР°С‚СЊ РѕР±С‰СѓСЋ СЃСѓРјРјСѓ РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё."],
+    ["Добавить заказ", "Во вкладке Админ нажмите Добавить заказ: выберите клиента, дату, время, программу, состав, дополнительные пункты и создайте заказ."],
+    ["Сотрудники", "Во вкладке Админ добавьте сотрудника. По умолчанию он актер, а переключатель дает дополнительные функции администратора."],
+    ["Принятие заказов", "Админ тоже может принимать заказы. В карточке заказа видно, кто уже принял заказ и сколько мест осталось."],
+    ["Программы", "Добавляйте программу, ссылку на диск и полный сценарий. Через Собрать комплект закрепляйте нужный реквизит за программой."],
+    ["Реквизит", "Добавляйте реквизит и редактируйте список. Удаление доступно только после режима Изменить и подтверждения."],
+    ["Ошибки", "Во вкладке Админ откройте Ошибки, чтобы посмотреть сообщения пользователей и очистить обработанные."],
+    ["Выплаты", "В профиле сотрудника можно смотреть эффективность, принятые заказы, выплаты и корректировать общую сумму при необходимости."],
   ];
   const ambassadorGuide = [
-    ["Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·", "РћС‚РєСЂРѕР№С‚Рµ Р—Р°РєР°Р·С‹ Рё РЅР°Р¶РјРёС‚Рµ Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·. Р’ Р·Р°РєР°Р·Рµ СѓРєР°Р¶РёС‚Рµ РєРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР°, С‡С‚РѕР±С‹ РЅР°С‡РёСЃР»РёР»РёСЃСЊ Р±Р°РЅРЅРё."],
-    ["Р›РёС‡РЅС‹Р№ РєРѕРґ", "Р’ РїСЂРѕС„РёР»Рµ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІР°С€ РєРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР°. РџРµСЂРµРґР°РІР°Р№С‚Рµ РµРіРѕ РєР»РёРµРЅС‚Р°Рј РёР»Рё СѓРєР°Р·С‹РІР°Р№С‚Рµ РїСЂРё СЃРѕР·РґР°РЅРёРё Р·Р°РєР°Р·Р°."],
-    ["Р‘Р°РЅРЅРё", "Р—Р° Р·Р°РєР°Р· РїРѕ РІР°С€РµРјСѓ РєРѕРґСѓ РЅР°С‡РёСЃР»СЏРµС‚СЃСЏ РІРЅСѓС‚СЂРµРЅРЅСЏСЏ РІР°Р»СЋС‚Р°: РЅР°РїСЂРёРјРµСЂ, Р·Р°РєР°Р· РЅР° 5000 СЂСѓР±Р»РµР№ РґР°РµС‚ 500 Р±Р°РЅРЅРё."],
-    ["Р’С‹РІРѕРґ", "РљРЅРѕРїРєР° Р’С‹РІРµСЃС‚Рё РІР°Р»СЋС‚Сѓ РґРѕСЃС‚СѓРїРЅР° РІ РєРѕРЅС†Рµ РјРµСЃСЏС†Р°. РџРѕСЃР»Рµ РЅР°Р¶Р°С‚РёСЏ Р·Р°СЏРІРєР° СѓС…РѕРґРёС‚ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°Рј."],
-    ["Рћ РєРѕРјРїР°РЅРёРё", "Р’ РїСЂРѕС„РёР»Рµ РµСЃС‚СЊ РєРЅРѕРїРєР° Рћ РєРѕРјРїР°РЅРёРё СЃРѕ СЃСЃС‹Р»РєР°РјРё РЅР° СЃР°Р№С‚ Рё РіСЂСѓРїРїСѓ Р’Рљ."],
+    ["Добавить заказ", "Откройте Заказы и нажмите Добавить заказ. В заказе укажите код амбассадора, чтобы начислились банни."],
+    ["Личный код", "В профиле отображается ваш код амбассадора. Передавайте его клиентам или указывайте при создании заказа."],
+    ["Банни", "За заказ по вашему коду начисляется внутренняя валюта: например, заказ на 5000 рублей дает 500 банни."],
+    ["Вывод", "Кнопка Вывести валюту доступна в конце месяца. После нажатия заявка уходит администраторам."],
+    ["О компании", "В профиле есть кнопка О компании со ссылками на сайт и группу ВК."],
   ];
   const guide = state.user.role === "admin" ? adminGuide : state.user.role === "ambassador" ? ambassadorGuide : actorGuide;
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-action="close-help">вЂ№</button>
-      <span class="help-pill static-version-pill">РљР°Рє РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ</span>
+      <button class="icon-button" data-action="close-help">?</button>
+      <span class="help-pill static-version-pill">Как пользоваться</span>
     </div>
-    <h1 class="page-title">РРЅСЃС‚СЂСѓРєС†РёСЏ</h1>
+    <h1 class="page-title">Инструкция</h1>
     <div class="content-stack">
       <section class="panel version-panel">
-        <h2 class="panel-title">${state.user.role === "admin" ? "Р”Р»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°" : state.user.role === "ambassador" ? "Р”Р»СЏ Р°РјР±Р°СЃСЃР°РґРѕСЂР°" : "Р”Р»СЏ Р°РєС‚РµСЂР°"}</h2>
-        <p class="small-text">РљРѕСЂРѕС‚РєР°СЏ РїР°РјСЏС‚РєР° РїРѕ РѕСЃРЅРѕРІРЅС‹Рј РґРµР№СЃС‚РІРёСЏРј РІ РїСЂРёР»РѕР¶РµРЅРёРё.</p>
+        <h2 class="panel-title">${state.user.role === "admin" ? "Для администратора" : state.user.role === "ambassador" ? "Для амбассадора" : "Для актера"}</h2>
+        <p class="small-text">Короткая памятка по основным действиям в приложении.</p>
       </section>
       ${guide
         .map(
@@ -1547,15 +1547,15 @@ function helpScreen() {
       ${
         state.user.role === "admin"
           ? `<section class="panel help-section">
-              <h2 class="panel-title">Р§С‚Рѕ РІРёРґРёС‚ Р°РєС‚РµСЂ</h2>
-              <p class="small-text">РђРєС‚РµСЂС‹ СЂР°Р±РѕС‚Р°СЋС‚ СЃ Р·Р°РєР°Р·Р°РјРё, РїСЂРѕРіСЂР°РјРјР°РјРё, СЂРµРєРІРёР·РёС‚РѕРј, СЃРѕС…СЂР°РЅРµРЅРЅС‹Рј Рё РїСЂРѕС„РёР»РµРј. РђРґРјРёРЅСЃРєРёРµ РєРЅРѕРїРєРё РёРј РЅРµ РїРѕРєР°Р·С‹РІР°СЋС‚СЃСЏ.</p>
+              <h2 class="panel-title">Что видит актер</h2>
+              <p class="small-text">Актеры работают с заказами, программами, реквизитом, сохраненным и профилем. Админские кнопки им не показываются.</p>
             </section>`
           : `<section class="panel help-section">
-              <h2 class="panel-title">РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ</h2>
-              <p class="small-text">Р•СЃР»Рё РёРЅС‚РµСЂРЅРµС‚Р° РЅРµС‚, РґРµР№СЃС‚РІРёСЏ СЃРѕС…СЂР°РЅСЏСЋС‚СЃСЏ Р»РѕРєР°Р»СЊРЅРѕ. РљРѕРіРґР° СЃРµС‚СЊ РїРѕСЏРІРёС‚СЃСЏ, РїСЂРёР»РѕР¶РµРЅРёРµ РѕС‚РїСЂР°РІРёС‚ РёР·РјРµРЅРµРЅРёСЏ РІ Р±Р°Р·Сѓ.</p>
+              <h2 class="panel-title">Синхронизация</h2>
+              <p class="small-text">Если интернета нет, действия сохраняются локально. Когда сеть появится, приложение отправит изменения в базу.</p>
             </section>`
       }
-      <button class="primary-button" data-action="close-help">Р—Р°РєСЂС‹С‚СЊ</button>
+      <button class="primary-button" data-action="close-help">Закрыть</button>
     </div>
   `, true);
 }
@@ -1571,20 +1571,20 @@ function avatarScreen() {
   const confetti = Array.from({ length: 18 }, () => "<i></i>").join("");
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Р­С‚Рѕ РІС‹!</h1>
+    <h1 class="page-title">Это вы!</h1>
     <div class="content-stack">
       <section class="panel avatar-view-panel">
         <div class="confetti-burst">${confetti}</div>
         <div class="avatar-view">
           ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
         </div>
-        <h2 class="panel-title">Р­С‚Рѕ РІС‹! Р СЌС‚Рѕ Р·РґРѕСЂРѕРІРѕ!</h2>
+        <h2 class="panel-title">Это вы! И это здорово!</h2>
         <div class="detail-grid avatar-stats">
-          <div class="detail-line"><span>Р—Р°РєР°Р·С‹</span><strong>${completed}</strong></div>
-          <div class="detail-line"><span>РџРѕР»СѓС‡РµРЅРѕ</span><strong>${money(earned)}</strong></div>
+          <div class="detail-line"><span>Заказы</span><strong>${completed}</strong></div>
+          <div class="detail-line"><span>Получено</span><strong>${money(earned)}</strong></div>
         </div>
       </section>
     </div>
@@ -1603,12 +1603,12 @@ function homeScreen() {
     <div class="auth-burst${authClass}"></div>
     <div class="top-row">${syncPill()}</div>
     <div class="home-brand">
-      <strong>РўРѕС‡РєР° РїСЂР°Р·РґРЅРёРєР°</strong>
-      <span>РїСЂРѕРµРєС‚ Р‘Р°РЅРЅРё Р‘РѕРЅ</span>
+      <strong>Точка праздника</strong>
+      <span>проект Банни Бон</span>
     </div>
     <div class="hero-row">
-      <h1 class="hero-title">РЎРµРіРѕРґРЅСЏ,<br>${firstName}</h1>
-      <button class="actor-avatar" data-route="avatar" aria-label="Р¤РѕС‚Рѕ Р°РєС‚РµСЂР°">
+      <h1 class="hero-title">Сегодня,<br>${firstName}</h1>
+      <button class="actor-avatar" data-route="avatar" aria-label="Фото актера">
         ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
       </button>
     </div>
@@ -1624,7 +1624,7 @@ function homeScreen() {
             </div>
           </section>`
         : `
-    <p class="section-label">Р‘Р»РёР¶Р°Р№С€РёРµ Р·Р°РєР°Р·С‹</p>
+    <p class="section-label">Ближайшие заказы</p>
     <div class="orders-stack">
       ${
         orders.length
@@ -1634,27 +1634,27 @@ function homeScreen() {
                 (order) => `
                   <button class="order-row" data-route="order" data-order-id="${order.id}">
                     <span><strong>${order.title}</strong><span>${order.date} ${order.time}</span></span>
-                    <span class="row-icon" aria-label="РћС‚РєСЂС‹С‚СЊ">вЂє</span>
+                    <span class="row-icon" aria-label="Открыть">›</span>
                   </button>
                 `
               )
               .join("")
-          : `<div class="empty-state">Р—Р°РєР°Р·РѕРІ РїРѕРєР° РЅРµС‚</div>`
+          : `<div class="empty-state">Заказов пока нет</div>`
       }
     </div>
-    <button class="more-button" data-route="orders">Р’СЃРµ Р·Р°РєР°Р·С‹</button>
+    <button class="more-button" data-route="orders">Все заказы</button>
         `
     }
 
     <div class="quick-scroll">
       ${
         state.user.role === "admin"
-          ? `<button class="quick-card add-order-card" data-route="admin"><strong>РђРґРјРёРЅ</strong><span>+</span></button>`
+          ? `<button class="quick-card add-order-card" data-route="admin"><strong>Админ</strong><span>+</span></button>`
           : ""
       }
       ${
         state.user.role === "ambassador"
-          ? `<button class="quick-card add-order-card" data-route="new-order"><strong>Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·</strong><span>+</span></button>`
+          ? `<button class="quick-card add-order-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>`
           : ""
       }
       ${
@@ -1662,24 +1662,24 @@ function homeScreen() {
           ? `<button class="quick-card" data-route="profile"><strong>Профиль</strong><span>Б</span></button>
              <button class="quick-card dark" data-route="company"><strong>О компании</strong><span>i</span></button>`
           : `      <button class="quick-card" data-route="orders">
-        <strong>Р—Р°РєР°Р·С‹</strong>
+        <strong>Заказы</strong>
         <img src="./assets/orders.svg" alt="" />
       </button>
       <button class="quick-card dark" data-route="programs">
-        <strong>РџСЂРѕРіСЂР°РјРјС‹</strong>
+        <strong>Программы</strong>
         <img src="./assets/programs.svg" alt="" />
       </button>
       <button class="quick-card" data-route="props">
-        <strong>Р РµРєРІРёР·РёС‚</strong>
+        <strong>Реквизит</strong>
         <img src="./assets/props.svg" alt="" />
       </button>
-      <button class="quick-card" data-route="saved"><strong>РЎРѕС…СЂР°РЅРµРЅРѕ</strong><span>вњ“</span></button>
+      <button class="quick-card" data-route="saved"><strong>Сохранено</strong><span>â</span></button>
           `
       }    </div>
 
     <div class="bottom-actions">
-      <button class="secondary-button" data-route="profile">РџСЂРѕС„РёР»СЊ</button>
-      <button class="secondary-button" data-action="report">РЎРѕРѕР±С‰РёС‚СЊ<br>РѕР± РѕС€РёР±РєРµ</button>
+      <button class="secondary-button" data-route="profile">Профиль</button>
+      <button class="secondary-button" data-action="report">Сообщить<br>об ошибке</button>
     </div>
   `, true);
 }
@@ -1688,20 +1688,20 @@ function ordersScreen() {
   const list = filteredOrders();
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Р—Р°РєР°Р·С‹</h1>
+    <h1 class="page-title">Заказы</h1>
     <div class="content-stack">
-      ${canAddOrder() ? `<button class="primary-button" data-route="new-order">Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·</button>` : ""}
-      ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-order-edit">${state.orderEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>` : ""}
-      <input class="search-input" placeholder="РќР°Р№С‚Рё Р·Р°РєР°Р·" />
+      ${canAddOrder() ? `<button class="primary-button" data-route="new-order">Добавить заказ</button>` : ""}
+      ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-order-edit">${state.orderEditMode ? "Готово" : "Изменить"}</button>` : ""}
+      <input class="search-input" placeholder="Найти заказ" />
       <div class="chips">
-        <button class="chip ${state.orderFilter === "active" ? "active" : ""}" data-order-filter="active">РђРєС‚СѓР°Р»СЊРЅС‹Рµ</button>
-        <button class="chip ${state.orderFilter === "mine" ? "active" : ""}" data-order-filter="mine">РњРѕРё</button>
-        <button class="chip ${state.orderFilter === "week" ? "active" : ""}" data-order-filter="week">РќРµРґРµР»СЏ</button>
-        <button class="chip ${state.orderFilter === "month" ? "active" : ""}" data-order-filter="month">РњРµСЃСЏС†</button>
-        <button class="chip ${state.orderFilter === "past" ? "active" : ""}" data-order-filter="past">РџСЂРѕС€РµРґС€РёРµ</button>
+        <button class="chip ${state.orderFilter === "active" ? "active" : ""}" data-order-filter="active">Актуальные</button>
+        <button class="chip ${state.orderFilter === "mine" ? "active" : ""}" data-order-filter="mine">Мои</button>
+        <button class="chip ${state.orderFilter === "week" ? "active" : ""}" data-order-filter="week">Неделя</button>
+        <button class="chip ${state.orderFilter === "month" ? "active" : ""}" data-order-filter="month">Месяц</button>
+        <button class="chip ${state.orderFilter === "past" ? "active" : ""}" data-order-filter="past">Прошедшие</button>
       </div>
       <div class="orders-stack">
         ${
@@ -1711,19 +1711,19 @@ function ordersScreen() {
                   (order) => `
                     <div class="managed-row inline-managed-row">
                       <button class="order-row" data-route="order" data-order-id="${order.id}">
-                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} В· ${order.status}</span></span>
-                        <span class="row-icon" aria-label="РћС‚РєСЂС‹С‚СЊ">вЂє</span>
+                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${order.status}</span></span>
+                        <span class="row-icon" aria-label="Открыть">›</span>
                       </button>
                       ${
                         state.user.role === "admin" && state.orderEditMode
-                          ? `<button class="mini-delete-button" data-action="delete-order" data-order-id="${order.id}" aria-label="РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р·">Г—</button>`
+                          ? `<button class="mini-delete-button" data-action="delete-order" data-order-id="${order.id}" aria-label="Удалить заказ">×</button>`
                           : ""
                       }
                     </div>
                   `
                 )
                 .join("")
-            : `<div class="empty-state">Р—Р°РєР°Р·РѕРІ РїРѕ С„РёР»СЊС‚СЂСѓ РЅРµС‚</div>`
+            : `<div class="empty-state">Заказов по фильтру нет</div>`
         }
       </div>
     </div>
@@ -1733,18 +1733,18 @@ function ordersScreen() {
 function adminScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РђРґРјРёРЅ</h1>
+    <h1 class="page-title">Админ</h1>
     <div class="content-stack">
-      <button class="quick-card admin-action-card" data-route="new-order"><strong>Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·</strong><span>+</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-employees"><strong>Р”РѕР±Р°РІРёС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєР°</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-employees"><strong>Добавить сотрудника</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-ambassadors"><strong>Амбассадоры</strong><span>Б</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-promos"><strong>Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРјРѕРєРѕРґ</strong><span>%</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-program"><strong>Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ</strong><span>+</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-prop"><strong>Р”РѕР±Р°РІРёС‚СЊ СЂРµРєРІРёР·РёС‚</strong><span>+</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-reports"><strong>РћС€РёР±РєРё</strong><span>!</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-promos"><strong>Добавить промокод</strong><span>%</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-program"><strong>Добавить программу</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-prop"><strong>Добавить реквизит</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-reports"><strong>Ошибки</strong><span>!</span></button>
     </div>
   `, true);
 }
@@ -1755,29 +1755,29 @@ function newOrderScreen() {
   const calendarDays = buildCalendarDays(selectedDate);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : state.user.role === "ambassador" ? "home" : "orders"}">вЂ№</button>
+      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : state.user.role === "ambassador" ? "home" : "orders"}">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РќРѕРІС‹Р№ Р·Р°РєР°Р·</h1>
+    <h1 class="page-title">Новый заказ</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">РљР»РёРµРЅС‚</h2>
+        <h2 class="panel-title">Клиент</h2>
         <div class="booking-grid">
           <label>
-            <span>РРјСЏ</span>
+            <span>Имя</span>
             <input class="booking-input" data-booking="firstName" value="${state.booking.firstName}" />
           </label>
           <label>
-            <span>Р¤Р°РјРёР»РёСЏ</span>
+            <span>Фамилия</span>
             <input class="booking-input" data-booking="lastName" value="${state.booking.lastName}" />
           </label>
         </div>
-        <input class="booking-input" data-booking="phone" placeholder="РўРµР»РµС„РѕРЅ" value="${state.booking.phone}" style="margin-top: 8px" />
-        <input class="booking-input" data-booking="address" placeholder="РђРґСЂРµСЃ" value="${state.booking.address}" style="margin-top: 8px" />
-        <textarea class="booking-input booking-textarea" data-booking="comment" placeholder="РљРѕРјРјРµРЅС‚Р°СЂРёР№">${state.booking.comment}</textarea>
+        <input class="booking-input" data-booking="phone" placeholder="Телефон" value="${state.booking.phone}" style="margin-top: 8px" />
+        <input class="booking-input" data-booking="address" placeholder="Адрес" value="${state.booking.address}" style="margin-top: 8px" />
+        <textarea class="booking-input booking-textarea" data-booking="comment" placeholder="Комментарий">${state.booking.comment}</textarea>
         <div class="discount-row">
-          <input class="booking-input" data-booking="promoCode" placeholder="РџСЂРѕРјРѕРєРѕРґ" value="${state.booking.promoCode}" />
-          <button class="secondary-button" data-action="apply-discount">РџСЂРёРјРµРЅРёС‚СЊ</button>
+          <input class="booking-input" data-booking="promoCode" placeholder="Промокод" value="${state.booking.promoCode}" />
+          <button class="secondary-button" data-action="apply-discount">Применить</button>
         </div>
         ${
           state.user.role === "ambassador"
@@ -1787,14 +1787,14 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Р”Р°С‚Р° Рё РІСЂРµРјСЏ</h2>
+        <h2 class="panel-title">Дата и время</h2>
         <div class="calendar-head">
-          <button class="icon-button" data-action="calendar-prev">вЂ№</button>
+          <button class="icon-button" data-action="calendar-prev">?</button>
           <strong>${monthName(selectedDate)} ${selectedDate.getFullYear()}</strong>
-          <button class="icon-button" data-action="calendar-next">вЂє</button>
+          <button class="icon-button" data-action="calendar-next">?</button>
         </div>
         <div class="calendar-week">
-          <span>РџРќ</span><span>Р’Рў</span><span>РЎР </span><span>Р§Рў</span><span>РџРў</span><span>РЎР‘</span><span>Р’РЎ</span>
+          <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
         </div>
         <div class="calendar-grid">
           ${calendarDays
@@ -1809,14 +1809,14 @@ function newOrderScreen() {
             .join("")}
         </div>
         <button class="time-summary-button" data-action="toggle-time-editor">
-          <span>Р’С‹Р±СЂР°РЅРЅРѕРµ РІСЂРµРјСЏ</span>
-          <strong>${state.booking.start} вЂ” ${state.booking.end}</strong>
+          <span>Выбранное время</span>
+          <strong>${state.booking.start} ? ${state.booking.end}</strong>
         </button>
         ${
           state.timeEditorOpen
             ? `<div class="time-stepper">
                 <div class="time-stepper-row">
-                  <span>РќР°С‡Р°Р»Рѕ</span>
+                  <span>Начало</span>
                   <div class="time-stepper-control">
                     <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="-15">в€’</button>
                     <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="start">${state.booking.start}</button>
@@ -1825,7 +1825,7 @@ function newOrderScreen() {
                   </div>
                 </div>
                 <div class="time-stepper-row">
-                  <span>РћРєРѕРЅС‡Р°РЅРёРµ</span>
+                  <span>Окончание</span>
                   <div class="time-stepper-control">
                     <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="-15">в€’</button>
                     <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="end">${state.booking.end}</button>
@@ -1839,21 +1839,21 @@ function newOrderScreen() {
       </section>
 
       <section class="panel legacy-time-panel">
-        <h2 class="panel-title">Р’СЂРµРјСЏ</h2>
+        <h2 class="panel-title">Время</h2>
         <div class="booking-grid time-grid">
           <label>
-            <span>РќР°С‡Р°Р»Рѕ</span>
+            <span>Начало</span>
             <input class="booking-input" type="time" data-booking="start" value="${state.booking.start}" />
           </label>
           <label>
-            <span>РћРєРѕРЅС‡Р°РЅРёРµ</span>
+            <span>Окончание</span>
             <input class="booking-input" type="time" data-booking="end" value="${state.booking.end}" />
           </label>
         </div>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">РџСЂРѕРіСЂР°РјРјР°</h2>
+        <h2 class="panel-title">Программа</h2>
         <select class="booking-input" data-booking="programId">
           ${
             programs.length
@@ -1866,14 +1866,14 @@ function newOrderScreen() {
                     `
                   )
                   .join("")
-              : `<option value="">РЎРЅР°С‡Р°Р»Р° РґРѕР±Р°РІСЊС‚Рµ РїСЂРѕРіСЂР°РјРјСѓ</option>`
+              : `<option value="">Сначала добавьте программу</option>`
           }
         </select>
-        <p class="small-text" style="margin-top: 10px">Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ Р·Р°РєР°Р·Р°: ${calc.durationMinutes} РјРёРЅ В· ${calc.program?.age || ""}</p>
+        <p class="small-text" style="margin-top: 10px">Длительность заказа: ${calc.durationMinutes} мин · ${calc.program?.age || ""}</p>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">РЎРѕСЃС‚Р°РІР»СЏСЋС‰Р°СЏ</h2>
+        <h2 class="panel-title">Составляющая</h2>
         <div class="option-list">
           ${packageOptions
             .map(
@@ -1889,18 +1889,18 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ</h2>
-        <button class="secondary-button" data-action="toggle-extra-edit">${state.extraEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>
+        <h2 class="panel-title">Дополнительно</h2>
+        <button class="secondary-button" data-action="toggle-extra-edit">${state.extraEditMode ? "Готово" : "Изменить"}</button>
         <div class="option-list">
           ${editableExtras
             .map(
               (item) => `
                 <div class="editable-extra-row">
-                  ${checkboxLine(`${item.title} В· ${money(item.price)}`, "extra", item.title)}
+                  ${checkboxLine(`${item.title} · ${money(item.price)}`, "extra", item.title)}
                   ${
                     state.extraEditMode
                       ? `<input class="booking-input extra-price-input" type="number" min="0" data-extra-price="${item.title}" value="${item.price}" />
-                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">Г—</button>`
+                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">×</button>`
                       : ""
                   }
                 </div>
@@ -1909,37 +1909,37 @@ function newOrderScreen() {
             .join("")}
         </div>
         <div class="discount-row" style="margin-top: 8px">
-          <input class="booking-input" data-extra-draft placeholder="Р”РѕР±Р°РІРёС‚СЊ РїСѓРЅРєС‚" value="${state.extraDraft}" />
-          <input class="booking-input" data-extra-draft-price type="number" min="0" placeholder="в‚Ѕ" value="${state.extraDraftPrice}" />
-          <button class="secondary-button" data-action="add-extra">Р”РѕР±Р°РІРёС‚СЊ</button>
+          <input class="booking-input" data-extra-draft placeholder="Добавить пункт" value="${state.extraDraft}" />
+          <input class="booking-input" data-extra-draft-price type="number" min="0" placeholder="?" value="${state.extraDraftPrice}" />
+          <button class="secondary-button" data-action="add-extra">Добавить</button>
         </div>
       </section>
 
       <section class="panel summary-panel">
-        <h2 class="panel-title">Р Р°СЃС‡РµС‚</h2>
-        <div class="summary-line"><span>РЎРѕСЃС‚Р°РІ</span><strong>${calc.selectedPackage.label}</strong></div>
-        <div class="summary-line"><span>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ</span><strong>${calc.durationMinutes} РјРёРЅ</strong></div>
-        <div class="summary-line"><span>РЎСѓРјРјР° Р·Р°РєР°Р·Р°</span><strong>${money(calc.orderTotal)}</strong></div>
-        ${state.user.role === "ambassador" ? `<div class="summary-line"><span>Р‘Р°РЅРЅРё Р°РјР±Р°СЃСЃР°РґРѕСЂР°</span><strong>${ambassadorPointsForOrder(calc.orderTotal)}</strong></div>` : ""}
-        <div class="summary-line"><span>Р—Рџ Р°РєС‚РµСЂРѕРІ</span><strong>${money(calc.actorTotal)}</strong></div>
-        <div class="summary-line"><span>РћСЃС‚Р°С‚РѕРє Р°РіРµРЅС‚СЃС‚РІР°</span><strong>${money(calc.agencyTotal)}</strong></div>
+        <h2 class="panel-title">Расчет</h2>
+        <div class="summary-line"><span>Состав</span><strong>${calc.selectedPackage.label}</strong></div>
+        <div class="summary-line"><span>Длительность</span><strong>${calc.durationMinutes} мин</strong></div>
+        <div class="summary-line"><span>Сумма заказа</span><strong>${money(calc.orderTotal)}</strong></div>
+        ${state.user.role === "ambassador" ? `<div class="summary-line"><span>Банни амбассадора</span><strong>${ambassadorPointsForOrder(calc.orderTotal)}</strong></div>` : ""}
+        <div class="summary-line"><span>ЗП актеров</span><strong>${money(calc.actorTotal)}</strong></div>
+        <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
       </section>
 
       <section class="panel">
-        <button class="panel-toggle" data-action="toggle-bonus-form">РќР°С‡РёСЃР»РёС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РІС‹РїР»Р°С‚Сѓ</button>
+        <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
         ${
           state.bonusFormOpen
             ? `<select class="booking-input" data-admin-field="newBonus.employeeId">
-                <option value="">Р’С‹Р±РµСЂРёС‚Рµ СЃРѕС‚СЂСѓРґРЅРёРєР°</option>
+                <option value="">Выберите сотрудника</option>
                 ${employeeOptions()}
               </select>
-              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="РЎСѓРјРјР° РІС‹РїР»Р°С‚С‹" value="${state.newBonus.amount}" style="margin-top: 8px" />
-              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="Р—Р° С‡С‚Рѕ РЅР°С‡РёСЃР»РµРЅР° РІС‹РїР»Р°С‚Р°">${state.newBonus.comment}</textarea>`
+              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
+              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>`
             : ""
         }
       </section>
 
-      <button class="primary-button" data-action="create-order">РЎРѕР·РґР°С‚СЊ Р·Р°РєР°Р·</button>
+      <button class="primary-button" data-action="create-order">Создать заказ</button>
     </div>
   `, true);
 }
@@ -1989,11 +1989,11 @@ function orderScreen() {
   if (!order) {
     return appFrame(`
       <div class="top-row">
-        <button class="icon-button" data-route="orders">вЂ№</button>
+        <button class="icon-button" data-route="orders">?</button>
         ${syncPill()}
       </div>
-      <h1 class="page-title">Р—Р°РєР°Р·</h1>
-      <div class="content-stack"><div class="empty-state">Р—Р°РєР°Р· РЅРµ РЅР°Р№РґРµРЅ</div></div>
+      <h1 class="page-title">Заказ</h1>
+      <div class="content-stack"><div class="empty-state">Заказ не найден</div></div>
     `, true);
   }
   const isSaved = state.saved.includes(order.id);
@@ -2004,26 +2004,26 @@ function orderScreen() {
 
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Р—Р°РєР°Р·</h1>
+    <h1 class="page-title">Заказ</h1>
     <div class="content-stack">
       <section class="panel">
         <h2 class="panel-title">${order.title}</h2>
         <div class="detail-grid">
-          <div class="detail-line"><span>Р”Р°С‚Р°</span><strong>${order.date}, ${order.time}</strong></div>
-          <div class="detail-line"><span>РђРґСЂРµСЃ</span><strong>${order.address}</strong></div>
-          <div class="detail-line"><span>Р РѕР»СЊ</span><strong>${order.role}</strong></div>
-          <div class="detail-line"><span>РђРєС‚РµСЂС‹</span><strong>${order.actors.join(", ")}</strong></div>
-          <div class="detail-line"><span>РџСЂРёРЅСЏР»Рё</span><strong>${acceptedNames || "РџРѕРєР° РЅРёРєС‚Рѕ"}</strong></div>
+          <div class="detail-line"><span>Дата</span><strong>${order.date}, ${order.time}</strong></div>
+          <div class="detail-line"><span>Адрес</span><strong>${order.address}</strong></div>
+          <div class="detail-line"><span>Роль</span><strong>${order.role}</strong></div>
+          <div class="detail-line"><span>Актеры</span><strong>${order.actors.join(", ")}</strong></div>
+          <div class="detail-line"><span>Приняли</span><strong>${acceptedNames || "Пока никто"}</strong></div>
         </div>
         ${
           state.user.role === "admin"
-            ? `<button class="secondary-button" style="margin-top: 12px" data-action="toggle-order-detail-edit">${state.orderDetailEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>
+            ? `<button class="secondary-button" style="margin-top: 12px" data-action="toggle-order-detail-edit">${state.orderDetailEditMode ? "Готово" : "Изменить"}</button>
                ${
                  state.orderDetailEditMode
-                   ? `<button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-order" data-order-id="${order.id}">РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р·</button>`
+                   ? `<button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-order" data-order-id="${order.id}">Удалить заказ</button>`
                    : ""
                }`
             : ""
@@ -2033,39 +2033,39 @@ function orderScreen() {
       ${
         true
           ? `<section class="panel">
-              <h2 class="panel-title">РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ</h2>
-              <p class="small-text">${acceptedList.length ? `РџСЂРёРЅСЏР»Рё: ${acceptedNames}` : "РњРѕР¶РЅРѕ РїСЂРёРЅСЏС‚СЊ Р·Р°РєР°Р·. Р•СЃР»Рё РЅРµС‚ СЃРµС‚Рё, РѕС‚РјРµС‚РєР° СЃРѕС…СЂР°РЅРёС‚СЃСЏ Рё РѕС‚РїСЂР°РІРёС‚СЃСЏ РїРѕР·Р¶Рµ."}</p>
+              <h2 class="panel-title">Подтверждение</h2>
+              <p class="small-text">${acceptedList.length ? `Приняли: ${acceptedNames}` : "Можно принять заказ. Если нет сети, отметка сохранится и отправится позже."}</p>
               ${
                 acceptedByMe
-                  ? `<button class="primary-button accepted-button" style="margin-top: 12px" disabled>Р—Р°РєР°Р· РїСЂРёРЅСЏС‚</button>
-                     <button class="secondary-button danger-button" style="margin-top: 8px" data-action="decline-order" data-order-id="${order.id}">РћС‚РєР°Р·Р°С‚СЊСЃСЏ</button>`
+                  ? `<button class="primary-button accepted-button" style="margin-top: 12px" disabled>Заказ принят</button>
+                     <button class="secondary-button danger-button" style="margin-top: 8px" data-action="decline-order" data-order-id="${order.id}">Отказаться</button>`
                   : `<button class="primary-button" style="margin-top: 12px" data-action="accept-order" data-order-id="${order.id}" ${isFull ? "disabled" : ""}>
-                      ${isFull ? "РњРµСЃС‚Р° Р°РєС‚РµСЂРѕРІ Р·Р°РЅСЏС‚С‹" : "РџСЂРёРЅСЏС‚СЊ Р·Р°РєР°Р·"}
+                      ${isFull ? "Места актеров заняты" : "Принять заказ"}
                     </button>`
               }
             </section>`
           : `<section class="panel">
-              <h2 class="panel-title">РљС‚Рѕ РїСЂРёРЅСЏР» Р·Р°РєР°Р·</h2>
-              <p class="small-text">${acceptedNames || "РџРѕРєР° РЅРёРєС‚Рѕ РЅРµ РїСЂРёРЅСЏР» Р·Р°РєР°Р·."}</p>
+              <h2 class="panel-title">Кто принял заказ</h2>
+              <p class="small-text">${acceptedNames || "Пока никто не принял заказ."}</p>
             </section>`
       }
 
       <section class="panel">
-        <h2 class="panel-title">РљРѕРјРїР»РµРєС‚</h2>
+        <h2 class="panel-title">Комплект</h2>
         <p class="small-text">${order.available}. ${order.kitStatus}</p>
         <div class="action-grid" style="margin-top: 12px">
-          <button class="primary-button" data-action="take-kit" data-order-id="${order.id}">Р’Р·СЏС‚СЊ РєРѕРјРїР»РµРєС‚</button>
-          <button class="secondary-button" data-route="kit">РћС‚РєСЂС‹С‚СЊ РєРѕРјРїР»РµРєС‚</button>
+          <button class="primary-button" data-action="take-kit" data-order-id="${order.id}">Взять комплект</button>
+          <button class="secondary-button" data-route="kit">Открыть комплект</button>
           <button class="secondary-button" data-action="save-trip" data-order-id="${order.id}">
-            ${isSaved ? "РЎРѕС…СЂР°РЅРµРЅРѕ" : "Р”Р»СЏ РІС‹РµР·РґР°"}
+            ${isSaved ? "Сохранено" : "Для выезда"}
           </button>
         </div>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">РџСЂРѕРіСЂР°РјРјР°</h2>
-        <p class="small-text">РЎС†РµРЅР°СЂРёР№, РјСѓР·С‹РєР° Рё С‚Р°Р№РјРёРЅРі РґР»СЏ РІС‹РµР·РґР°.</p>
-        <button class="primary-button" style="margin-top: 12px" data-route="program-detail">РћС‚РєСЂС‹С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ</button>
+        <h2 class="panel-title">Программа</h2>
+        <p class="small-text">Сценарий, музыка и тайминг для выезда.</p>
+        <button class="primary-button" style="margin-top: 12px" data-route="program-detail">Открыть программу</button>
       </section>
     </div>
   `, true);
@@ -2076,28 +2076,28 @@ function propsScreen() {
   const cells = propCellOptions();
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Р РµРєРІРёР·РёС‚</h1>
+    <h1 class="page-title">Реквизит</h1>
     <div class="content-stack">
-      <input class="search-input" data-prop-search placeholder="РќР°Р№С‚Рё СЂРµРєРІРёР·РёС‚" value="${state.propSearch}" />
+      <input class="search-input" data-prop-search placeholder="Найти реквизит" value="${state.propSearch}" />
       <select class="booking-input" data-prop-cell-filter>
-        <option value="all" ${state.propCellFilter === "all" ? "selected" : ""}>Р’СЃРµ СЏС‡РµР№РєРё</option>
-        ${cells.map((cell) => `<option value="${cell}" ${state.propCellFilter === cell ? "selected" : ""}>РЇС‡РµР№РєР° ${cell}</option>`).join("")}
+        <option value="all" ${state.propCellFilter === "all" ? "selected" : ""}>Все ячейки</option>
+        ${cells.map((cell) => `<option value="${cell}" ${state.propCellFilter === cell ? "selected" : ""}>Ячейка ${cell}</option>`).join("")}
       </select>
       ${
         state.user.role === "admin"
-          ? `<button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>`
+          ? `<button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>`
           : ""
       }
       <div class="chips">
         ${[
-          ["all", "Р’СЃРµ"],
-          ["available", "Р”РѕСЃС‚СѓРїРЅРѕ"],
-          ["mine", "РЈ РјРµРЅСЏ"],
-          ["busy", "Р—Р°РЅСЏС‚Рѕ"],
-          ["repair", "РџСЂРѕРІРµСЂРєР°"],
+          ["all", "Все"],
+          ["available", "Доступно"],
+          ["mine", "У меня"],
+          ["busy", "Занято"],
+          ["repair", "Проверка"],
         ]
           .map(([filter, label]) => `<button class="chip ${state.filter === filter ? "active" : ""}" data-filter="${filter}">${label}</button>`)
           .join("")}
@@ -2109,21 +2109,21 @@ function propsScreen() {
                 (item) => `
               <div class="managed-row">
                 <button class="prop-row" data-action="${item.status === "mine" ? "return-prop" : "take-prop"}" data-prop-id="${item.id}">
-                  <span><strong>${item.name}</strong><span>${statusText(item.status)} В· ${item.place}</span></span>
-                  <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Р’РµСЂРЅСѓС‚СЊ" : "Р’Р·СЏС‚СЊ"}">
+                  <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
+                  <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Вернуть" : "Взять"}">
                     ${item.status === "mine" ? "в†©" : "+"}
                   </span>
                 </button>
                 ${
                   state.user.role === "admin" && state.propEditMode
-                    ? `<button class="delete-row-button" data-action="delete-prop" data-prop-id="${item.id}">РЈРґР°Р»РёС‚СЊ</button>`
+                    ? `<button class="delete-row-button" data-action="delete-prop" data-prop-id="${item.id}">Удалить</button>`
                     : ""
                 }
               </div>
             `
               )
               .join("")
-            : `<div class="empty-state">Р РµРєРІРёР·РёС‚ РЅРµ РЅР°Р№РґРµРЅ</div>`
+            : `<div class="empty-state">Реквизит не найден</div>`
         }
       </div>
     </div>
@@ -2138,15 +2138,15 @@ function kitScreen() {
   const availableCount = kitProps.filter((item) => item.status === "available" || item.status === "mine").length;
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="order">вЂ№</button>
+      <button class="icon-button" data-route="order">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РљРѕРјРїР»РµРєС‚</h1>
+    <h1 class="page-title">Комплект</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">${program?.title || "РљРѕРјРїР»РµРєС‚ РїСЂРѕРіСЂР°РјРјС‹"}</h2>
-        <p class="small-text">${availableCount} РёР· ${kitProps.length} РїСЂРµРґРјРµС‚РѕРІ РґРѕСЃС‚СѓРїРЅС‹. ${kitIds.size ? "РџРѕРєР°Р·Р°РЅ СЃРѕС…СЂР°РЅРµРЅРЅС‹Р№ РєРѕРјРїР»РµРєС‚ СЌС‚РѕР№ РїСЂРѕРіСЂР°РјРјС‹." : "РљРѕРјРїР»РµРєС‚ РїРѕРєР° РЅРµ СЃРѕР±СЂР°РЅ, РїРѕРєР°Р·Р°РЅ Р±Р°Р·РѕРІС‹Р№ СЂРµРєРІРёР·РёС‚."}</p>
-        <button class="primary-button" style="margin-top: 12px" data-action="take-kit">Р’Р·СЏС‚СЊ РєРѕРјРїР»РµРєС‚</button>
+        <h2 class="panel-title">${program?.title || "Комплект программы"}</h2>
+        <p class="small-text">${availableCount} из ${kitProps.length} предметов доступны. ${kitIds.size ? "Показан сохраненный комплект этой программы." : "Комплект пока не собран, показан базовый реквизит."}</p>
+        <button class="primary-button" style="margin-top: 12px" data-action="take-kit">Взять комплект</button>
       </section>
       <div class="orders-stack">
         ${
@@ -2154,15 +2154,15 @@ function kitScreen() {
             ? kitProps.map(
                 (item) => `
               <button class="prop-row" data-action="${item.status === "mine" ? "return-prop" : "take-prop"}" data-prop-id="${item.id}">
-                <span><strong>${item.name}</strong><span>${statusText(item.status)} В· ${item.place}</span></span>
-                <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Р’РµСЂРЅСѓС‚СЊ" : "Р’Р·СЏС‚СЊ"}">
+                <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
+                <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Вернуть" : "Взять"}">
                   ${item.status === "mine" ? "в†©" : "+"}
                 </span>
               </button>
             `
               )
               .join("")
-            : `<div class="empty-state">Р’ РєРѕРјРїР»РµРєС‚Рµ РїРѕРєР° РЅРµС‚ СЂРµРєРІРёР·РёС‚Р°</div>`
+            : `<div class="empty-state">В комплекте пока нет реквизита</div>`
         }
       </div>
     </div>
@@ -2172,24 +2172,24 @@ function kitScreen() {
 function programsScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РџСЂРѕРіСЂР°РјРјС‹</h1>
+    <h1 class="page-title">Программы</h1>
     <div class="content-stack">
-      ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-program-edit">${state.programEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>` : ""}
-      <input class="search-input" placeholder="РќР°Р№С‚Рё РїСЂРѕРіСЂР°РјРјСѓ" />
+      ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-program-edit">${state.programEditMode ? "Готово" : "Изменить"}</button>` : ""}
+      <input class="search-input" placeholder="Найти программу" />
       ${programs
           .map(
             (program) => `
             <div class="managed-row">
               <button class="order-row" data-route="program-detail" data-program-id="${program.id}">
-                <span><strong>${program.title}</strong><span>${program.age} В· ${program.duration}</span></span>
-                <span class="row-icon" aria-label="РћС‚РєСЂС‹С‚СЊ">вЂє</span>
+                <span><strong>${program.title}</strong><span>${program.age} · ${program.duration}</span></span>
+                <span class="row-icon" aria-label="Открыть">›</span>
               </button>
               ${
                 state.user.role === "admin" && state.programEditMode
-                  ? `<button class="delete-row-button" data-action="delete-program" data-program-id="${program.id}">РЈРґР°Р»РёС‚СЊ</button>`
+                  ? `<button class="delete-row-button" data-action="delete-program" data-program-id="${program.id}">Удалить</button>`
                   : ""
               }
             </div>
@@ -2204,46 +2204,46 @@ function programDetailScreen() {
   const program = programs.find((item) => Number(item.id) === Number(state.activeProgramId)) || programs[0];
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="programs">вЂ№</button>
+      <button class="icon-button" data-route="programs">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РџСЂРѕРіСЂР°РјРјР°</h1>
+    <h1 class="page-title">Программа</h1>
     <div class="content-stack">
       <section class="panel">
         ${
           state.user.role === "admin"
-            ? `<button class="secondary-button" data-action="toggle-program-edit">${state.programEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>`
+            ? `<button class="secondary-button" data-action="toggle-program-edit">${state.programEditMode ? "Готово" : "Изменить"}</button>`
             : ""
         }
         ${
           state.programEditMode && state.user.role === "admin"
             ? `<input class="booking-input" data-program-field="title" data-program-id="${program.id}" value="${program.title}" style="margin-top: 10px" />
-               <input class="booking-input" data-program-field="age" data-program-id="${program.id}" value="${program.age || ""}" placeholder="Р’РѕР·СЂР°СЃС‚" style="margin-top: 8px" />
-               <input class="booking-input" data-program-field="duration" data-program-id="${program.id}" value="${program.duration || ""}" placeholder="Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ" style="margin-top: 8px" />
-               <input class="booking-input" data-program-field="driveUrl" data-program-id="${program.id}" value="${program.driveUrl || ""}" placeholder="РЎСЃС‹Р»РєР° РЅР° РґРёСЃРє" style="margin-top: 8px" />`
+               <input class="booking-input" data-program-field="age" data-program-id="${program.id}" value="${program.age || ""}" placeholder="Возраст" style="margin-top: 8px" />
+               <input class="booking-input" data-program-field="duration" data-program-id="${program.id}" value="${program.duration || ""}" placeholder="Длительность" style="margin-top: 8px" />
+               <input class="booking-input" data-program-field="driveUrl" data-program-id="${program.id}" value="${program.driveUrl || ""}" placeholder="Ссылка на диск" style="margin-top: 8px" />`
             : `<h2 class="panel-title">${program.title}</h2>
                <div class="detail-grid">
-                 <div class="detail-line"><span>Р’РѕР·СЂР°СЃС‚</span><strong>${program.age}</strong></div>
-                 <div class="detail-line"><span>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ</span><strong>${program.duration}</strong></div>
+                 <div class="detail-line"><span>Возраст</span><strong>${program.age}</strong></div>
+                 <div class="detail-line"><span>Длительность</span><strong>${program.duration}</strong></div>
                </div>`
         }
         ${
           program.driveUrl
-            ? `<button class="secondary-button" style="margin-top: 12px" data-open-url="${program.driveUrl}">РћС‚РєСЂС‹С‚СЊ РґРёСЃРє</button>`
+            ? `<button class="secondary-button" style="margin-top: 12px" data-open-url="${program.driveUrl}">Открыть диск</button>`
             : ""
         }
-        ${state.user.role === "admin" && state.programEditMode ? `<button class="secondary-button" style="margin-top: 8px" data-action="program-kit-builder">РР·РјРµРЅРёС‚СЊ РєРѕРјРїР»РµРєС‚</button>` : ""}
-        ${state.user.role === "admin" && state.programEditMode ? `<button class="primary-button" style="margin-top: 8px" data-action="save-program" data-program-id="${program.id}">РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>` : ""}
+        ${state.user.role === "admin" && state.programEditMode ? `<button class="secondary-button" style="margin-top: 8px" data-action="program-kit-builder">Изменить комплект</button>` : ""}
+        ${state.user.role === "admin" && state.programEditMode ? `<button class="primary-button" style="margin-top: 8px" data-action="save-program" data-program-id="${program.id}">Сохранить изменения</button>` : ""}
       </section>
       <section class="panel">
-        <h2 class="panel-title">РЎС†РµРЅР°СЂРёР№</h2>
+        <h2 class="panel-title">Сценарий</h2>
         ${
           state.programEditMode && state.user.role === "admin"
-            ? `<textarea class="booking-input booking-textarea" data-program-field="script" data-program-id="${program.id}" placeholder="РЎС†РµРЅР°СЂРёР№ РїСЂРѕРіСЂР°РјРјС‹ С†РµР»РёРєРѕРј">${program.script || ""}</textarea>`
-            : `<p class="small-text script-text">${program.script || "РЎС†РµРЅР°СЂРёР№ РїРѕРєР° РЅРµ РґРѕР±Р°РІР»РµРЅ."}</p>`
+            ? `<textarea class="booking-input booking-textarea" data-program-field="script" data-program-id="${program.id}" placeholder="Сценарий программы целиком">${program.script || ""}</textarea>`
+            : `<p class="small-text script-text">${program.script || "Сценарий пока не добавлен."}</p>`
         }
       </section>
-      <button class="primary-button" data-action="save-trip" data-order-id="1">РЎРѕС…СЂР°РЅРёС‚СЊ РґР»СЏ РІС‹РµР·РґР°</button>
+      <button class="primary-button" data-action="save-trip" data-order-id="1">Сохранить для выезда</button>
     </div>
   `, true);
 }
@@ -2252,13 +2252,13 @@ function savedScreen() {
   const savedOrders = orders.filter((order) => state.saved.includes(order.id));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РЎРѕС…СЂР°РЅРµРЅРѕ</h1>
+    <h1 class="page-title">Сохранено</h1>
     <div class="content-stack">
       <div class="notice">
-        ${savedOrders.length} Р·Р°РєР°Р·(Р°) РґРѕСЃС‚СѓРїРЅС‹ РѕС„Р»Р°Р№РЅ. ${state.syncQueue.length ? `Р•СЃС‚СЊ ${state.syncQueue.length} РґРµР№СЃС‚РІРёРµ(Р№) Рє РѕС‚РїСЂР°РІРєРµ.` : "Р’СЃРµ РґРµР№СЃС‚РІРёСЏ РѕС‚РїСЂР°РІР»РµРЅС‹."}
+        ${savedOrders.length} заказ(а) доступны офлайн. ${state.syncQueue.length ? `Есть ${state.syncQueue.length} действие(й) к отправке.` : "Все действия отправлены."}
       </div>
       <div class="orders-stack">
         ${
@@ -2267,13 +2267,13 @@ function savedScreen() {
                 .map(
                   (order) => `
                     <button class="order-row" data-route="order" data-order-id="${order.id}">
-                      <span><strong>${order.title}</strong><span>${order.date} ${order.time} В· СЃС†РµРЅР°СЂРёР№, РјСѓР·С‹РєР°, СЂРµРєРІРёР·РёС‚</span></span>
-                      <span class="row-icon done" aria-label="Р“РѕС‚РѕРІРѕ">вњ“</span>
+                      <span><strong>${order.title}</strong><span>${order.date} ${order.time} · сценарий, музыка, реквизит</span></span>
+                      <span class="row-icon done" aria-label="Готово">✓</span>
                     </button>
                   `
                 )
                 .join("")
-            : `<div class="notice">РџРѕРєР° РЅРёС‡РµРіРѕ РЅРµ СЃРѕС…СЂР°РЅРµРЅРѕ. РћС‚РєСЂРѕР№С‚Рµ Р·Р°РєР°Р· Рё РЅР°Р¶РјРёС‚Рµ вЂњР”Р»СЏ РІС‹РµР·РґР°вЂќ.</div>`
+            : `<div class="notice">Пока ничего не сохранено. Откройте заказ и нажмите ?Для выезда?.</div>`
         }
       </div>
     </div>
@@ -2293,10 +2293,10 @@ function profileScreen() {
   const myProps = props.filter((item) => item.status === "mine" && String(item.place || "").toLowerCase().includes(String(state.user.firstName).toLowerCase()));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">вЂ№</button>
+      <button class="icon-button" data-route="home">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РџСЂРѕС„РёР»СЊ</h1>
+    <h1 class="page-title">Профиль</h1>
     <div class="content-stack">
       <section class="panel">
         <button class="profile-avatar-row" data-route="avatar">
@@ -2306,13 +2306,13 @@ function profileScreen() {
           <strong>${state.user.firstName}</strong>
         </button>
         <div class="detail-grid">
-          <div class="detail-line"><span>РРјСЏ</span><strong>${state.user.firstName}</strong></div>
+          <div class="detail-line"><span>Имя</span><strong>${state.user.firstName}</strong></div>
           <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
-          <div class="detail-line"><span>Р РѕР»СЊ</span><strong>${roleLabel()}</strong></div>
-          <div class="detail-line"><span>РћС‡РµСЂРµРґСЊ</span><strong>${state.syncQueue.length}</strong></div>
+          <div class="detail-line"><span>Роль</span><strong>${roleLabel()}</strong></div>
+          <div class="detail-line"><span>Очередь</span><strong>${state.syncQueue.length}</strong></div>
           ${
             state.user.role === "ambassador"
-              ? `<div class="detail-line"><span>РљРѕРґ</span><strong>${currentAmbassadorCode()}</strong></div>`
+              ? `<div class="detail-line"><span>Код</span><strong>${currentAmbassadorCode()}</strong></div>`
               : ""
           }
         </div>
@@ -2320,33 +2320,33 @@ function profileScreen() {
       ${
         state.user.role === "ambassador"
           ? `<section class="panel">
-              <h2 class="panel-title">Р‘Р°РЅРЅРё</h2>
-              <div class="summary-line"><span>Р”РѕСЃС‚СѓРїРЅРѕ</span><strong>${Number(currentEmployee()?.bunnyBalance || state.user.bunnyBalance || 0)} Р‘</strong></div>
-              <div class="summary-line"><span>РќР° РІС‹РІРѕРґРµ</span><strong>${Number(currentEmployee()?.bunnyPending || state.user.bunnyPending || 0)} Р‘</strong></div>
-              <button class="primary-button" data-action="withdraw-bunny" style="margin-top: 10px">Р’С‹РІРµСЃС‚Рё РІР°Р»СЋС‚Сѓ</button>
-              <p class="small-text" style="margin-top: 8px">Р’С‹РІРѕРґ РґРѕСЃС‚СѓРїРµРЅ 30/31 С‡РёСЃР»Р°. 1 Р±Р°РЅРЅРё = 1 СЂСѓР±Р»СЊ.</p>
+              <h2 class="panel-title">Банни</h2>
+              <div class="summary-line"><span>Доступно</span><strong>${Number(currentEmployee()?.bunnyBalance || state.user.bunnyBalance || 0)} Б</strong></div>
+              <div class="summary-line"><span>На выводе</span><strong>${Number(currentEmployee()?.bunnyPending || state.user.bunnyPending || 0)} Б</strong></div>
+              <button class="primary-button" data-action="withdraw-bunny" style="margin-top: 10px">Вывести валюту</button>
+              <p class="small-text" style="margin-top: 8px">Вывод доступен 30/31 числа. 1 банни = 1 рубль.</p>
             </section>
-            <button class="secondary-button" data-route="company">Рћ РєРѕРјРїР°РЅРёРё</button>`
+            <button class="secondary-button" data-route="company">О компании</button>`
           : ""
       }
       <section class="panel">
-        <h2 class="panel-title">РћС„РѕСЂРјР»РµРЅРёРµ</h2>
+        <h2 class="panel-title">Оформление</h2>
         <div class="theme-choice">
-          <button class="${state.appTheme === "dark" ? "active" : ""}" data-action="set-app-theme" data-app-theme="dark">РўРµРјРЅРѕРµ</button>
-          <button class="${state.appTheme === "light" ? "active" : ""}" data-action="set-app-theme" data-app-theme="light">РЎРІРµС‚Р»РѕРµ</button>
+          <button class="${state.appTheme === "dark" ? "active" : ""}" data-action="set-app-theme" data-app-theme="dark">Темное</button>
+          <button class="${state.appTheme === "light" ? "active" : ""}" data-action="set-app-theme" data-app-theme="light">Светлое</button>
         </div>
       </section>
       <section class="panel">
-        <h2 class="panel-title">Р—Р°СЂР°Р±РѕС‚РѕРє</h2>
+        <h2 class="panel-title">Заработок</h2>
         <div class="chips">
-          <button class="chip ${state.earningsPeriod === "week" ? "active" : ""}" data-earnings-period="week">РќРµРґРµР»СЏ</button>
-          <button class="chip ${state.earningsPeriod === "month" ? "active" : ""}" data-earnings-period="month">РњРµСЃСЏС†</button>
-          <button class="chip ${state.earningsPeriod === "year" ? "active" : ""}" data-earnings-period="year">Р“РѕРґ</button>
+          <button class="chip ${state.earningsPeriod === "week" ? "active" : ""}" data-earnings-period="week">Неделя</button>
+          <button class="chip ${state.earningsPeriod === "month" ? "active" : ""}" data-earnings-period="month">Месяц</button>
+          <button class="chip ${state.earningsPeriod === "year" ? "active" : ""}" data-earnings-period="year">Год</button>
         </div>
-        <div class="summary-line" style="margin-top: 10px"><span>РќР°С‡РёСЃР»РµРЅРѕ</span><strong>${money(earnings)}</strong></div>
+        <div class="summary-line" style="margin-top: 10px"><span>Начислено</span><strong>${money(earnings)}</strong></div>
       </section>
       <section class="panel">
-        <h2 class="panel-title">РџСЂРёРЅСЏС‚С‹Рµ Р·Р°РєР°Р·С‹</h2>
+        <h2 class="panel-title">Принятые заказы</h2>
         <div class="orders-stack">
           ${
             acceptedList.length
@@ -2354,18 +2354,18 @@ function profileScreen() {
                   .map(
                     (order) => `
                       <button class="order-row" data-route="order" data-order-id="${order.id}">
-                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} В· ${money(order.actorPay || 0)}</span></span>
-                        <span class="row-icon" aria-label="РћС‚РєСЂС‹С‚СЊ">вЂє</span>
+                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${money(order.actorPay || 0)}</span></span>
+                        <span class="row-icon" aria-label="Открыть">›</span>
                       </button>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">РџСЂРёРЅСЏС‚С‹С… Р·Р°РєР°Р·РѕРІ РїРѕРєР° РЅРµС‚</div>`
+              : `<div class="empty-state">Принятых заказов пока нет</div>`
           }
         </div>
       </section>
       <section class="panel">
-        <h2 class="panel-title">Р РµРєРІРёР·РёС‚ Сѓ РІР°СЃ</h2>
+        <h2 class="panel-title">Реквизит у вас</h2>
         <div class="orders-stack">
           ${
             myProps.length
@@ -2374,19 +2374,19 @@ function profileScreen() {
                     (item) => `
                       <button class="prop-row" data-route="props">
                         <span><strong>${item.name}</strong><span>${item.place}</span></span>
-                        <span class="row-icon return" aria-label="РЈ РІР°СЃ">в†©</span>
+                        <span class="row-icon return" aria-label="У вас">в†©</span>
                       </button>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">Р—Р° РІР°РјРё РїРѕРєР° РЅРµС‚ СЂРµРєРІРёР·РёС‚Р°</div>`
+              : `<div class="empty-state">За вами пока нет реквизита</div>`
           }
         </div>
       </section>
       ${
         state.user.role === "admin"
           ? `<section class="panel">
-              <h2 class="panel-title">Р’С‹РїР»Р°С‚С‹</h2>
+              <h2 class="panel-title">Выплаты</h2>
               <div class="orders-stack">
                 ${
                   state.bonuses.length
@@ -2395,20 +2395,20 @@ function profileScreen() {
                           (bonus) => `
                             <div class="managed-row bonus-row">
                               <div class="detail-grid">
-                                <div class="detail-line"><span>РљРѕРјСѓ</span><strong>${bonus.employeeName || `#${bonus.employeeId}`}</strong></div>
-                                <div class="detail-line"><span>РљРѕРіРґР°</span><strong>${new Date(bonus.createdAt).toLocaleDateString("ru-RU")}</strong></div>
-                                <div class="detail-line"><span>Р—Р° С‡С‚Рѕ</span><strong>${bonus.comment || "Р‘РµР· РєРѕРјРјРµРЅС‚Р°СЂРёСЏ"}</strong></div>
-                                <div class="detail-line"><span>РќР°С‡РёСЃР»РёР»</span><strong>${bonus.createdByName || state.user.firstName}</strong></div>
+                                <div class="detail-line"><span>Кому</span><strong>${bonus.employeeName || `#${bonus.employeeId}`}</strong></div>
+                                <div class="detail-line"><span>Когда</span><strong>${new Date(bonus.createdAt).toLocaleDateString("ru-RU")}</strong></div>
+                                <div class="detail-line"><span>За что</span><strong>${bonus.comment || "Без комментария"}</strong></div>
+                                <div class="detail-line"><span>Начислил</span><strong>${bonus.createdByName || state.user.firstName}</strong></div>
                               </div>
                               <div class="bonus-edit-row">
                                 <input class="booking-input" type="number" min="0" data-bonus-amount="${bonus.id}" value="${bonus.amount}" />
-                                <button class="mini-delete-button" data-action="delete-bonus" data-bonus-id="${bonus.id}">Г—</button>
+                                <button class="mini-delete-button" data-action="delete-bonus" data-bonus-id="${bonus.id}">×</button>
                               </div>
                             </div>
                           `
                         )
                         .join("")
-                    : `<div class="empty-state">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РІС‹РїР»Р°С‚ РїРѕРєР° РЅРµС‚</div>`
+                    : `<div class="empty-state">Дополнительных выплат пока нет</div>`
                 }
               </div>
             </section>`
@@ -2417,26 +2417,26 @@ function profileScreen() {
       ${
         state.user.role !== "admin"
           ? `<section class="panel efficiency-panel">
-              <h2 class="panel-title">Р­С„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ</h2>
+              <h2 class="panel-title">Эффективность</h2>
               <div class="efficiency-wrap">
                 <div class="efficiency-ring" style="--value: ${currentEmployee.efficiency}">
                   <strong>${currentEmployee.efficiency}%</strong>
                 </div>
                 <div class="efficiency-stats">
-                  <div><span>РџСЂРёРЅСЏС‚Рѕ Р·Р° РјРµСЃСЏС†</span><strong>${currentMonthlyAccepted}</strong></div>
-                  <div><span>РћС†РµРЅРєР°</span><strong>${currentEmployee.rating}</strong></div>
+                  <div><span>Принято за месяц</span><strong>${currentMonthlyAccepted}</strong></div>
+                  <div><span>Оценка</span><strong>${currentEmployee.rating}</strong></div>
                 </div>
               </div>
             </section>`
           : `<section class="panel">
-              <h2 class="panel-title">РћС†РµРЅРєР° СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ</h2>
+              <h2 class="panel-title">Оценка сотрудников</h2>
               <div class="employee-list">
                 ${employees
                   .map(
                     (employee) => `
                       <button class="employee-row employee-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
                         <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
-                        <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>РџСЂРёРЅСЏС‚Рѕ Р·Р° РјРµСЃСЏС†: ${monthlyAcceptedCount(employee.id)}</small></span>
+                        <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
                         <b>${employee.rating}</b>
                       </button>
                     `
@@ -2445,8 +2445,8 @@ function profileScreen() {
               </div>
             </section>`
       }
-      <button class="primary-button" data-action="refresh-data">РћР±РЅРѕРІРёС‚СЊ РґР°РЅРЅС‹Рµ</button>
-      <button class="secondary-button" data-action="report">РЎРѕРѕР±С‰РёС‚СЊ РѕР± РѕС€РёР±РєРµ</button>
+      <button class="primary-button" data-action="refresh-data">Обновить данные</button>
+      <button class="secondary-button" data-action="report">Сообщить об ошибке</button>
     </div>
   `, true);
 }
@@ -2456,11 +2456,11 @@ function adminEmployeeDetailScreen() {
   if (!employee) {
     return appFrame(`
       <div class="top-row">
-        <button class="icon-button" data-route="profile">вЂ№</button>
+        <button class="icon-button" data-route="profile">?</button>
         ${syncPill()}
       </div>
-      <h1 class="page-title">РЎРѕС‚СЂСѓРґРЅРёРє</h1>
-      <div class="content-stack"><div class="empty-state">РЎРѕС‚СЂСѓРґРЅРёРє РЅРµ РЅР°Р№РґРµРЅ</div></div>
+      <h1 class="page-title">Сотрудник</h1>
+      <div class="content-stack"><div class="empty-state">Сотрудник не найден</div></div>
     `, true);
   }
   const employeeOrders = acceptedOrdersForEmployee(employee.id);
@@ -2468,37 +2468,37 @@ function adminEmployeeDetailScreen() {
   const total = employeeEarnings(employee.id);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="profile">вЂ№</button>
+      <button class="icon-button" data-route="profile">?</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">${employee.name}</h1>
     <div class="content-stack">
       <section class="panel efficiency-panel">
-        <h2 class="panel-title">Р­С„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ</h2>
+        <h2 class="panel-title">Эффективность</h2>
         <div class="efficiency-wrap">
           <div class="efficiency-ring" style="--value: ${employee.efficiency || 0}">
             <strong>${employee.efficiency || 0}%</strong>
           </div>
           <div class="efficiency-stats">
-            <div><span>РџСЂРёРЅСЏС‚Рѕ Р·Р° РјРµСЃСЏС†</span><strong>${monthlyAcceptedCount(employee.id)}</strong></div>
-            <div><span>РћС†РµРЅРєР°</span><strong>${employee.rating || 0}</strong></div>
+            <div><span>Принято за месяц</span><strong>${monthlyAcceptedCount(employee.id)}</strong></div>
+            <div><span>Оценка</span><strong>${employee.rating || 0}</strong></div>
           </div>
         </div>
         <div class="counter-actions" style="margin-top: 10px">
-          <button class="secondary-button" data-action="decrease-accepted" data-employee-id="${employee.id}">в€’ Р·Р°РєР°Р·</button>
-          <button class="secondary-button" data-action="increase-accepted" data-employee-id="${employee.id}">+ Р·Р°РєР°Р·</button>
+          <button class="secondary-button" data-action="decrease-accepted" data-employee-id="${employee.id}">в€’ заказ</button>
+          <button class="secondary-button" data-action="increase-accepted" data-employee-id="${employee.id}">+ заказ</button>
         </div>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Р¤РёРЅР°РЅСЃС‹</h2>
-        <div class="summary-line"><span>РћР±С‰Р°СЏ СЃСѓРјРјР°</span><strong>${money(total)}</strong></div>
+        <h2 class="panel-title">Финансы</h2>
+        <div class="summary-line"><span>Общая сумма</span><strong>${money(total)}</strong></div>
         <input class="booking-input" type="number" min="0" data-employee-total="${employee.id}" value="${total}" style="margin-top: 10px" />
-        <p class="small-text" style="margin-top: 8px">Р•СЃР»Рё РёР·РјРµРЅРёС‚СЊ СЃСѓРјРјСѓ, РїСЂРёР»РѕР¶РµРЅРёРµ РґРѕР±Р°РІРёС‚ РєРѕСЂСЂРµРєС‚РёСЂРѕРІРєСѓ РІС‹РїР»Р°С‚РѕР№.</p>
+        <p class="small-text" style="margin-top: 8px">Если изменить сумму, приложение добавит корректировку выплатой.</p>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">РџСЂРёРЅСЏС‚С‹Рµ Р·Р°РєР°Р·С‹</h2>
+        <h2 class="panel-title">Принятые заказы</h2>
         <div class="orders-stack">
           ${
             employeeOrders.length
@@ -2507,25 +2507,25 @@ function adminEmployeeDetailScreen() {
                     (order) => `
                       <div class="managed-row bonus-row">
                         <button class="order-row" data-route="order" data-order-id="${order.id}">
-                          <span><strong>${order.title}</strong><span>${order.date} ${order.time} В· ${money(order.actorPay || 0)}</span></span>
-                          <span class="row-icon" aria-label="РћС‚РєСЂС‹С‚СЊ">вЂє</span>
+                          <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${money(order.actorPay || 0)}</span></span>
+                          <span class="row-icon" aria-label="Открыть">›</span>
                         </button>
                         <input class="booking-input" type="number" min="0" data-order-pay="${order.id}" value="${order.actorPay || 0}" />
                         <div class="action-grid compact-actions">
-                          <button class="secondary-button" data-action="annul-order" data-order-id="${order.id}">РђРЅРЅСѓР»РёСЂРѕРІР°С‚СЊ</button>
-                          <button class="secondary-button danger-button" data-action="delete-order-pay" data-order-id="${order.id}">РЈРґР°Р»РёС‚СЊ Р—Рџ</button>
+                          <button class="secondary-button" data-action="annul-order" data-order-id="${order.id}">Аннулировать</button>
+                          <button class="secondary-button danger-button" data-action="delete-order-pay" data-order-id="${order.id}">Удалить ЗП</button>
                         </div>
                       </div>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">РџСЂРёРЅСЏС‚С‹С… Р·Р°РєР°Р·РѕРІ РїРѕРєР° РЅРµС‚</div>`
+              : `<div class="empty-state">Принятых заказов пока нет</div>`
           }
         </div>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Р’С‹РїР»Р°С‚С‹</h2>
+        <h2 class="panel-title">Выплаты</h2>
         <div class="orders-stack">
           ${
             employeeBonuses.length
@@ -2534,19 +2534,19 @@ function adminEmployeeDetailScreen() {
                     (bonus) => `
                       <div class="managed-row bonus-row">
                         <div class="detail-grid">
-                          <div class="detail-line"><span>РљРѕРіРґР°</span><strong>${new Date(bonus.createdAt).toLocaleDateString("ru-RU")}</strong></div>
-                          <div class="detail-line"><span>Р—Р° С‡С‚Рѕ</span><strong>${bonus.comment || "Р‘РµР· РєРѕРјРјРµРЅС‚Р°СЂРёСЏ"}</strong></div>
-                          <div class="detail-line"><span>РќР°С‡РёСЃР»РёР»</span><strong>${bonus.createdByName || state.user.firstName}</strong></div>
+                          <div class="detail-line"><span>Когда</span><strong>${new Date(bonus.createdAt).toLocaleDateString("ru-RU")}</strong></div>
+                          <div class="detail-line"><span>За что</span><strong>${bonus.comment || "Без комментария"}</strong></div>
+                          <div class="detail-line"><span>Начислил</span><strong>${bonus.createdByName || state.user.firstName}</strong></div>
                         </div>
                         <div class="bonus-edit-row">
                           <input class="booking-input" type="number" data-bonus-amount="${bonus.id}" value="${bonus.amount}" />
-                          <button class="mini-delete-button" data-action="delete-bonus" data-bonus-id="${bonus.id}">Г—</button>
+                          <button class="mini-delete-button" data-action="delete-bonus" data-bonus-id="${bonus.id}">×</button>
                         </div>
                       </div>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">Р’С‹РїР»Р°С‚ РїРѕРєР° РЅРµС‚</div>`
+              : `<div class="empty-state">Выплат пока нет</div>`
           }
         </div>
       </section>
@@ -2557,17 +2557,17 @@ function adminEmployeeDetailScreen() {
 function companyScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="profile">вЂ№</button>
+      <button class="icon-button" data-route="profile">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Рћ РєРѕРјРїР°РЅРёРё</h1>
+    <h1 class="page-title">О компании</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">РўРѕС‡РєР° РїСЂР°Р·РґРЅРёРєР°</h2>
-        <p class="small-text">РџСЂРѕРµРєС‚ Р‘Р°РЅРЅРё Р‘РѕРЅ. РЎСЃС‹Р»РєРё РґР»СЏ Р°РјР±Р°СЃСЃР°РґРѕСЂРѕРІ Рё СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ.</p>
+        <h2 class="panel-title">Точка праздника</h2>
+        <p class="small-text">Проект Банни Бон. Ссылки для амбассадоров и сотрудников.</p>
       </section>
-      <button class="primary-button" data-open-url="${COMPANY_SITE_URL}">РЎР°Р№С‚</button>
-      <button class="secondary-button" data-open-url="${COMPANY_VK_URL}">Р“СЂСѓРїРїР° Р’Рљ</button>
+      <button class="primary-button" data-open-url="${COMPANY_SITE_URL}">Сайт</button>
+      <button class="secondary-button" data-open-url="${COMPANY_VK_URL}">Группа ВК</button>
     </div>
   `, true);
 }
@@ -2575,20 +2575,20 @@ function companyScreen() {
 function adminPromosScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">вЂ№</button>
+      <button class="icon-button" data-route="admin">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РџСЂРѕРјРѕРєРѕРґС‹</h1>
+    <h1 class="page-title">Промокоды</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРјРѕРєРѕРґ</h2>
-        <input class="booking-input" data-admin-field="newPromo.code" placeholder="РљРѕРґ" value="${state.newPromo.code}" />
-        <input class="booking-input" data-admin-field="newPromo.discount" type="number" min="0" placeholder="РЎРєРёРґРєР° РІ в‚Ѕ" value="${state.newPromo.discount}" style="margin-top: 8px" />
-        <input class="booking-input" data-admin-field="newPromo.description" placeholder="РљРѕРјРјРµРЅС‚Р°СЂРёР№" value="${state.newPromo.description}" style="margin-top: 8px" />
+        <h2 class="panel-title">Добавить промокод</h2>
+        <input class="booking-input" data-admin-field="newPromo.code" placeholder="Код" value="${state.newPromo.code}" />
+        <input class="booking-input" data-admin-field="newPromo.discount" type="number" min="0" placeholder="Скидка в ₽" value="${state.newPromo.discount}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newPromo.description" placeholder="Комментарий" value="${state.newPromo.description}" style="margin-top: 8px" />
       </section>
-      <button class="primary-button" data-action="create-promo">Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРјРѕРєРѕРґ</button>
+      <button class="primary-button" data-action="create-promo">Добавить промокод</button>
       <section class="panel">
-        <h2 class="panel-title">РђРєС‚РёРІРЅС‹Рµ</h2>
+        <h2 class="panel-title">Активные</h2>
         <div class="orders-stack">
           ${
             state.promoCodes.length
@@ -2597,12 +2597,12 @@ function adminPromosScreen() {
                     (promo) => `
                       <div class="notice">
                         <strong>${promo.code}</strong><br>
-                        ${money(promo.discount)} ${promo.description ? `В· ${promo.description}` : ""}
+                        ${money(promo.discount)} ${promo.description ? `· ${promo.description}` : ""}
                       </div>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">РџСЂРѕРјРѕРєРѕРґРѕРІ РїРѕРєР° РЅРµС‚</div>`
+              : `<div class="empty-state">Промокодов пока нет</div>`
           }
         </div>
       </section>
@@ -2664,52 +2664,52 @@ function adminAmbassadorsScreen() {
 function adminEmployeesScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">вЂ№</button>
+      <button class="icon-button" data-route="admin">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РЎРѕС‚СЂСѓРґРЅРёРє</h1>
+    <h1 class="page-title">Сотрудник</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Р”РѕР±Р°РІРёС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєР°</h2>
-        <input class="booking-input" data-admin-field="newEmployee.name" placeholder="РРјСЏ" value="${state.newEmployee.name}" />
+        <h2 class="panel-title">Добавить сотрудника</h2>
+        <input class="booking-input" data-admin-field="newEmployee.name" placeholder="Имя" value="${state.newEmployee.name}" />
         <input class="booking-input" data-admin-field="newEmployee.username" placeholder="Telegram username" value="${state.newEmployee.username}" style="margin-top: 8px" />
         <label class="check-line admin-check-line" style="margin-top: 8px">
           <input type="checkbox" data-admin-field="newEmployee.isAdmin" ${state.newEmployee.isAdmin ? "checked" : ""} />
-          <span>Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РґР°С‚СЊ С„СѓРЅРєС†РёРё Р°РґРјРёРЅР°</span>
+          <span>Дополнительно дать функции админа</span>
         </label>
         <label class="check-line admin-check-line" style="margin-top: 8px">
           <input type="checkbox" data-admin-field="newEmployee.isAmbassador" ${state.newEmployee.isAmbassador ? "checked" : ""} />
-          <span>Р”Р°С‚СЊ РїСЂР°РІР° Р°РјР±Р°СЃСЃР°РґРѕСЂР°</span>
+          <span>Дать права амбассадора</span>
         </label>
         ${
           state.newEmployee.isAmbassador
             ? `<div class="notice" style="margin-top: 8px">
-                <strong>РљРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР°</strong>
-                <input class="booking-input" data-admin-field="newEmployee.ambassadorCode" placeholder="РљРѕРґ Р°РјР±Р°СЃСЃР°РґРѕСЂР°" value="${suggestedEmployeeAmbassadorCode()}" style="margin-top: 8px" />
-                <p class="small-text" style="margin-top: 8px">Р­С‚РѕС‚ РєРѕРґ Р·Р°РєСЂРµРїРёС‚СЃСЏ Р·Р° СЃРѕС‚СЂСѓРґРЅРёРєРѕРј РїРѕСЃР»Рµ РґРѕР±Р°РІР»РµРЅРёСЏ.</p>
+                <strong>Код амбассадора</strong>
+                <input class="booking-input" data-admin-field="newEmployee.ambassadorCode" placeholder="Код амбассадора" value="${suggestedEmployeeAmbassadorCode()}" style="margin-top: 8px" />
+                <p class="small-text" style="margin-top: 8px">Этот код закрепится за сотрудником после добавления.</p>
               </div>`
             : ""
         }
       </section>
-      <button class="primary-button" data-action="create-employee">Р”РѕР±Р°РІРёС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєР°</button>
+      <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
       <section class="panel">
-        <button class="panel-toggle" data-action="toggle-bonus-form">РќР°С‡РёСЃР»РёС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РІС‹РїР»Р°С‚Сѓ</button>
+        <button class="panel-toggle" data-action="toggle-bonus-form">Начислить дополнительную выплату</button>
         ${
           state.bonusFormOpen
             ? `<select class="booking-input" data-admin-field="newBonus.employeeId">
-                <option value="">Р’С‹Р±РµСЂРёС‚Рµ СЃРѕС‚СЂСѓРґРЅРёРєР°</option>
+                <option value="">Выберите сотрудника</option>
                 ${employees
                   .map((employee) => `<option value="${employee.id}" ${String(state.newBonus.employeeId) === String(employee.id) ? "selected" : ""}>${employee.name}</option>`)
                   .join("")}
               </select>
-              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="РЎСѓРјРјР° РІС‹РїР»Р°С‚С‹" value="${state.newBonus.amount}" style="margin-top: 8px" />
-              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="Р—Р° С‡С‚Рѕ РЅР°С‡РёСЃР»РµРЅР° РІС‹РїР»Р°С‚Р°">${state.newBonus.comment}</textarea>
-              <button class="primary-button" data-action="create-bonus" style="margin-top: 8px">РќР°С‡РёСЃР»РёС‚СЊ</button>`
+              <input class="booking-input" data-admin-field="newBonus.amount" type="number" min="0" placeholder="Сумма выплаты" value="${state.newBonus.amount}" style="margin-top: 8px" />
+              <textarea class="booking-input booking-textarea" data-admin-field="newBonus.comment" placeholder="За что начислена выплата">${state.newBonus.comment}</textarea>
+              <button class="primary-button" data-action="create-bonus" style="margin-top: 8px">Начислить</button>`
             : ""
         }
       </section>
       <section class="panel">
-        <h2 class="panel-title">РЎРїРёСЃРѕРє</h2>
+        <h2 class="panel-title">Список</h2>
         <div class="employee-list">
           ${employees
             .map(
@@ -2717,13 +2717,13 @@ function adminEmployeesScreen() {
                 <div class="employee-row">
                   <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
                   <button class="employee-name-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
-                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} В· РїСЂРёРЅСЏС‚Рѕ Р·Р° РјРµСЃСЏС† ${monthlyAcceptedCount(employee.id)}</small></span>
+                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
                   </button>
                   <div class="counter-actions">
                     <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">в€’</button>
                     <button class="mini-delete-button" data-action="increase-accepted" data-employee-id="${employee.id}">+</button>
                   </div>
-                  <button class="mini-delete-button" data-action="delete-employee" data-employee-id="${employee.id}">Г—</button>
+                  <button class="mini-delete-button" data-action="delete-employee" data-employee-id="${employee.id}">×</button>
                 </div>
               `
             )
@@ -2737,23 +2737,23 @@ function adminEmployeesScreen() {
 function adminProgramScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">вЂ№</button>
+      <button class="icon-button" data-route="admin">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РџСЂРѕРіСЂР°РјРјР°</h1>
+    <h1 class="page-title">Программа</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ</h2>
-        <input class="booking-input" data-admin-field="newProgram.title" placeholder="РќР°Р·РІР°РЅРёРµ" value="${state.newProgram.title}" />
-        <input class="booking-input" data-admin-field="newProgram.driveUrl" placeholder="РЎСЃС‹Р»РєР° РЅР° РґРёСЃРє" value="${state.newProgram.driveUrl}" style="margin-top: 8px" />
-        <input class="booking-input" data-admin-field="newProgram.age" placeholder="Р’РѕР·СЂР°СЃС‚" value="${state.newProgram.age}" style="margin-top: 8px" />
-        <input class="booking-input" data-admin-field="newProgram.duration" placeholder="Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ" value="${state.newProgram.duration}" style="margin-top: 8px" />
-        <input class="booking-input" data-admin-field="newProgram.pricePerHour" type="number" placeholder="Р¦РµРЅР° Р·Р° С‡Р°СЃ" value="${state.newProgram.pricePerHour}" style="margin-top: 8px" />
-        <input class="booking-input" data-admin-field="newProgram.actorPayPerHour" type="number" placeholder="Р—Рџ Р°РєС‚РµСЂР° Р·Р° С‡Р°СЃ" value="${state.newProgram.actorPayPerHour}" style="margin-top: 8px" />
-        <textarea class="booking-input booking-textarea" data-admin-field="newProgram.script" placeholder="РЎС†РµРЅР°СЂРёР№ РїСЂРѕРіСЂР°РјРјС‹ С†РµР»РёРєРѕРј">${state.newProgram.script}</textarea>
+        <h2 class="panel-title">Добавить программу</h2>
+        <input class="booking-input" data-admin-field="newProgram.title" placeholder="Название" value="${state.newProgram.title}" />
+        <input class="booking-input" data-admin-field="newProgram.driveUrl" placeholder="Ссылка на диск" value="${state.newProgram.driveUrl}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.age" placeholder="Возраст" value="${state.newProgram.age}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.duration" placeholder="Длительность" value="${state.newProgram.duration}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.pricePerHour" type="number" placeholder="Цена за час" value="${state.newProgram.pricePerHour}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newProgram.actorPayPerHour" type="number" placeholder="ЗП актера за час" value="${state.newProgram.actorPayPerHour}" style="margin-top: 8px" />
+        <textarea class="booking-input booking-textarea" data-admin-field="newProgram.script" placeholder="Сценарий программы целиком">${state.newProgram.script}</textarea>
       </section>
-      <button class="secondary-button" data-action="program-kit-builder">РЎРѕР±СЂР°С‚СЊ РєРѕРјРїР»РµРєС‚ РґР»СЏ РїСЂРѕРіСЂР°РјРјС‹</button>
-      <button class="primary-button" data-action="create-program">Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ</button>
+      <button class="secondary-button" data-action="program-kit-builder">Собрать комплект для программы</button>
+      <button class="primary-button" data-action="create-program">Добавить программу</button>
     </div>
   `, true);
 }
@@ -2764,34 +2764,34 @@ function adminPropScreen() {
   const selectedKitProps = new Set((state.programKits[kitKey] || []).map(Number));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">вЂ№</button>
+      <button class="icon-button" data-route="admin">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Р РµРєРІРёР·РёС‚</h1>
+    <h1 class="page-title">Реквизит</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Р”РѕР±Р°РІРёС‚СЊ СЂРµРєРІРёР·РёС‚</h2>
-        <input class="booking-input" data-admin-field="newProp.name" placeholder="РќР°Р·РІР°РЅРёРµ" value="${state.newProp.name}" />
-        <input class="booking-input" data-admin-field="newProp.place" placeholder="РњРµСЃС‚Рѕ С…СЂР°РЅРµРЅРёСЏ" value="${state.newProp.place}" style="margin-top: 8px" />
+        <h2 class="panel-title">Добавить реквизит</h2>
+        <input class="booking-input" data-admin-field="newProp.name" placeholder="Название" value="${state.newProp.name}" />
+        <input class="booking-input" data-admin-field="newProp.place" placeholder="Место хранения" value="${state.newProp.place}" style="margin-top: 8px" />
         <select class="booking-input" data-admin-field="newProp.status" style="margin-top: 8px">
-          <option value="available" ${state.newProp.status === "available" ? "selected" : ""}>Р”РѕСЃС‚СѓРїРЅРѕ</option>
-          <option value="busy" ${state.newProp.status === "busy" ? "selected" : ""}>Р—Р°РЅСЏС‚Рѕ</option>
-          <option value="repair" ${state.newProp.status === "repair" ? "selected" : ""}>РџСЂРѕРІРµСЂРєР°</option>
+          <option value="available" ${state.newProp.status === "available" ? "selected" : ""}>Доступно</option>
+          <option value="busy" ${state.newProp.status === "busy" ? "selected" : ""}>Занято</option>
+          <option value="repair" ${state.newProp.status === "repair" ? "selected" : ""}>Проверка</option>
         </select>
       </section>
-      <button class="primary-button" data-action="create-prop">Р”РѕР±Р°РІРёС‚СЊ СЂРµРєРІРёР·РёС‚</button>
+      <button class="primary-button" data-action="create-prop">Добавить реквизит</button>
       ${
         kitMode
           ? `<section class="panel kit-builder-panel">
-              <h2 class="panel-title">РљРѕРјРїР»РµРєС‚ РїСЂРѕРіСЂР°РјРјС‹</h2>
-              <p class="small-text">Р’С‹Р±РµСЂРёС‚Рµ СЂРµРєРІРёР·РёС‚ РґР»СЏ СЌС‚РѕР№ РїСЂРѕРіСЂР°РјРјС‹. Р’С‹Р±РѕСЂ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ Р»РѕРєР°Р»СЊРЅРѕ Рё РѕС‚РїСЂР°РІРёС‚СЃСЏ РІ РѕС‡РµСЂРµРґСЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.</p>
-              <button class="primary-button" style="margin-top: 10px" data-action="save-program-kit">РЎРѕС…СЂР°РЅРёС‚СЊ РєРѕРјРїР»РµРєС‚</button>
+              <h2 class="panel-title">Комплект программы</h2>
+              <p class="small-text">Выберите реквизит для этой программы. Выбор сохраняется локально и отправится в очередь синхронизации.</p>
+              <button class="primary-button" style="margin-top: 10px" data-action="save-program-kit">Сохранить комплект</button>
             </section>`
           : ""
       }
       <section class="panel">
-        <h2 class="panel-title">Р РµРєРІРёР·РёС‚</h2>
-        <button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Р“РѕС‚РѕРІРѕ" : "РР·РјРµРЅРёС‚СЊ"}</button>
+        <h2 class="panel-title">Реквизит</h2>
+        <button class="secondary-button" data-action="toggle-prop-edit">${state.propEditMode ? "Готово" : "Изменить"}</button>
         <div class="orders-stack">
           ${
             props.length
@@ -2800,23 +2800,23 @@ function adminPropScreen() {
                     (item) => `
                       <div class="managed-row inline-managed-row">
                         <div class="prop-row">
-                          <span><strong>${item.name}</strong><span>${statusText(item.status)} В· ${item.place}</span></span>
+                          <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
                           <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${statusText(item.status)}">${item.status === "mine" ? "в†©" : "+"}</span>
                         </div>
                         ${
                           kitMode
                             ? `<button class="secondary-button kit-toggle-button ${selectedKitProps.has(Number(item.id)) ? "active" : ""}" data-action="toggle-program-kit-prop" data-prop-id="${item.id}">
-                                ${selectedKitProps.has(Number(item.id)) ? "Р’ РєРѕРјРїР»РµРєС‚Рµ" : "Р’ РєРѕРјРїР»РµРєС‚"}
+                                ${selectedKitProps.has(Number(item.id)) ? "В комплекте" : "В комплект"}
                               </button>`
                             : state.propEditMode
-                              ? `<button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="РЈРґР°Р»РёС‚СЊ СЂРµРєРІРёР·РёС‚">Г—</button>`
+                              ? `<button class="mini-delete-button" data-action="delete-prop" data-prop-id="${item.id}" aria-label="Удалить реквизит">×</button>`
                               : ""
                         }
                       </div>
                     `
                   )
                   .join("")
-              : `<div class="empty-state">Р РµРєРІРёР·РёС‚Р° РїРѕРєР° РЅРµС‚</div>`
+              : `<div class="empty-state">Реквизита пока нет</div>`
           }
         </div>
       </section>
@@ -2827,10 +2827,10 @@ function adminPropScreen() {
 function adminReportsScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">вЂ№</button>
+      <button class="icon-button" data-route="admin">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РћС€РёР±РєРё</h1>
+    <h1 class="page-title">Ошибки</h1>
     <div class="content-stack">
       ${
         reports.length
@@ -2838,15 +2838,15 @@ function adminReportsScreen() {
               .map(
                 (report) => `
                   <section class="panel">
-                    <h2 class="panel-title">${report.actorName || `РЎРѕС‚СЂСѓРґРЅРёРє #${report.actor_id || ""}`}</h2>
+                    <h2 class="panel-title">${report.actorName || `Сотрудник #${report.actor_id || ""}`}</h2>
                     <p class="small-text">${report.text}</p>
                     <p class="small-text" style="margin-top: 8px">${report.createdAt || report.created_at || ""}</p>
-                    <button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-report" data-report-id="${report.id}">РћС‡РёСЃС‚РёС‚СЊ</button>
+                    <button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-report" data-report-id="${report.id}">Очистить</button>
                   </section>
                 `
               )
               .join("")
-          : `<div class="empty-state">РћС€РёР±РѕРє РїРѕРєР° РЅРµС‚</div>`
+          : `<div class="empty-state">Ошибок пока нет</div>`
       }
     </div>
   `, true);
@@ -2856,17 +2856,17 @@ function reportScreen() {
   const backRoute = state.user.hasAccess ? "home" : "denied";
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${backRoute}">вЂ№</button>
+      <button class="icon-button" data-route="${backRoute}">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РћС€РёР±РєР°</h1>
+    <h1 class="page-title">Ошибка</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Р§С‚Рѕ СЃР»СѓС‡РёР»РѕСЃСЊ?</h2>
-        <textarea class="booking-input booking-textarea" data-report-text placeholder="РћРїРёС€РёС‚Рµ РїСЂРѕР±Р»РµРјСѓ">${state.reportText}</textarea>
-        <p class="small-text" style="margin-top: 10px">РЎРѕРѕР±С‰РµРЅРёРµ СЃРѕС…СЂР°РЅРёС‚СЃСЏ Рё РѕС‚РїСЂР°РІРёС‚СЃСЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂСѓ РїСЂРё СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёРё.</p>
+        <h2 class="panel-title">Что случилось?</h2>
+        <textarea class="booking-input booking-textarea" data-report-text placeholder="Опишите проблему">${state.reportText}</textarea>
+        <p class="small-text" style="margin-top: 10px">Сообщение сохранится и отправится администратору при синхронизации.</p>
       </section>
-      <button class="primary-button" data-action="send-report">РћС‚РїСЂР°РІРёС‚СЊ</button>
+      <button class="primary-button" data-action="send-report">Отправить</button>
     </div>
   `, true);
 }
@@ -2874,21 +2874,21 @@ function reportScreen() {
 function actionTitle(action) {
   const payload = action.payload || {};
   return {
-    "create-employee": `Р”РѕР±Р°РІРёС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєР°: ${payload.name || ""}`,
-    "create-order": `Р”РѕР±Р°РІРёС‚СЊ Р·Р°РєР°Р·: ${payload.order?.title || payload.title || ""}`,
-    "create-promo": `Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРјРѕРєРѕРґ: ${payload.code || ""}`,
-    "withdraw-bunny": `Р’С‹РІРѕРґ Р±Р°РЅРЅРё: ${payload.amount || 0}`,
+    "create-employee": `Добавить сотрудника: ${payload.name || ""}`,
+    "create-order": `Добавить заказ: ${payload.order?.title || payload.title || ""}`,
+    "create-promo": `Добавить промокод: ${payload.code || ""}`,
+    "withdraw-bunny": `Вывод банни: ${payload.amount || 0}`,
     "update-ambassador": `Обновить амбассадора: ${payload.name || payload.ambassadorCode || ""}`,
-    report: "РЎРѕРѕР±С‰РёС‚СЊ РѕР± РѕС€РёР±РєРµ",
-    "take-prop": `Р’Р·СЏС‚СЊ СЂРµРєРІРёР·РёС‚ #${payload.propId || ""}`,
-    "return-prop": `Р’РµСЂРЅСѓС‚СЊ СЂРµРєРІРёР·РёС‚ #${payload.propId || ""}`,
-    "take-kit": "Р’Р·СЏС‚СЊ РєРѕРјРїР»РµРєС‚",
-    "accept-order": `РџСЂРёРЅСЏС‚СЊ Р·Р°РєР°Р· #${payload.orderId || ""}`,
-    "decline-order": `РћС‚РєР°Р·Р°С‚СЊСЃСЏ РѕС‚ Р·Р°РєР°Р·Р° #${payload.orderId || ""}`,
-    "delete-order": `РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р· #${payload.id || ""}`,
-    "delete-employee": `РЈРґР°Р»РёС‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєР° #${payload.id || ""}`,
-    "create-program": `Р”РѕР±Р°РІРёС‚СЊ РїСЂРѕРіСЂР°РјРјСѓ: ${payload.title || ""}`,
-    "create-prop": `Р”РѕР±Р°РІРёС‚СЊ СЂРµРєРІРёР·РёС‚: ${payload.name || ""}`,
+    report: "Сообщить об ошибке",
+    "take-prop": `Взять реквизит #${payload.propId || ""}`,
+    "return-prop": `Вернуть реквизит #${payload.propId || ""}`,
+    "take-kit": "Взять комплект",
+    "accept-order": `Принять заказ #${payload.orderId || ""}`,
+    "decline-order": `Отказаться от заказа #${payload.orderId || ""}`,
+    "delete-order": `Удалить заказ #${payload.id || ""}`,
+    "delete-employee": `Удалить сотрудника #${payload.id || ""}`,
+    "create-program": `Добавить программу: ${payload.title || ""}`,
+    "create-prop": `Добавить реквизит: ${payload.name || ""}`,
   }[action.type] || actionToast(action.type);
 }
 
@@ -2896,17 +2896,17 @@ function syncScreen() {
   const queue = state.syncQueue.filter((action) => action.status !== "synced");
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${state.user.hasAccess ? "home" : "denied"}">вЂ№</button>
+      <button class="icon-button" data-route="${state.user.hasAccess ? "home" : "denied"}">?</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">РЎРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ</h1>
+    <h1 class="page-title">Синхронизация</h1>
     <div class="content-stack">
       <section class="panel">
-        <h2 class="panel-title">Рљ РѕС‚РїСЂР°РІРєРµ: ${queue.length}</h2>
-        <p class="small-text">Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РїРѕРІС‚РѕСЂРёС‚СЊ РѕС‚РїСЂР°РІРєСѓ РёР»Рё РѕС‚РјРµРЅРёС‚СЊ Р·Р°РІРёСЃС€СѓСЋ РѕРїРµСЂР°С†РёСЋ.</p>
+        <h2 class="panel-title">К отправке: ${queue.length}</h2>
+        <p class="small-text">Здесь можно повторить отправку или отменить зависшую операцию.</p>
       </section>
-      <button class="primary-button" data-action="sync-queue">РџРѕРІС‚РѕСЂРёС‚СЊ РѕС‚РїСЂР°РІРєСѓ</button>
-      <button class="secondary-button" data-action="refresh-data">РћР±РЅРѕРІРёС‚СЊ РґРѕСЃС‚СѓРї Рё РґР°РЅРЅС‹Рµ</button>
+      <button class="primary-button" data-action="sync-queue">Повторить отправку</button>
+      <button class="secondary-button" data-action="refresh-data">Обновить доступ и данные</button>
       <div class="orders-stack">
         ${
           queue.length
@@ -2916,16 +2916,16 @@ function syncScreen() {
                     <section class="panel">
                       <h2 class="panel-title">${actionTitle(action)}</h2>
                       <div class="detail-grid">
-                        <div class="detail-line"><span>РЎС‚Р°С‚СѓСЃ</span><strong>${action.status || "ready"}</strong></div>
-                        <div class="detail-line"><span>РЎРѕР·РґР°РЅРѕ</span><strong>${new Date(action.createdAt).toLocaleString("ru-RU")}</strong></div>
+                        <div class="detail-line"><span>Статус</span><strong>${action.status || "ready"}</strong></div>
+                        <div class="detail-line"><span>Создано</span><strong>${new Date(action.createdAt).toLocaleString("ru-RU")}</strong></div>
                       </div>
                       ${action.error ? `<p class="small-text" style="margin-top: 8px">${action.error}</p>` : ""}
-                      <button class="secondary-button danger-button" style="margin-top: 10px" data-action="cancel-sync-action" data-sync-id="${action.id}">РћС‚РјРµРЅРёС‚СЊ РѕРїРµСЂР°С†РёСЋ</button>
+                      <button class="secondary-button danger-button" style="margin-top: 10px" data-action="cancel-sync-action" data-sync-id="${action.id}">Отменить операцию</button>
                     </section>
                   `
                 )
                 .join("")
-            : `<div class="empty-state">РћС‡РµСЂРµРґСЊ РїСѓСЃС‚Р°</div>`
+            : `<div class="empty-state">Очередь пуста</div>`
         }
       </div>
     </div>
@@ -2934,10 +2934,10 @@ function syncScreen() {
 
 function statusText(status) {
   return {
-    available: "Р”РѕСЃС‚СѓРїРЅРѕ",
-    mine: "РЈ РјРµРЅСЏ",
-    busy: "Р—Р°РЅСЏС‚Рѕ",
-    repair: "РџСЂРѕРІРµСЂРєР°",
+    available: "Доступно",
+    mine: "У меня",
+    busy: "Занято",
+    repair: "Проверка",
   }[status] || status;
 }
 
@@ -3075,26 +3075,26 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "refresh-data") {
-    state.toast = "РЎРёРЅС…СЂРѕРЅРёР·РёСЂСѓРµРј...";
+    state.toast = "Синхронизируем...";
     render();
     await Promise.all(pendingActions().map((item) => sendAction(item)));
     const hasAccess = await loadRemoteData({ renderAfter: false });
-    state.toast = hasAccess ? "Р”РѕСЃС‚СѓРї РѕР±РЅРѕРІР»РµРЅ" : "Р”РѕСЃС‚СѓРї РЅРµ РЅР°Р№РґРµРЅ";
+    state.toast = hasAccess ? "Доступ обновлен" : "Доступ не найден";
     setRoute(hasAccess ? state.route : "denied");
     clearToastLater();
   }
 
   if (action === "sync-queue") {
-    state.toast = "РћС‚РїСЂР°РІР»СЏРµРј РѕС‡РµСЂРµРґСЊ...";
+    state.toast = "Отправляем очередь...";
     render();
     await Promise.all(pendingActions().map((item) => sendAction(item)));
-    state.toast = pendingActions().length ? "Р§Р°СЃС‚СЊ РѕРїРµСЂР°С†РёР№ РѕСЃС‚Р°Р»Р°СЃСЊ РІ РѕС‡РµСЂРµРґРё" : "Р’СЃРµ РѕС‚РїСЂР°РІР»РµРЅРѕ";
+    state.toast = pendingActions().length ? "Часть операций осталась в очереди" : "Все отправлено";
     render();
     clearToastLater();
   }
 
   if (action === "cancel-sync-action") {
-    if (!confirmDelete("РѕРїРµСЂР°С†РёСЋ РёР· РѕС‡РµСЂРµРґРё")) return;
+    if (!confirmDelete("операцию из очереди")) return;
     cancelSyncAction(Number(actionButton.dataset.syncId));
   }
 
@@ -3215,7 +3215,7 @@ document.addEventListener("click", async (event) => {
     state.kitBuilderProgramId = state.route === "admin-program" ? "draft" : state.activeProgramId || "draft";
     state.kitBuilderReturnRoute = state.route === "admin-program" ? "admin-program" : state.route === "program-detail" ? "program-detail" : "";
     state.propEditMode = true;
-    state.toast = "Р’С‹Р±РµСЂРёС‚Рµ СЂРµРєРІРёР·РёС‚ РґР»СЏ РєРѕРјРїР»РµРєС‚Р° РїСЂРѕРіСЂР°РјРјС‹";
+    state.toast = "Выберите реквизит для комплекта программы";
     setRoute("admin-prop");
     clearToastLater();
   }
@@ -3250,7 +3250,7 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "delete-order-pay") {
-    if (!confirmDelete("РЅР°С‡РёСЃР»РµРЅРЅСѓСЋ Р·Р°СЂРїР»Р°С‚Сѓ")) return;
+    if (!confirmDelete("начисленную зарплату")) return;
     deleteOrderPay(orderId);
   }
 
@@ -3263,32 +3263,32 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "delete-bonus") {
-    if (!confirmDelete("РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РІС‹РїР»Р°С‚Сѓ")) return;
+    if (!confirmDelete("дополнительную выплату")) return;
     deleteBonus(Number(actionButton.dataset.bonusId));
   }
 
   if (action === "delete-employee") {
-    if (!confirmDelete("СЃРѕС‚СЂСѓРґРЅРёРєР°")) return;
+    if (!confirmDelete("сотрудника")) return;
     deleteEmployee(Number(actionButton.dataset.employeeId));
   }
 
   if (action === "delete-order") {
-    if (!confirmDelete("Р·Р°РєР°Р·")) return;
+    if (!confirmDelete("заказ")) return;
     deleteOrder(Number(actionButton.dataset.orderId));
   }
 
   if (action === "delete-program") {
-    if (!confirmDelete("РїСЂРѕРіСЂР°РјРјСѓ")) return;
+    if (!confirmDelete("программу")) return;
     deleteProgram(Number(actionButton.dataset.programId));
   }
 
   if (action === "delete-prop") {
-    if (!confirmDelete("СЂРµРєРІРёР·РёС‚")) return;
+    if (!confirmDelete("реквизит")) return;
     deleteProp(Number(actionButton.dataset.propId));
   }
 
   if (action === "delete-report") {
-    if (!confirmDelete("СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ")) return;
+    if (!confirmDelete("сообщение об ошибке")) return;
     deleteReport(Number(actionButton.dataset.reportId));
   }
 
@@ -3302,7 +3302,7 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "deny-auth") {
-    state.toast = "Р’С…РѕРґ РѕС‚РјРµРЅРµРЅ";
+    state.toast = "Вход отменен";
     render();
     clearToastLater();
   }
