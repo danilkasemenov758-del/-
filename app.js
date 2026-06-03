@@ -9,8 +9,14 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-02";
+const APP_VERSION = "2026.06.03-03";
+const COMPANY_SITE_URL = "https://bunny-bon.ru";
+const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Добавлена роль амбассадора.",
+  "Админ может добавлять промокоды.",
+  "Доступ в приложение выдает только администратор.",
+  "У амбассадора появились личный код, банни и заявка на вывод.",
   "Починен поиск по реквизиту.",
   "Добавлен фильтр реквизита по номеру ячейки.",
   "Поиск теперь смотрит название и место хранения.",
@@ -26,7 +32,7 @@ const mockUser = {
   username: telegramUser?.username ?? "local_user",
   photoUrl: telegramUser?.photo_url ?? "",
   role: "actor",
-  hasAccess: true,
+  hasAccess: !API_BASE,
 };
 
 let employees = [
@@ -57,6 +63,8 @@ const state = {
   syncQueue: readStorage("syncQueue", []),
   saved: readStorage("savedForTrip", []),
   deletedEntities: readStorage("deletedEntities", { orders: [], props: [], programs: [], employees: [] }),
+  promoCodes: readStorage("promoCodes", []),
+  ambassadorWithdrawals: readStorage("ambassadorWithdrawals", []),
   activeOrderId: 1,
   activeProgramId: 1,
   activeEmployeeId: 101,
@@ -79,6 +87,8 @@ const state = {
     address: "",
     comment: "",
     discount: "",
+    promoCode: "",
+    ambassadorCode: "",
     date: "2026-06-05",
     start: "16:00",
     end: "18:00",
@@ -88,7 +98,8 @@ const state = {
     package: "2 актера, до 20 человек",
     extras: [],
   },
-  newEmployee: { name: "", username: "", isAdmin: false },
+  newEmployee: { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" },
+  newPromo: { code: "", discount: "", description: "" },
   newProgram: { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
   newBonus: { employeeId: "", amount: "", comment: "" },
   orderEditMode: false,
@@ -271,6 +282,29 @@ function saveState() {
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
   localStorage.setItem("bonuses", JSON.stringify(state.bonuses));
   localStorage.setItem("programKits", JSON.stringify(state.programKits));
+  localStorage.setItem("promoCodes", JSON.stringify(state.promoCodes));
+  localStorage.setItem("ambassadorWithdrawals", JSON.stringify(state.ambassadorWithdrawals));
+}
+
+function roleLabel(role = state.user.role) {
+  return {
+    admin: "админ",
+    ambassador: "амбассадор",
+    actor: "актер",
+  }[role] || "актер";
+}
+
+function canAddOrder() {
+  return ["admin", "ambassador"].includes(state.user.role);
+}
+
+function makeAmbassadorCode(seed = "") {
+  const base = String(seed || state.user.username || state.user.firstName || Date.now())
+    .replace(/^@/, "")
+    .replace(/[^a-zA-Zа-яА-Я0-9]/g, "")
+    .slice(0, 10)
+    .toUpperCase();
+  return base ? `BUNNY-${base}` : `BUNNY-${Date.now().toString().slice(-5)}`;
 }
 
 function ensureCurrentEmployee() {
@@ -281,6 +315,9 @@ function ensureCurrentEmployee() {
     name: state.user.firstName,
     username: state.user.username,
     role: state.user.role,
+    ambassadorCode: existing?.ambassadorCode || state.user.ambassadorCode || (state.user.role === "ambassador" ? makeAmbassadorCode() : ""),
+    bunnyBalance: Number(existing?.bunnyBalance || state.user.bunnyBalance || 0),
+    bunnyPending: Number(existing?.bunnyPending || state.user.bunnyPending || 0),
     efficiency: existing?.efficiency ?? 0,
     accepted: existing?.accepted ?? 0,
     late: existing?.late ?? 0,
@@ -317,7 +354,7 @@ async function loadRemoteData() {
     const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(state.user.id)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
     if (!data) return;
 
-    employees = withoutDeleted(data.employees || employees, "employees");
+    employees = withoutDeleted(data.employees || employees, "employees").map(normalizeEmployee);
     orders = mergeQueuedOrders(withoutDeleted(data.orders || [], "orders"));
     const remoteProps = withoutDeleted(data.props || [], "props");
     props = remoteProps.length ? remoteProps : props;
@@ -326,12 +363,25 @@ async function loadRemoteData() {
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
     state.bonuses = data.bonuses || state.bonuses;
     reports = data.reports || reports;
+    state.promoCodes = data.promoCodes || state.promoCodes;
+    state.ambassadorWithdrawals = data.ambassadorWithdrawals || state.ambassadorWithdrawals;
     applyCurrentUserAccess(data.currentUser);
     saveState();
     render();
   } catch (error) {
     console.warn("Bootstrap failed", error);
   }
+}
+
+function normalizeEmployee(employee) {
+  return {
+    ...employee,
+    telegramId: employee.telegramId ?? employee.telegram_id,
+    isActive: employee.isActive ?? employee.is_active,
+    ambassadorCode: employee.ambassadorCode ?? employee.ambassador_code ?? "",
+    bunnyBalance: Number(employee.bunnyBalance ?? employee.bunny_balance ?? 0),
+    bunnyPending: Number(employee.bunnyPending ?? employee.bunny_pending ?? 0),
+  };
 }
 
 async function sendAction(action) {
@@ -383,8 +433,8 @@ function mergeQueuedOrders(remoteOrders) {
 
 function applyCurrentUserAccess(currentUser) {
   if (!currentUser) {
-    state.user.hasAccess = true;
-    ensureCurrentEmployee();
+    state.user.hasAccess = false;
+    if (state.route !== "auth-confirm") state.route = "denied";
     return;
   }
 
@@ -397,7 +447,10 @@ function applyCurrentUserAccess(currentUser) {
   state.user.id = currentUser.id ?? state.user.id;
   state.user.firstName = currentUser.name || state.user.firstName;
   state.user.username = currentUser.username || state.user.username;
-  state.user.role = currentUser.role === "admin" ? "admin" : "actor";
+  state.user.role = ["admin", "ambassador"].includes(currentUser.role) ? currentUser.role : "actor";
+  state.user.ambassadorCode = currentUser.ambassadorCode || "";
+  state.user.bunnyBalance = Number(currentUser.bunnyBalance || 0);
+  state.user.bunnyPending = Number(currentUser.bunnyPending || 0);
   state.user.hasAccess = true;
   ensureCurrentEmployee();
 }
@@ -422,7 +475,7 @@ function setRoute(route, options = {}) {
 function setRole(role) {
   state.user.role = role;
   state.themeBurst = true;
-  state.toast = role === "admin" ? "Режим администратора" : "Режим актера";
+  state.toast = `Режим: ${roleLabel(role)}`;
   render();
   window.setTimeout(() => {
     state.themeBurst = false;
@@ -553,6 +606,8 @@ function actionToast(type) {
     "decline-order": "Отказ от заказа сохранен",
     "create-order": "Заказ добавлен",
     "create-bonus": "Дополнительная выплата начислена",
+    "create-promo": "Промокод добавлен",
+    "withdraw-bunny": "Заявка на вывод отправлена",
     "update-order-pay": "Зарплата скорректирована",
     "delete-order-pay": "Зарплата удалена",
     "annul-order": "Принятие заказа аннулировано",
@@ -563,22 +618,121 @@ function actionToast(type) {
 function addEmployee() {
   const name = state.newEmployee.name.trim();
   if (!name) return;
-  const role = state.newEmployee.isAdmin ? "admin" : "actor";
+  const role = state.newEmployee.isAdmin ? "admin" : state.newEmployee.isAmbassador ? "ambassador" : "actor";
+  const ambassadorCode = role === "ambassador" ? (state.newEmployee.ambassadorCode.trim() || makeAmbassadorCode(state.newEmployee.username || name)) : "";
   employees = [
     ...employees,
     {
       id: Date.now(),
       name,
       role,
+      username: state.newEmployee.username,
+      ambassadorCode,
+      bunnyBalance: 0,
+      bunnyPending: 0,
       efficiency: 0,
       accepted: 0,
       late: 0,
       rating: 0,
     },
   ];
-  queueAction("create-employee", { ...state.newEmployee, role });
-  state.newEmployee = { name: "", username: "", isAdmin: false };
+  queueAction("create-employee", { ...state.newEmployee, role, ambassadorCode });
+  state.newEmployee = { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" };
   setRoute("profile");
+}
+
+function addPromoCode() {
+  const code = state.newPromo.code.trim().toUpperCase();
+  const discount = Number(state.newPromo.discount || 0);
+  if (!code || discount <= 0) return;
+  const promo = {
+    id: Date.now(),
+    code,
+    discount,
+    description: state.newPromo.description.trim(),
+    createdById: state.user.id,
+    createdByName: state.user.firstName,
+    createdAt: new Date().toISOString(),
+    isActive: true,
+  };
+  state.promoCodes = [promo, ...state.promoCodes.filter((item) => item.code !== code)];
+  queueAction("create-promo", promo);
+  state.newPromo = { code: "", discount: "", description: "" };
+  state.toast = "Промокод добавлен";
+  render();
+  clearToastLater();
+}
+
+function findPromoCode(code) {
+  const normalized = String(code || "").trim().toUpperCase();
+  return state.promoCodes.find((item) => item.isActive !== false && String(item.code || "").toUpperCase() === normalized);
+}
+
+function applyDiscountCode() {
+  const promo = findPromoCode(state.booking.promoCode);
+  if (!promo) {
+    state.toast = "Промокод не найден";
+    render();
+    clearToastLater();
+    return;
+  }
+  state.booking.discount = Number(promo.discount || 0);
+  state.toast = `Скидка ${money(state.booking.discount)}`;
+  render();
+  clearToastLater();
+}
+
+function currentEmployee() {
+  return employees.find((employee) => Number(employee.id) === Number(state.user.id));
+}
+
+function currentAmbassadorCode() {
+  return state.user.ambassadorCode || currentEmployee()?.ambassadorCode || makeAmbassadorCode();
+}
+
+function ambassadorPointsForOrder(total) {
+  return Math.round(Number(total || 0) / 10);
+}
+
+function canWithdrawBunny(date = new Date()) {
+  const day = date.getDate();
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  return day === 30 || day === 31 || day === lastDay;
+}
+
+function requestBunnyWithdraw() {
+  const employee = currentEmployee();
+  const balance = Number(employee?.bunnyBalance || state.user.bunnyBalance || 0);
+  if (balance <= 0) {
+    state.toast = "Баллов пока нет";
+    render();
+    clearToastLater();
+    return;
+  }
+  if (!canWithdrawBunny()) {
+    state.toast = "Вывод доступен 30/31 числа";
+    render();
+    clearToastLater();
+    return;
+  }
+  const withdrawal = {
+    id: Date.now(),
+    ambassadorId: state.user.id,
+    ambassadorName: state.user.firstName,
+    amount: balance,
+    status: "sent",
+    createdAt: new Date().toISOString(),
+  };
+  state.ambassadorWithdrawals = [withdrawal, ...state.ambassadorWithdrawals];
+  employees = employees.map((item) =>
+    Number(item.id) === Number(state.user.id) ? { ...item, bunnyBalance: 0, bunnyPending: Number(item.bunnyPending || 0) + balance } : item
+  );
+  state.user.bunnyBalance = 0;
+  state.user.bunnyPending = Number(state.user.bunnyPending || 0) + balance;
+  queueAction("withdraw-bunny", withdrawal);
+  state.toast = "Заявка на вывод отправлена";
+  render();
+  clearToastLater();
 }
 
 function addProgram() {
@@ -812,13 +966,29 @@ function createOrder() {
     role: state.booking.package,
     actors: [state.user.firstName],
     programId: calc.program.id,
+    promoCode: state.booking.promoCode || "",
+    ambassadorCode: state.booking.ambassadorCode || (state.user.role === "ambassador" ? currentAmbassadorCode() : ""),
     status: "Новый",
     kitStatus: "Комплект не взят",
     available: "Проверяется",
   };
   order.total = calc.orderTotal;
   order.actorPay = calc.actorTotal;
+  order.ambassadorBunny = order.ambassadorCode ? ambassadorPointsForOrder(order.total) : 0;
   orders = [order, ...orders];
+  if (order.ambassadorBunny > 0) {
+    const ambassadorCode = order.ambassadorCode;
+    const ambassador = employees.find((employee) => String(employee.ambassadorCode || "").toUpperCase() === String(ambassadorCode).toUpperCase());
+    employees = employees.map((employee) =>
+      Number(employee.id) === Number(ambassador?.id || (state.user.role === "ambassador" ? state.user.id : 0))
+        ? { ...employee, bunnyBalance: Number(employee.bunnyBalance || 0) + order.ambassadorBunny, ambassadorCode }
+        : employee
+    );
+    if (state.user.role === "ambassador") {
+      state.user.bunnyBalance = Number(state.user.bunnyBalance || 0) + order.ambassadorBunny;
+      state.user.ambassadorCode = ambassadorCode;
+    }
+  }
   state.orderFilter = "month";
   queueAction("create-order", { ...state.booking, order, actorId: state.user.id });
   if (state.newBonus.employeeId && Number(state.newBonus.amount || 0) > 0) {
@@ -891,7 +1061,8 @@ function calculateBooking() {
     const item = editableExtras.find((extra) => extra.title === title);
     return sum + Number(item?.price || 0);
   }, 0);
-  const discount = Number(state.booking.discount || 0);
+  const promo = findPromoCode(state.booking.promoCode);
+  const discount = Number(state.booking.discount || promo?.discount || 0);
   const orderTotal = Math.max(0, Math.round(ratePerFive * billableSteps + extrasTotal - discount));
   const actorTotal = Math.round(actorHours * 1000 * Number(selectedPackage.actors || 0));
   return {
@@ -1219,7 +1390,14 @@ function helpScreen() {
     ["Ошибки", "Во вкладке Админ откройте Ошибки, чтобы посмотреть сообщения пользователей и очистить обработанные."],
     ["Выплаты", "В профиле сотрудника можно смотреть эффективность, принятые заказы, выплаты и корректировать общую сумму при необходимости."],
   ];
-  const guide = state.user.role === "admin" ? adminGuide : actorGuide;
+  const ambassadorGuide = [
+    ["Добавить заказ", "Откройте Заказы и нажмите Добавить заказ. В заказе укажите код амбассадора, чтобы начислились банни."],
+    ["Личный код", "В профиле отображается ваш код амбассадора. Передавайте его клиентам или указывайте при создании заказа."],
+    ["Банни", "За заказ по вашему коду начисляется внутренняя валюта: например, заказ на 5000 рублей дает 500 банни."],
+    ["Вывод", "Кнопка Вывести валюту доступна в конце месяца. После нажатия заявка уходит администраторам."],
+    ["О компании", "В профиле есть кнопка О компании со ссылками на сайт и группу ВК."],
+  ];
+  const guide = state.user.role === "admin" ? adminGuide : state.user.role === "ambassador" ? ambassadorGuide : actorGuide;
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-action="close-help">‹</button>
@@ -1228,7 +1406,7 @@ function helpScreen() {
     <h1 class="page-title">Инструкция</h1>
     <div class="content-stack">
       <section class="panel version-panel">
-        <h2 class="panel-title">${state.user.role === "admin" ? "Для администратора" : "Для актера"}</h2>
+        <h2 class="panel-title">${state.user.role === "admin" ? "Для администратора" : state.user.role === "ambassador" ? "Для амбассадора" : "Для актера"}</h2>
         <p class="small-text">Короткая памятка по основным действиям в приложении.</p>
       </section>
       ${guide
@@ -1309,7 +1487,7 @@ function homeScreen() {
         ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
       </button>
     </div>
-    <span class="role-pill hero-role">${state.user.role === "admin" ? "админ" : "актер"}</span>
+    <span class="role-pill hero-role">${roleLabel()}</span>
 
     <p class="section-label">Ближайшие заказы</p>
     <div class="orders-stack">
@@ -1335,6 +1513,11 @@ function homeScreen() {
       ${
         state.user.role === "admin"
           ? `<button class="quick-card add-order-card" data-route="admin"><strong>Админ</strong><span>+</span></button>`
+          : ""
+      }
+      ${
+        state.user.role === "ambassador"
+          ? `<button class="quick-card add-order-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>`
           : ""
       }
       <button class="quick-card" data-route="orders">
@@ -1368,7 +1551,7 @@ function ordersScreen() {
     </div>
     <h1 class="page-title">Заказы</h1>
     <div class="content-stack">
-      ${state.user.role === "admin" ? `<button class="primary-button" data-route="new-order">Добавить заказ</button>` : ""}
+      ${canAddOrder() ? `<button class="primary-button" data-route="new-order">Добавить заказ</button>` : ""}
       ${state.user.role === "admin" ? `<button class="secondary-button" data-action="toggle-order-edit">${state.orderEditMode ? "Готово" : "Изменить"}</button>` : ""}
       <input class="search-input" placeholder="Найти заказ" />
       <div class="chips">
@@ -1415,6 +1598,7 @@ function adminScreen() {
     <div class="content-stack">
       <button class="quick-card admin-action-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-employees"><strong>Добавить сотрудника</strong><span>+</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-promos"><strong>Добавить промокод</strong><span>%</span></button>
       <button class="quick-card admin-action-card" data-route="admin-program"><strong>Добавить программу</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-prop"><strong>Добавить реквизит</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-reports"><strong>Ошибки</strong><span>!</span></button>
@@ -1428,7 +1612,7 @@ function newOrderScreen() {
   const calendarDays = buildCalendarDays(selectedDate);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : "home"}">‹</button>
+      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : "orders"}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Новый заказ</h1>
@@ -1449,9 +1633,16 @@ function newOrderScreen() {
         <input class="booking-input" data-booking="address" placeholder="Адрес" value="${state.booking.address}" style="margin-top: 8px" />
         <textarea class="booking-input booking-textarea" data-booking="comment" placeholder="Комментарий">${state.booking.comment}</textarea>
         <div class="discount-row">
-          <input class="booking-input" data-booking="discount" type="number" min="0" placeholder="Код/скидка в ₽" value="${state.booking.discount}" />
+          <input class="booking-input" data-booking="promoCode" placeholder="Промокод" value="${state.booking.promoCode}" />
           <button class="secondary-button" data-action="apply-discount">Применить</button>
         </div>
+        ${
+          state.user.role === "ambassador"
+            ? `<input class="booking-input" data-booking="ambassadorCode" placeholder="Код амбассадора" value="${state.booking.ambassadorCode || currentAmbassadorCode()}" style="margin-top: 8px" />`
+            : state.user.role === "admin"
+              ? `<input class="booking-input" data-booking="ambassadorCode" placeholder="Код амбассадора, если есть" value="${state.booking.ambassadorCode}" style="margin-top: 8px" />`
+              : ""
+        }
       </section>
 
       <section class="panel">
@@ -1588,6 +1779,7 @@ function newOrderScreen() {
         <div class="summary-line"><span>Состав</span><strong>${calc.selectedPackage.label}</strong></div>
         <div class="summary-line"><span>Длительность</span><strong>${calc.durationMinutes} мин</strong></div>
         <div class="summary-line"><span>Сумма заказа</span><strong>${money(calc.orderTotal)}</strong></div>
+        ${state.booking.ambassadorCode || state.user.role === "ambassador" ? `<div class="summary-line"><span>Банни амбассадора</span><strong>${ambassadorPointsForOrder(calc.orderTotal)}</strong></div>` : ""}
         <div class="summary-line"><span>ЗП актеров</span><strong>${money(calc.actorTotal)}</strong></div>
         <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
       </section>
@@ -1975,10 +2167,27 @@ function profileScreen() {
         <div class="detail-grid">
           <div class="detail-line"><span>Имя</span><strong>${state.user.firstName}</strong></div>
           <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
-          <div class="detail-line"><span>Роль</span><strong>${state.user.role === "admin" ? "админ" : "актер"}</strong></div>
+          <div class="detail-line"><span>Роль</span><strong>${roleLabel()}</strong></div>
           <div class="detail-line"><span>Очередь</span><strong>${state.syncQueue.length}</strong></div>
+          ${
+            state.user.role === "ambassador"
+              ? `<div class="detail-line"><span>Код</span><strong>${currentAmbassadorCode()}</strong></div>`
+              : ""
+          }
         </div>
       </section>
+      ${
+        state.user.role === "ambassador"
+          ? `<section class="panel">
+              <h2 class="panel-title">Банни</h2>
+              <div class="summary-line"><span>Доступно</span><strong>${Number(currentEmployee()?.bunnyBalance || state.user.bunnyBalance || 0)} Б</strong></div>
+              <div class="summary-line"><span>На выводе</span><strong>${Number(currentEmployee()?.bunnyPending || state.user.bunnyPending || 0)} Б</strong></div>
+              <button class="primary-button" data-action="withdraw-bunny" style="margin-top: 10px">Вывести валюту</button>
+              <p class="small-text" style="margin-top: 8px">Вывод доступен 30/31 числа. 1 банни = 1 рубль.</p>
+            </section>
+            <button class="secondary-button" data-route="company">О компании</button>`
+          : ""
+      }
       <section class="panel">
         <h2 class="panel-title">Оформление</h2>
         <div class="theme-choice">
@@ -2065,7 +2274,7 @@ function profileScreen() {
           : ""
       }
       ${
-        state.user.role === "actor"
+        state.user.role !== "admin"
           ? `<section class="panel efficiency-panel">
               <h2 class="panel-title">Эффективность</h2>
               <div class="efficiency-wrap">
@@ -2086,7 +2295,7 @@ function profileScreen() {
                     (employee) => `
                       <button class="employee-row employee-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
                         <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
-                        <span><strong>${employee.name} ${employee.role === "admin" ? `<em class="role-mark">(админ)</em>` : ""}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
+                        <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
                         <b>${employee.rating}</b>
                       </button>
                     `
@@ -2204,6 +2413,62 @@ function adminEmployeeDetailScreen() {
   `, true);
 }
 
+function companyScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="profile">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">О компании</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">Точка праздника</h2>
+        <p class="small-text">Проект Банни Бон. Ссылки для амбассадоров и сотрудников.</p>
+      </section>
+      <button class="primary-button" data-open-url="${COMPANY_SITE_URL}">Сайт</button>
+      <button class="secondary-button" data-open-url="${COMPANY_VK_URL}">Группа ВК</button>
+    </div>
+  `, true);
+}
+
+function adminPromosScreen() {
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="admin">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Промокоды</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <h2 class="panel-title">Добавить промокод</h2>
+        <input class="booking-input" data-admin-field="newPromo.code" placeholder="Код" value="${state.newPromo.code}" />
+        <input class="booking-input" data-admin-field="newPromo.discount" type="number" min="0" placeholder="Скидка в ₽" value="${state.newPromo.discount}" style="margin-top: 8px" />
+        <input class="booking-input" data-admin-field="newPromo.description" placeholder="Комментарий" value="${state.newPromo.description}" style="margin-top: 8px" />
+      </section>
+      <button class="primary-button" data-action="create-promo">Добавить промокод</button>
+      <section class="panel">
+        <h2 class="panel-title">Активные</h2>
+        <div class="orders-stack">
+          ${
+            state.promoCodes.length
+              ? state.promoCodes
+                  .map(
+                    (promo) => `
+                      <div class="notice">
+                        <strong>${promo.code}</strong><br>
+                        ${money(promo.discount)} ${promo.description ? `· ${promo.description}` : ""}
+                      </div>
+                    `
+                  )
+                  .join("")
+              : `<div class="empty-state">Промокодов пока нет</div>`
+          }
+        </div>
+      </section>
+    </div>
+  `, true);
+}
+
 function adminEmployeesScreen() {
   return appFrame(`
     <div class="top-row">
@@ -2220,6 +2485,15 @@ function adminEmployeesScreen() {
           <input type="checkbox" data-admin-field="newEmployee.isAdmin" ${state.newEmployee.isAdmin ? "checked" : ""} />
           <span>Дополнительно дать функции админа</span>
         </label>
+        <label class="check-line admin-check-line" style="margin-top: 8px">
+          <input type="checkbox" data-admin-field="newEmployee.isAmbassador" ${state.newEmployee.isAmbassador ? "checked" : ""} />
+          <span>Дать права амбассадора</span>
+        </label>
+        ${
+          state.newEmployee.isAmbassador
+            ? `<input class="booking-input" data-admin-field="newEmployee.ambassadorCode" placeholder="Код амбассадора, можно оставить пустым" value="${state.newEmployee.ambassadorCode}" style="margin-top: 8px" />`
+            : ""
+        }
       </section>
       <button class="primary-button" data-action="create-employee">Добавить сотрудника</button>
       <section class="panel">
@@ -2247,7 +2521,7 @@ function adminEmployeesScreen() {
                 <div class="employee-row">
                   <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
                   <button class="employee-name-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
-                    <span><strong>${employee.name} ${employee.role === "admin" ? `<em class="role-mark">(админ)</em>` : ""}</strong><small>${employee.role === "admin" ? "админ" : "актер"} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
+                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
                   </button>
                   <div class="counter-actions">
                     <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">−</button>
@@ -2435,8 +2709,10 @@ function render() {
     saved: savedScreen,
     profile: profileScreen,
     "admin-employee-detail": adminEmployeeDetailScreen,
+    company: companyScreen,
     report: reportScreen,
     "admin-employees": adminEmployeesScreen,
+    "admin-promos": adminPromosScreen,
     "admin-program": adminProgramScreen,
     "admin-prop": adminPropScreen,
     "admin-reports": adminReportsScreen,
@@ -2604,9 +2880,7 @@ document.addEventListener("click", (event) => {
   }
 
   if (action === "apply-discount") {
-    state.toast = "Скидка применена";
-    render();
-    clearToastLater();
+    applyDiscountCode();
   }
 
   if (action === "calendar-prev" || action === "calendar-next") {
@@ -2622,6 +2896,14 @@ document.addEventListener("click", (event) => {
 
   if (action === "create-employee") {
     addEmployee();
+  }
+
+  if (action === "create-promo") {
+    addPromoCode();
+  }
+
+  if (action === "withdraw-bunny") {
+    requestBunnyWithdraw();
   }
 
   if (action === "create-program") {
@@ -2729,6 +3011,7 @@ document.addEventListener("click", (event) => {
   if (action === "confirm-auth") {
     localStorage.setItem("authConfirmed", "true");
     setRoute("checking");
+    loadRemoteData();
   }
 
   if (action === "deny-auth") {
