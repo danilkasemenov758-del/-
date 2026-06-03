@@ -9,10 +9,12 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-04";
+const APP_VERSION = "2026.06.03-05";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Исправлена выдача доступа новым сотрудникам.",
+  "Исправлена синхронизация сотрудников без кода амбассадора.",
   "Проверка доступа теперь ждет ответ базы.",
   "Кнопка обновления доступа корректно перепроверяет сотрудника.",
   "Экран обращения к админу возвращает на экран доступа.",
@@ -382,12 +384,13 @@ async function loadRemoteData(options = {}) {
   } catch (error) {
     console.warn("Bootstrap failed", error);
     state.accessChecked = true;
+    const stillAllowed = Boolean(state.user.hasAccess);
     if (options.renderAfter !== false) {
       state.toast = "Не удалось проверить доступ";
       render();
       clearToastLater();
     }
-    return false;
+    return stillAllowed;
   }
 }
 
@@ -2841,12 +2844,12 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "refresh-data") {
-    state.toast = "Проверяем доступ...";
+    state.toast = "Синхронизируем...";
     render();
+    syncPendingActions();
     const hasAccess = await loadRemoteData({ renderAfter: false });
     state.toast = hasAccess ? "Доступ обновлен" : "Доступ не найден";
     setRoute(hasAccess ? state.route : "denied");
-    syncPendingActions();
     clearToastLater();
   }
 
