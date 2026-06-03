@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-12";
+const APP_VERSION = "2026.06.03-13";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
@@ -1378,6 +1378,7 @@ function tabbar() {
         ? [
             ["home", "Сегодня"],
             ["new-order", "Заказ"],
+            ["profile", "Профиль"],
             ["company", "О компании"],
           ]
         : [
