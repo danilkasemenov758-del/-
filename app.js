@@ -1,4 +1,4 @@
-﻿const tg = window.Telegram?.WebApp;
+const tg = window.Telegram?.WebApp;
 
 if (tg) {
   document.body.classList.add("telegram-runtime");
@@ -1410,7 +1410,7 @@ function syncPill() {
 }
 
 function money(value) {
-  return `${Number(value).toLocaleString("ru-RU")} ?`;
+  return `${Number(value).toLocaleString("ru-RU")} ₽`;
 }
 
 function checkingScreen() {
@@ -1471,7 +1471,7 @@ function deniedScreen() {
 function versionScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-action="close-version">?</button>
+      <button class="icon-button" data-action="close-version">‹</button>
       <span class="version-pill static-version-pill">v${APP_VERSION}</span>
     </div>
     <h1 class="page-title">Версия</h1>
@@ -1525,7 +1525,7 @@ function helpScreen() {
   const guide = state.user.role === "admin" ? adminGuide : state.user.role === "ambassador" ? ambassadorGuide : actorGuide;
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-action="close-help">?</button>
+      <button class="icon-button" data-action="close-help">‹</button>
       <span class="help-pill static-version-pill">Как пользоваться</span>
     </div>
     <h1 class="page-title">Инструкция</h1>
@@ -1571,7 +1571,7 @@ function avatarScreen() {
   const confetti = Array.from({ length: 18 }, () => "<i></i>").join("");
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Это вы!</h1>
@@ -1659,7 +1659,7 @@ function homeScreen() {
       }
       ${
         state.user.role === "ambassador"
-          ? `<button class="quick-card" data-route="profile"><strong>Профиль</strong><span>Б</span></button>
+          ? `<button class="quick-card" data-route="profile"><strong>Профиль</strong><span>Я</span></button>
              <button class="quick-card dark" data-route="company"><strong>О компании</strong><span>i</span></button>`
           : `      <button class="quick-card" data-route="orders">
         <strong>Заказы</strong>
@@ -1673,7 +1673,7 @@ function homeScreen() {
         <strong>Реквизит</strong>
         <img src="./assets/props.svg" alt="" />
       </button>
-      <button class="quick-card" data-route="saved"><strong>Сохранено</strong><span>â</span></button>
+      <button class="quick-card" data-route="saved"><strong>Сохранено</strong><span>✓</span></button>
           `
       }    </div>
 
@@ -1688,7 +1688,7 @@ function ordersScreen() {
   const list = filteredOrders();
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Заказы</h1>
@@ -1733,14 +1733,14 @@ function ordersScreen() {
 function adminScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Админ</h1>
     <div class="content-stack">
       <button class="quick-card admin-action-card" data-route="new-order"><strong>Добавить заказ</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-employees"><strong>Добавить сотрудника</strong><span>+</span></button>
-      <button class="quick-card admin-action-card" data-route="admin-ambassadors"><strong>Амбассадоры</strong><span>Б</span></button>
+      <button class="quick-card admin-action-card" data-route="admin-ambassadors"><strong>Амбассадоры</strong><span>★</span></button>
       <button class="quick-card admin-action-card" data-route="admin-promos"><strong>Добавить промокод</strong><span>%</span></button>
       <button class="quick-card admin-action-card" data-route="admin-program"><strong>Добавить программу</strong><span>+</span></button>
       <button class="quick-card admin-action-card" data-route="admin-prop"><strong>Добавить реквизит</strong><span>+</span></button>
@@ -1755,7 +1755,7 @@ function newOrderScreen() {
   const calendarDays = buildCalendarDays(selectedDate);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : state.user.role === "ambassador" ? "home" : "orders"}">?</button>
+      <button class="icon-button" data-route="${state.user.role === "admin" ? "admin" : state.user.role === "ambassador" ? "home" : "orders"}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Новый заказ</h1>
@@ -1789,9 +1789,9 @@ function newOrderScreen() {
       <section class="panel">
         <h2 class="panel-title">Дата и время</h2>
         <div class="calendar-head">
-          <button class="icon-button" data-action="calendar-prev">?</button>
+          <button class="icon-button" data-action="calendar-prev">‹</button>
           <strong>${monthName(selectedDate)} ${selectedDate.getFullYear()}</strong>
-          <button class="icon-button" data-action="calendar-next">?</button>
+          <button class="icon-button" data-action="calendar-next">›</button>
         </div>
         <div class="calendar-week">
           <span>ПН</span><span>ВТ</span><span>СР</span><span>ЧТ</span><span>ПТ</span><span>СБ</span><span>ВС</span>
@@ -1810,7 +1810,7 @@ function newOrderScreen() {
         </div>
         <button class="time-summary-button" data-action="toggle-time-editor">
           <span>Выбранное время</span>
-          <strong>${state.booking.start} ? ${state.booking.end}</strong>
+          <strong>${state.booking.start} — ${state.booking.end}</strong>
         </button>
         ${
           state.timeEditorOpen
@@ -1910,7 +1910,7 @@ function newOrderScreen() {
         </div>
         <div class="discount-row" style="margin-top: 8px">
           <input class="booking-input" data-extra-draft placeholder="Добавить пункт" value="${state.extraDraft}" />
-          <input class="booking-input" data-extra-draft-price type="number" min="0" placeholder="?" value="${state.extraDraftPrice}" />
+          <input class="booking-input" data-extra-draft-price type="number" min="0" placeholder="₽" value="${state.extraDraftPrice}" />
           <button class="secondary-button" data-action="add-extra">Добавить</button>
         </div>
       </section>
@@ -1989,7 +1989,7 @@ function orderScreen() {
   if (!order) {
     return appFrame(`
       <div class="top-row">
-        <button class="icon-button" data-route="orders">?</button>
+        <button class="icon-button" data-route="orders">‹</button>
         ${syncPill()}
       </div>
       <h1 class="page-title">Заказ</h1>
@@ -2004,7 +2004,7 @@ function orderScreen() {
 
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Заказ</h1>
@@ -2076,7 +2076,7 @@ function propsScreen() {
   const cells = propCellOptions();
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Реквизит</h1>
@@ -2111,7 +2111,7 @@ function propsScreen() {
                 <button class="prop-row" data-action="${item.status === "mine" ? "return-prop" : "take-prop"}" data-prop-id="${item.id}">
                   <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
                   <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Вернуть" : "Взять"}">
-                    ${item.status === "mine" ? "в†©" : "+"}
+                    ${item.status === "mine" ? "↩" : "+"}
                   </span>
                 </button>
                 ${
@@ -2138,7 +2138,7 @@ function kitScreen() {
   const availableCount = kitProps.filter((item) => item.status === "available" || item.status === "mine").length;
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="order">?</button>
+      <button class="icon-button" data-route="order">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Комплект</h1>
@@ -2156,7 +2156,7 @@ function kitScreen() {
               <button class="prop-row" data-action="${item.status === "mine" ? "return-prop" : "take-prop"}" data-prop-id="${item.id}">
                 <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
                 <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${item.status === "mine" ? "Вернуть" : "Взять"}">
-                  ${item.status === "mine" ? "в†©" : "+"}
+                  ${item.status === "mine" ? "↩" : "+"}
                 </span>
               </button>
             `
@@ -2172,7 +2172,7 @@ function kitScreen() {
 function programsScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Программы</h1>
@@ -2204,7 +2204,7 @@ function programDetailScreen() {
   const program = programs.find((item) => Number(item.id) === Number(state.activeProgramId)) || programs[0];
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="programs">?</button>
+      <button class="icon-button" data-route="programs">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Программа</h1>
@@ -2252,7 +2252,7 @@ function savedScreen() {
   const savedOrders = orders.filter((order) => state.saved.includes(order.id));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Сохранено</h1>
@@ -2273,7 +2273,7 @@ function savedScreen() {
                   `
                 )
                 .join("")
-            : `<div class="notice">Пока ничего не сохранено. Откройте заказ и нажмите ?Для выезда?.</div>`
+            : `<div class="notice">Пока ничего не сохранено. Откройте заказ и нажмите «Для выезда».</div>`
         }
       </div>
     </div>
@@ -2293,7 +2293,7 @@ function profileScreen() {
   const myProps = props.filter((item) => item.status === "mine" && String(item.place || "").toLowerCase().includes(String(state.user.firstName).toLowerCase()));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">?</button>
+      <button class="icon-button" data-route="home">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Профиль</h1>
@@ -2374,7 +2374,7 @@ function profileScreen() {
                     (item) => `
                       <button class="prop-row" data-route="props">
                         <span><strong>${item.name}</strong><span>${item.place}</span></span>
-                        <span class="row-icon return" aria-label="У вас">в†©</span>
+                        <span class="row-icon return" aria-label="У вас">↩</span>
                       </button>
                     `
                   )
@@ -2456,7 +2456,7 @@ function adminEmployeeDetailScreen() {
   if (!employee) {
     return appFrame(`
       <div class="top-row">
-        <button class="icon-button" data-route="profile">?</button>
+        <button class="icon-button" data-route="profile">‹</button>
         ${syncPill()}
       </div>
       <h1 class="page-title">Сотрудник</h1>
@@ -2468,7 +2468,7 @@ function adminEmployeeDetailScreen() {
   const total = employeeEarnings(employee.id);
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="profile">?</button>
+      <button class="icon-button" data-route="profile">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">${employee.name}</h1>
@@ -2557,7 +2557,7 @@ function adminEmployeeDetailScreen() {
 function companyScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="profile">?</button>
+      <button class="icon-button" data-route="profile">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">О компании</h1>
@@ -2575,7 +2575,7 @@ function companyScreen() {
 function adminPromosScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">?</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Промокоды</h1>
@@ -2664,7 +2664,7 @@ function adminAmbassadorsScreen() {
 function adminEmployeesScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">?</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Сотрудник</h1>
@@ -2737,7 +2737,7 @@ function adminEmployeesScreen() {
 function adminProgramScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">?</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Программа</h1>
@@ -2764,7 +2764,7 @@ function adminPropScreen() {
   const selectedKitProps = new Set((state.programKits[kitKey] || []).map(Number));
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">?</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Реквизит</h1>
@@ -2801,7 +2801,7 @@ function adminPropScreen() {
                       <div class="managed-row inline-managed-row">
                         <div class="prop-row">
                           <span><strong>${item.name}</strong><span>${statusText(item.status)} · ${item.place}</span></span>
-                          <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${statusText(item.status)}">${item.status === "mine" ? "в†©" : "+"}</span>
+                          <span class="row-icon ${item.status === "mine" ? "return" : ""}" aria-label="${statusText(item.status)}">${item.status === "mine" ? "↩" : "+"}</span>
                         </div>
                         ${
                           kitMode
@@ -2827,7 +2827,7 @@ function adminPropScreen() {
 function adminReportsScreen() {
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="admin">?</button>
+      <button class="icon-button" data-route="admin">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Ошибки</h1>
@@ -2856,7 +2856,7 @@ function reportScreen() {
   const backRoute = state.user.hasAccess ? "home" : "denied";
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${backRoute}">?</button>
+      <button class="icon-button" data-route="${backRoute}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Ошибка</h1>
@@ -2896,7 +2896,7 @@ function syncScreen() {
   const queue = state.syncQueue.filter((action) => action.status !== "synced");
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="${state.user.hasAccess ? "home" : "denied"}">?</button>
+      <button class="icon-button" data-route="${state.user.hasAccess ? "home" : "denied"}">‹</button>
       ${syncPill()}
     </div>
     <h1 class="page-title">Синхронизация</h1>
