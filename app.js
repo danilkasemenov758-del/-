@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-13";
+const APP_VERSION = "2026.06.03-14";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
@@ -2284,7 +2284,77 @@ function savedScreen() {
   `, true);
 }
 
+function ambassadorProfileScreen() {
+  const employee = currentEmployee() || {};
+  const code = currentAmbassadorCode();
+  const balance = Number(employee.bunnyBalance || state.user.bunnyBalance || 0);
+  const pending = Number(employee.bunnyPending || state.user.bunnyPending || 0);
+  const myWithdrawals = state.ambassadorWithdrawals.filter((item) => Number(item.ambassadorId) === Number(state.user.id));
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">‹</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">Профиль</h1>
+    <div class="content-stack">
+      <section class="panel">
+        <button class="profile-avatar-row" data-route="avatar">
+          <span class="profile-avatar">
+            ${state.user.photoUrl ? `<img src="${state.user.photoUrl}" alt="" />` : state.user.firstName.slice(0, 1)}
+          </span>
+          <strong>${state.user.firstName}</strong>
+        </button>
+        <div class="detail-grid">
+          <div class="detail-line"><span>Роль</span><strong>амбассадор</strong></div>
+          <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
+          <div class="detail-line"><span>Личный код</span><strong>${code}</strong></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Банни</h2>
+        <div class="summary-line"><span>Доступно</span><strong>${balance} Б</strong></div>
+        <div class="summary-line"><span>На выводе</span><strong>${pending} Б</strong></div>
+        <div class="summary-line"><span>Курс</span><strong>1 Б = 1 ₽</strong></div>
+        <p class="small-text" style="margin-top: 8px">
+          За заказ по вашему коду начисляется 10% от суммы заказа: например, 5000 ₽ = 500 банни.
+        </p>
+        <button class="primary-button" data-action="withdraw-bunny" style="margin-top: 12px">
+          Вывести валюту
+        </button>
+        <p class="small-text" style="margin-top: 8px">
+          Вывод доступен 30/31 числа. После заявки банни переходят в статус «на выводе», а администратор получает сообщение.
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Заявки на вывод</h2>
+        <div class="orders-stack">
+          ${
+            myWithdrawals.length
+              ? myWithdrawals
+                  .map(
+                    (item) => `
+                      <div class="notice">
+                        <strong>${item.amount} Б</strong><br>
+                        ${new Date(item.createdAt).toLocaleDateString("ru-RU")} · отправлено на выведение
+                      </div>
+                    `
+                  )
+                  .join("")
+              : `<div class="empty-state">Заявок на вывод пока нет</div>`
+          }
+        </div>
+      </section>
+
+      <button class="secondary-button" data-route="company">О компании</button>
+      <button class="primary-button" data-action="refresh-data">Обновить данные</button>
+    </div>
+  `, true);
+}
+
 function profileScreen() {
+  if (state.user.role === "ambassador") return ambassadorProfileScreen();
   const currentEmployee = employees.find((employee) => employee.id === state.user.id) || {
     name: state.user.firstName,
     efficiency: 0,
