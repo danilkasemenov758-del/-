@@ -9,10 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-05";
+const APP_VERSION = "2026.06.03-07";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "На экране доступа показывается Telegram ID и username для проверки сотрудника.",
+  "Исправлена зависшая очередь синхронизации.",
+  "Ошибки API теперь отображаются понятнее.",
   "Исправлена выдача доступа новым сотрудникам.",
   "Исправлена синхронизация сотрудников без кода амбассадора.",
   "Проверка доступа теперь ждет ответ базы.",
@@ -348,7 +351,16 @@ async function apiFetch(path, options = {}) {
   });
 
   if (!response.ok) {
-    throw new Error(`API ${response.status}`);
+    let message = `API ${response.status}`;
+    try {
+      const data = await response.json();
+      message = data?.error || message;
+    } catch (error) {
+      try {
+        message = await response.text();
+      } catch {}
+    }
+    throw new Error(message);
   }
 
   return response.json();
@@ -422,8 +434,12 @@ async function sendAction(action) {
     saveState();
     render();
   } catch (error) {
+    console.warn("Action sync failed", action.type, error);
+    state.toast = `Ошибка синхронизации: ${error.message || "API"}`;
     action.status = "offline";
     saveState();
+    render();
+    clearToastLater();
   }
 }
 
@@ -1364,6 +1380,10 @@ function deniedScreen() {
       <img class="asset asset-cross" src="./assets/access-cross.svg" alt="" />
       <h1 class="page-title">Доступ не найден</h1>
       <p class="small-text">Вас пока нет в списке сотрудников. Обратитесь к администратору.</p>
+      <div class="notice" style="margin-top: 10px">
+        ID: ${state.user.id}<br>
+        Username: @${state.user.username || "не указан"}
+      </div>
       <button class="primary-button" data-action="contact-admin">Написать администратору</button>
       <button class="ghost-link" data-route="checking">Обновить доступ</button>
     </div>
