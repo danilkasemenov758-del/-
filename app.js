@@ -9,10 +9,12 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-08";
+const APP_VERSION = "2026.06.03-09";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Исправлена проверка доступа после синхронизации.",
+  "Telegram ID и ID сотрудника теперь хранятся отдельно.",
   "Добавлен экран очереди синхронизации с отменой операций.",
   "Зависшие операции теперь можно удалить вручную.",
   "На экране доступа показывается Telegram ID и username для проверки сотрудника.",
@@ -35,9 +37,11 @@ const releaseNotes = [
 ];
 
 const telegramUser = tg?.initDataUnsafe?.user;
+const initialTelegramId = telegramUser?.id ?? 101;
 
 const mockUser = {
-  id: telegramUser?.id ?? 101,
+  id: initialTelegramId,
+  telegramId: initialTelegramId,
   firstName: tg?.initDataUnsafe?.user?.first_name ?? "Даша",
   username: telegramUser?.username ?? "local_user",
   photoUrl: telegramUser?.photo_url ?? "",
@@ -376,7 +380,8 @@ async function loadRemoteData(options = {}) {
   }
 
   try {
-    const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(state.user.id)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
+    const telegramId = state.user.telegramId || telegramUser?.id || state.user.id;
+    const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(telegramId)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
     if (!data) return;
 
     employees = withoutDeleted(data.employees || employees, "employees").map(normalizeEmployee);
@@ -502,6 +507,7 @@ function applyCurrentUserAccess(currentUser) {
   }
 
   state.user.id = currentUser.id ?? state.user.id;
+  state.user.telegramId = currentUser.telegramId ?? state.user.telegramId ?? telegramUser?.id ?? state.user.id;
   state.user.firstName = currentUser.name || state.user.firstName;
   state.user.username = currentUser.username || state.user.username;
   state.user.role = ["admin", "ambassador"].includes(currentUser.role) ? currentUser.role : "actor";
@@ -1401,7 +1407,7 @@ function deniedScreen() {
       <h1 class="page-title">Доступ не найден</h1>
       <p class="small-text">Вас пока нет в списке сотрудников. Обратитесь к администратору.</p>
       <div class="notice" style="margin-top: 10px">
-        ID: ${state.user.id}<br>
+        Telegram ID: ${state.user.telegramId || telegramUser?.id || state.user.id}<br>
         Username: @${state.user.username || "не указан"}
       </div>
       <button class="primary-button" data-action="contact-admin">Написать администратору</button>
@@ -2776,7 +2782,8 @@ function syncScreen() {
         <h2 class="panel-title">К отправке: ${queue.length}</h2>
         <p class="small-text">Здесь можно повторить отправку или отменить зависшую операцию.</p>
       </section>
-      <button class="primary-button" data-action="refresh-data">Повторить отправку</button>
+      <button class="primary-button" data-action="sync-queue">Повторить отправку</button>
+      <button class="secondary-button" data-action="refresh-data">Обновить доступ и данные</button>
       <div class="orders-stack">
         ${
           queue.length
@@ -2950,6 +2957,15 @@ document.addEventListener("click", async (event) => {
     const hasAccess = await loadRemoteData({ renderAfter: false });
     state.toast = hasAccess ? "Доступ обновлен" : "Доступ не найден";
     setRoute(hasAccess ? state.route : "denied");
+    clearToastLater();
+  }
+
+  if (action === "sync-queue") {
+    state.toast = "Отправляем очередь...";
+    render();
+    await Promise.all(pendingActions().map((item) => sendAction(item)));
+    state.toast = pendingActions().length ? "Часть операций осталась в очереди" : "Все отправлено";
+    render();
     clearToastLater();
   }
 
