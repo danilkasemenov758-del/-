@@ -9,10 +9,12 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-09";
+const APP_VERSION = "2026.06.03-10";
 const COMPANY_SITE_URL = "https://bunny-bon.ru";
 const COMPANY_VK_URL = "https://vk.com/bunnybon";
 const releaseNotes = [
+  "Код амбассадора теперь задается только при выдаче прав амбассадора.",
+  "Поле кода амбассадора убрано из создания заказа.",
   "Исправлена проверка доступа после синхронизации.",
   "Telegram ID и ID сотрудника теперь хранятся отдельно.",
   "Добавлен экран очереди синхронизации с отменой операций.",
@@ -321,6 +323,10 @@ function makeAmbassadorCode(seed = "") {
     .slice(0, 10)
     .toUpperCase();
   return base ? `BUNNY-${base}` : `BUNNY-${Date.now().toString().slice(-5)}`;
+}
+
+function suggestedEmployeeAmbassadorCode() {
+  return state.newEmployee.ambassadorCode || makeAmbassadorCode(state.newEmployee.username || state.newEmployee.name);
 }
 
 function ensureCurrentEmployee() {
@@ -1030,7 +1036,7 @@ function createOrder() {
     actors: [state.user.firstName],
     programId: calc.program.id,
     promoCode: state.booking.promoCode || "",
-    ambassadorCode: state.booking.ambassadorCode || (state.user.role === "ambassador" ? currentAmbassadorCode() : ""),
+    ambassadorCode: state.user.role === "ambassador" ? currentAmbassadorCode() : "",
     status: "Новый",
     kitStatus: "Комплект не взят",
     available: "Проверяется",
@@ -1710,13 +1716,6 @@ function newOrderScreen() {
           <input class="booking-input" data-booking="promoCode" placeholder="Промокод" value="${state.booking.promoCode}" />
           <button class="secondary-button" data-action="apply-discount">Применить</button>
         </div>
-        ${
-          state.user.role === "ambassador"
-            ? `<input class="booking-input" data-booking="ambassadorCode" placeholder="Код амбассадора" value="${state.booking.ambassadorCode || currentAmbassadorCode()}" style="margin-top: 8px" />`
-            : state.user.role === "admin"
-              ? `<input class="booking-input" data-booking="ambassadorCode" placeholder="Код амбассадора, если есть" value="${state.booking.ambassadorCode}" style="margin-top: 8px" />`
-              : ""
-        }
       </section>
 
       <section class="panel">
@@ -1853,7 +1852,7 @@ function newOrderScreen() {
         <div class="summary-line"><span>Состав</span><strong>${calc.selectedPackage.label}</strong></div>
         <div class="summary-line"><span>Длительность</span><strong>${calc.durationMinutes} мин</strong></div>
         <div class="summary-line"><span>Сумма заказа</span><strong>${money(calc.orderTotal)}</strong></div>
-        ${state.booking.ambassadorCode || state.user.role === "ambassador" ? `<div class="summary-line"><span>Банни амбассадора</span><strong>${ambassadorPointsForOrder(calc.orderTotal)}</strong></div>` : ""}
+        ${state.user.role === "ambassador" ? `<div class="summary-line"><span>Банни амбассадора</span><strong>${ambassadorPointsForOrder(calc.orderTotal)}</strong></div>` : ""}
         <div class="summary-line"><span>ЗП актеров</span><strong>${money(calc.actorTotal)}</strong></div>
         <div class="summary-line"><span>Остаток агентства</span><strong>${money(calc.agencyTotal)}</strong></div>
       </section>
@@ -2565,7 +2564,11 @@ function adminEmployeesScreen() {
         </label>
         ${
           state.newEmployee.isAmbassador
-            ? `<input class="booking-input" data-admin-field="newEmployee.ambassadorCode" placeholder="Код амбассадора, можно оставить пустым" value="${state.newEmployee.ambassadorCode}" style="margin-top: 8px" />`
+            ? `<div class="notice" style="margin-top: 8px">
+                <strong>Код амбассадора</strong>
+                <input class="booking-input" data-admin-field="newEmployee.ambassadorCode" placeholder="Код амбассадора" value="${suggestedEmployeeAmbassadorCode()}" style="margin-top: 8px" />
+                <p class="small-text" style="margin-top: 8px">Этот код закрепится за сотрудником после добавления.</p>
+              </div>`
             : ""
         }
       </section>
@@ -3301,6 +3304,16 @@ document.addEventListener("change", (event) => {
 
   const [group, key] = input.dataset.adminField.split(".");
   state[group][key] = input.type === "checkbox" ? input.checked : input.value;
+  if (group === "newEmployee" && key === "isAmbassador") {
+    if (input.checked) state.newEmployee.isAdmin = false;
+    state.newEmployee.ambassadorCode = input.checked ? suggestedEmployeeAmbassadorCode() : "";
+    render();
+  }
+  if (group === "newEmployee" && key === "isAdmin" && input.checked) {
+    state.newEmployee.isAmbassador = false;
+    state.newEmployee.ambassadorCode = "";
+    render();
+  }
 });
 
 document.addEventListener("change", (event) => {
