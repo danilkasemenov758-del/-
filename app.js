@@ -9,9 +9,9 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.03-14";
-const COMPANY_SITE_URL = "https://bunny-bon.ru";
-const COMPANY_VK_URL = "https://vk.com/bunnybon";
+const APP_VERSION = "2026.06.04-01";
+const COMPANY_SITE_URL = "https://bunnybon57.ru/";
+const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
   "Добавлен админский экран редактирования амбассадоров: код, заработанные банни и сумма на выводе.",
   "У амбассадора скрыты разделы заказов, программ, реквизита и сохраненного.",
@@ -395,7 +395,7 @@ async function loadRemoteData(options = {}) {
     const data = await apiFetch(`/api/bootstrap?telegram_id=${encodeURIComponent(telegramId)}&name=${encodeURIComponent(state.user.firstName)}&username=${encodeURIComponent(state.user.username)}`);
     if (!data) return;
 
-    employees = withoutDeleted(data.employees || employees, "employees").map(normalizeEmployee);
+    employees = mergeQueuedEmployees(withoutDeleted(data.employees || employees, "employees").map(normalizeEmployee));
     orders = mergeQueuedOrders(withoutDeleted(data.orders || [], "orders"));
     const remoteProps = withoutDeleted(data.props || [], "props");
     props = remoteProps.length ? remoteProps : props;
@@ -502,6 +502,17 @@ function mergeQueuedOrders(remoteOrders) {
     .filter((order) => !remoteIds.has(String(order.id)) && !deleted.has(String(order.id)));
 
   return [...queuedOrders, ...remoteOrders];
+}
+
+function mergeQueuedEmployees(remoteEmployees) {
+  const remoteIds = new Set(remoteEmployees.map((employee) => String(employee.id)));
+  const deleted = new Set((state.deletedEntities.employees || []).map(String));
+  const queuedEmployees = state.syncQueue
+    .filter((action) => action.type === "create-employee" && action.payload)
+    .map((action) => normalizeEmployee(action.payload))
+    .filter((employee) => employee.id && !remoteIds.has(String(employee.id)) && !deleted.has(String(employee.id)));
+
+  return [...queuedEmployees, ...remoteEmployees];
 }
 
 function applyCurrentUserAccess(currentUser) {
@@ -695,23 +706,27 @@ function addEmployee() {
   if (!name) return;
   const role = state.newEmployee.isAdmin ? "admin" : state.newEmployee.isAmbassador ? "ambassador" : "actor";
   const ambassadorCode = role === "ambassador" ? (state.newEmployee.ambassadorCode.trim() || makeAmbassadorCode(state.newEmployee.username || name)) : "";
+  const id = Date.now();
+  const employee = {
+    id,
+    name,
+    role,
+    username: state.newEmployee.username,
+    telegramId: null,
+    isActive: true,
+    ambassadorCode,
+    bunnyBalance: 0,
+    bunnyPending: 0,
+    efficiency: 0,
+    accepted: 0,
+    late: 0,
+    rating: 0,
+  };
   employees = [
     ...employees,
-    {
-      id: Date.now(),
-      name,
-      role,
-      username: state.newEmployee.username,
-      ambassadorCode,
-      bunnyBalance: 0,
-      bunnyPending: 0,
-      efficiency: 0,
-      accepted: 0,
-      late: 0,
-      rating: 0,
-    },
+    employee,
   ];
-  queueAction("create-employee", { ...state.newEmployee, role, ambassadorCode });
+  queueAction("create-employee", { ...employee, isAdmin: role === "admin", isAmbassador: role === "ambassador" });
   state.newEmployee = { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" };
   setRoute("profile");
 }
@@ -1074,6 +1089,8 @@ function createOrder() {
     role: state.booking.package,
     actors: [state.user.firstName],
     programId: calc.program.id,
+    end: state.booking.end,
+    durationMinutes: calc.durationMinutes,
     promoCode: state.booking.promoCode || "",
     ambassadorCode: state.user.role === "ambassador" ? (state.booking.ambassadorCode || currentAmbassadorCode()) : "",
     status: "Новый",
@@ -1182,6 +1199,14 @@ function calculateBooking() {
     actorTotal,
     agencyTotal: orderTotal - actorTotal,
   };
+}
+
+function orderCalculationSummary(order) {
+  const parts = [];
+  if (Number(order?.total || 0) > 0) parts.push(`Сумма: ${money(order.total)}`);
+  if (Number(order?.actorPay || 0) > 0) parts.push(`ЗП: ${money(order.actorPay)}`);
+  if (Number(order?.ambassadorBunny || 0) > 0) parts.push(`Банни: ${Number(order.ambassadorBunny)} Б`);
+  return parts.length ? parts.join(" · ") : "Расчет появится после обновления заказа";
 }
 
 function timeToMinutes(value) {
@@ -1634,7 +1659,7 @@ function homeScreen() {
               .map(
                 (order) => `
                   <button class="order-row" data-route="order" data-order-id="${order.id}">
-                    <span><strong>${order.title}</strong><span>${order.date} ${order.time}</span></span>
+                    <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${orderCalculationSummary(order)}</span></span>
                     <span class="row-icon" aria-label="Открыть">›</span>
                   </button>
                 `
@@ -1713,7 +1738,7 @@ function ordersScreen() {
                   (order) => `
                     <div class="managed-row inline-managed-row">
                       <button class="order-row" data-route="order" data-order-id="${order.id}">
-                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${order.status}</span></span>
+                        <span><strong>${order.title}</strong><span>${order.date} ${order.time} · ${order.status}<br>${orderCalculationSummary(order)}</span></span>
                         <span class="row-icon" aria-label="Открыть">›</span>
                       </button>
                       ${
@@ -2019,6 +2044,7 @@ function orderScreen() {
           <div class="detail-line"><span>Дата</span><strong>${order.date}, ${order.time}</strong></div>
           <div class="detail-line"><span>Адрес</span><strong>${order.address}</strong></div>
           <div class="detail-line"><span>Роль</span><strong>${order.role}</strong></div>
+          <div class="detail-line"><span>Расчет</span><strong>${orderCalculationSummary(order)}</strong></div>
           <div class="detail-line"><span>Актеры</span><strong>${order.actors.join(", ")}</strong></div>
           <div class="detail-line"><span>Приняли</span><strong>${acceptedNames || "Пока никто"}</strong></div>
         </div>
@@ -3056,8 +3082,13 @@ function render() {
 
   document.querySelector("#app").innerHTML = (screens[state.route] || homeScreen)();
   if (previousRoute === state.route) {
-    const screen = document.querySelector(".screen");
-    if (screen) screen.scrollTop = previousScrollTop;
+    const restoreScroll = () => {
+      const screen = document.querySelector(".screen");
+      if (screen) screen.scrollTop = previousScrollTop;
+    };
+    restoreScroll();
+    requestAnimationFrame(restoreScroll);
+    window.setTimeout(restoreScroll, 0);
   }
   if (restorePropSearch) {
     const input = document.querySelector("[data-prop-search]");
