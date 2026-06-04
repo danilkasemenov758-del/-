@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.04-02";
+const APP_VERSION = "2026.06.04-03";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
@@ -705,6 +705,7 @@ function actionToast(type) {
     "create-promo": "Промокод добавлен",
     "withdraw-bunny": "Заявка на вывод отправлена",
     "update-ambassador": "Амбассадор обновлен",
+    "update-employee-access": "Права сотрудника обновлены",
     "update-order-pay": "Зарплата скорректирована",
     "delete-order-pay": "Зарплата удалена",
     "annul-order": "Принятие заказа аннулировано",
@@ -1005,9 +1006,53 @@ function saveProgramKit() {
 }
 
 function deleteEmployee(id) {
+  if (Number(id) === Number(state.user.id)) {
+    state.toast = "Нельзя удалить свой аккаунт";
+    render();
+    clearToastLater();
+    return;
+  }
   employees = employees.filter((employee) => employee.id !== id);
   rememberDeleted("employees", id);
   queueAction("delete-employee", { id });
+}
+
+function updateEmployeeAccess(id, field, value) {
+  let shouldRender = false;
+  employees = employees.map((employee) => {
+    if (Number(employee.id) !== Number(id)) return employee;
+    const next = { ...employee };
+    if (field === "role") {
+      next.role = value;
+      shouldRender = true;
+      if (value !== "ambassador") {
+        next.ambassadorCode = "";
+        next.bunnyBalance = 0;
+        next.bunnyPending = 0;
+      } else if (!next.ambassadorCode) {
+        next.ambassadorCode = makeAmbassadorCode(next.username || next.name);
+      }
+    } else if (field === "ambassadorCode") {
+      next.ambassadorCode = value;
+    }
+    return next;
+  });
+  saveState();
+  if (shouldRender) render();
+}
+
+function saveEmployeeAccess(id) {
+  const employee = employees.find((item) => Number(item.id) === Number(id));
+  if (!employee) return;
+  queueAction("update-employee-access", {
+    id: employee.id,
+    name: employee.name,
+    username: employee.username || "",
+    role: employee.role || "actor",
+    ambassadorCode: employee.role === "ambassador" ? String(employee.ambassadorCode || "").trim() : "",
+    bunnyBalance: Number(employee.bunnyBalance || 0),
+    bunnyPending: Number(employee.bunnyPending || 0),
+  });
 }
 
 function deleteOrder(id) {
@@ -2609,6 +2654,22 @@ function adminEmployeeDetailScreen() {
       </section>
 
       <section class="panel">
+        <h2 class="panel-title">Права доступа</h2>
+        <select class="booking-input" data-employee-access-field="role" data-employee-id="${employee.id}">
+          <option value="actor" ${employee.role === "actor" ? "selected" : ""}>Актер</option>
+          <option value="admin" ${employee.role === "admin" ? "selected" : ""}>Админ</option>
+          <option value="ambassador" ${employee.role === "ambassador" ? "selected" : ""}>Амбассадор</option>
+        </select>
+        ${
+          employee.role === "ambassador"
+            ? `<input class="booking-input" data-employee-access-field="ambassadorCode" data-employee-id="${employee.id}" value="${employee.ambassadorCode || ""}" placeholder="Код амбассадора" style="margin-top: 8px" />`
+            : ""
+        }
+        <button class="primary-button" data-action="save-employee-access" data-employee-id="${employee.id}" style="margin-top: 10px">Сохранить права</button>
+        <button class="secondary-button danger-button" data-action="delete-employee" data-employee-id="${employee.id}" style="margin-top: 8px">Удалить аккаунт навсегда</button>
+      </section>
+
+      <section class="panel">
         <h2 class="panel-title">Принятые заказы</h2>
         <div class="orders-stack">
           ${
@@ -2992,6 +3053,7 @@ function actionTitle(action) {
     "create-promo": `Добавить промокод: ${payload.code || ""}`,
     "withdraw-bunny": `Вывод банни: ${payload.amount || 0}`,
     "update-ambassador": `Обновить амбассадора: ${payload.name || payload.ambassadorCode || ""}`,
+    "update-employee-access": `Обновить права: ${payload.name || payload.id || ""}`,
     report: "Сообщить об ошибке",
     "take-prop": `Взять реквизит #${payload.propId || ""}`,
     "return-prop": `Вернуть реквизит #${payload.propId || ""}`,
@@ -3372,6 +3434,10 @@ document.addEventListener("click", async (event) => {
     deleteOrderPay(orderId);
   }
 
+  if (action === "save-employee-access") {
+    saveEmployeeAccess(Number(actionButton.dataset.employeeId));
+  }
+
   if (action === "increase-accepted") {
     adjustEmployeeAccepted(Number(actionButton.dataset.employeeId), 1);
   }
@@ -3386,7 +3452,7 @@ document.addEventListener("click", async (event) => {
   }
 
   if (action === "delete-employee") {
-    if (!confirmDelete("сотрудника")) return;
+    if (!window.confirm("Удалить аккаунт сотрудника навсегда? Он пропадет из базы и потеряет доступ к приложению.")) return;
     deleteEmployee(Number(actionButton.dataset.employeeId));
   }
 
@@ -3462,6 +3528,12 @@ document.addEventListener("input", (event) => {
   const bonusAmountInput = event.target.closest("[data-bonus-amount]");
   if (bonusAmountInput) {
     updateBonusAmount(Number(bonusAmountInput.dataset.bonusAmount), bonusAmountInput.value);
+    return;
+  }
+
+  const employeeAccessInput = event.target.closest("[data-employee-access-field]");
+  if (employeeAccessInput) {
+    updateEmployeeAccess(Number(employeeAccessInput.dataset.employeeId), employeeAccessInput.dataset.employeeAccessField, employeeAccessInput.value);
     return;
   }
 
