@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.04-01";
+const APP_VERSION = "2026.06.04-02";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
@@ -55,11 +55,11 @@ const mockUser = {
   hasAccess: !API_BASE,
 };
 
-let employees = [
+let employees = readStorage("employees", [
   { id: 101, name: "Даша", efficiency: 86, accepted: 12, late: 1, rating: 4.8 },
   { id: 102, name: "Илья", efficiency: 74, accepted: 8, late: 2, rating: 4.4 },
   { id: 103, name: "Маша", efficiency: 92, accepted: 16, late: 0, rating: 4.9 },
-];
+]);
 
 let reports = [
   { id: 1, actorName: "Даша", text: "Не открылась музыка в программе", createdAt: "01.06.2026 14:20", status: "new" },
@@ -296,6 +296,7 @@ const masterClasses = [
 
 function saveState() {
   localStorage.setItem("syncQueue", JSON.stringify(state.syncQueue));
+  localStorage.setItem("employees", JSON.stringify(employees));
   localStorage.setItem("savedForTrip", JSON.stringify(state.saved));
   localStorage.setItem("acceptedOrders", JSON.stringify(state.acceptedOrders));
   localStorage.setItem("deletedEntities", JSON.stringify(state.deletedEntities));
@@ -507,12 +508,22 @@ function mergeQueuedOrders(remoteOrders) {
 function mergeQueuedEmployees(remoteEmployees) {
   const remoteIds = new Set(remoteEmployees.map((employee) => String(employee.id)));
   const deleted = new Set((state.deletedEntities.employees || []).map(String));
+  const localEmployees = employees
+    .map(normalizeEmployee)
+    .filter((employee) => Number(employee.id) > 1000000000000 && !remoteIds.has(String(employee.id)) && !deleted.has(String(employee.id)));
   const queuedEmployees = state.syncQueue
     .filter((action) => action.type === "create-employee" && action.payload)
     .map((action) => normalizeEmployee(action.payload))
     .filter((employee) => employee.id && !remoteIds.has(String(employee.id)) && !deleted.has(String(employee.id)));
 
-  return [...queuedEmployees, ...remoteEmployees];
+  const merged = [...queuedEmployees, ...localEmployees, ...remoteEmployees];
+  const seen = new Set();
+  return merged.filter((employee) => {
+    const id = String(employee.id);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 function applyCurrentUserAccess(currentUser) {
@@ -1845,7 +1856,7 @@ function newOrderScreen() {
                 <div class="time-stepper-row">
                   <span>Начало</span>
                   <div class="time-stepper-control">
-                    <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="-15">в€’</button>
+                    <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="-15">−</button>
                     <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="start">${state.booking.start}</button>
                     <input class="native-time-input" type="time" data-native-time="start" value="${state.booking.start}" />
                     <button type="button" data-action="adjust-booking-time" data-time-field="start" data-time-delta="15">+</button>
@@ -1854,7 +1865,7 @@ function newOrderScreen() {
                 <div class="time-stepper-row">
                   <span>Окончание</span>
                   <div class="time-stepper-control">
-                    <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="-15">в€’</button>
+                    <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="-15">−</button>
                     <button type="button" class="time-value-button" data-action="open-native-time" data-time-field="end">${state.booking.end}</button>
                     <input class="native-time-input" type="time" data-native-time="end" value="${state.booking.end}" />
                     <button type="button" data-action="adjust-booking-time" data-time-field="end" data-time-delta="15">+</button>
@@ -2585,7 +2596,7 @@ function adminEmployeeDetailScreen() {
           </div>
         </div>
         <div class="counter-actions" style="margin-top: 10px">
-          <button class="secondary-button" data-action="decrease-accepted" data-employee-id="${employee.id}">в€’ заказ</button>
+          <button class="secondary-button" data-action="decrease-accepted" data-employee-id="${employee.id}">− заказ</button>
           <button class="secondary-button" data-action="increase-accepted" data-employee-id="${employee.id}">+ заказ</button>
         </div>
       </section>
@@ -2822,7 +2833,7 @@ function adminEmployeesScreen() {
                     <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
                   </button>
                   <div class="counter-actions">
-                    <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">в€’</button>
+                    <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">−</button>
                     <button class="mini-delete-button" data-action="increase-accepted" data-employee-id="${employee.id}">+</button>
                   </div>
                   <button class="mini-delete-button" data-action="delete-employee" data-employee-id="${employee.id}">×</button>
