@@ -9,7 +9,7 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.04-03";
+const APP_VERSION = "2026.06.04-04";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
@@ -528,14 +528,12 @@ function mergeQueuedEmployees(remoteEmployees) {
 
 function applyCurrentUserAccess(currentUser) {
   if (!currentUser) {
-    state.user.hasAccess = false;
-    if (state.route !== "auth-confirm") state.route = "denied";
+    revokeCurrentUserAccess();
     return;
   }
 
   if (currentUser.isActive === false) {
-    state.user.hasAccess = false;
-    if (state.route !== "auth-confirm") state.route = "denied";
+    revokeCurrentUserAccess(currentUser);
     return;
   }
 
@@ -549,6 +547,25 @@ function applyCurrentUserAccess(currentUser) {
   state.user.bunnyPending = Number(currentUser.bunnyPending || 0);
   state.user.hasAccess = true;
   ensureCurrentEmployee();
+}
+
+function revokeCurrentUserAccess(currentUser = {}) {
+  const deniedId = currentUser.id ?? state.user.id;
+  state.user.id = currentUser.telegramId ?? state.user.telegramId ?? telegramUser?.id ?? state.user.id;
+  state.user.telegramId = currentUser.telegramId ?? state.user.telegramId ?? telegramUser?.id ?? state.user.id;
+  state.user.firstName = currentUser.name || telegramUser?.first_name || state.user.firstName;
+  state.user.username = currentUser.username || telegramUser?.username || state.user.username;
+  state.user.role = "actor";
+  state.user.hasAccess = false;
+  state.user.ambassadorCode = "";
+  state.user.bunnyBalance = 0;
+  state.user.bunnyPending = 0;
+  employees = employees.filter((employee) => {
+    const sameId = Number(employee.id) === Number(deniedId) || Number(employee.id) === Number(state.user.id);
+    const sameTelegram = Number(employee.telegramId || employee.telegram_id) === Number(state.user.telegramId);
+    return !sameId && !sameTelegram;
+  });
+  if (state.route !== "auth-confirm" && state.route !== "checking" && state.route !== "report") state.route = "denied";
 }
 
 function rememberDeleted(type, id) {
@@ -1012,9 +1029,14 @@ function deleteEmployee(id) {
     clearToastLater();
     return;
   }
+  const employee = employees.find((item) => Number(item.id) === Number(id));
   employees = employees.filter((employee) => employee.id !== id);
   rememberDeleted("employees", id);
-  queueAction("delete-employee", { id });
+  queueAction("delete-employee", {
+    id,
+    telegramId: employee?.telegramId || employee?.telegram_id || null,
+    username: employee?.username || "",
+  });
 }
 
 function updateEmployeeAccess(id, field, value) {
@@ -3152,6 +3174,11 @@ function render() {
     "admin-prop": adminPropScreen,
     "admin-reports": adminReportsScreen,
   };
+
+  const publicRoutes = new Set(["auth-confirm", "checking", "denied", "report"]);
+  if (API_BASE && !state.user.hasAccess && !publicRoutes.has(state.route)) {
+    state.route = "denied";
+  }
 
   document.querySelector("#app").innerHTML = (screens[state.route] || homeScreen)();
   if (previousRoute === state.route) {
