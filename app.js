@@ -9,10 +9,11 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.05-01";
+const APP_VERSION = "2026.06.05-04";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
+  "\u0412 \u0437\u0430\u043A\u0430\u0437 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439, \u0430\u0432\u0442\u043E\u0440 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0432\u0432\u0435\u0434\u0435\u043D\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445.",
   "Добавлен админский экран редактирования амбассадоров: код, заработанные банни и сумма на выводе.",
   "У амбассадора скрыты разделы заказов, программ, реквизита и сохраненного.",
   "В добавлении заказа у амбассадора снова отображается его личный код.",
@@ -119,6 +120,7 @@ const state = {
     actors: 2,
     package: "2 актера, до 20 человек",
     extras: [],
+    extraQuantities: {},
   },
   newEmployee: { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" },
   newPromo: { code: "", discount: "", description: "" },
@@ -501,6 +503,7 @@ programs = [
 ];
 
 const packageOptions = [
+  { label: "Экспресс-поздравление", actors: 1, multiplier: 1 },
   { label: "Шоу программа", actors: 1, multiplier: 1 },
   { label: "1 актер до 10 человек", actors: 1, multiplier: 1 },
   { label: "2 актера, до 20 человек", actors: 2, multiplier: 1.35 },
@@ -508,7 +511,7 @@ const packageOptions = [
   { label: "3 актера, до 35 человек", actors: 3, multiplier: 1.9 },
 ];
 
-const packageRates = [0, 416.67, 500, 666.67, 833.33];
+const packageRates = [0, 0, 416.67, 500, 666.67, 833.33];
 
 const showPrograms = ["Научное шоу", "Шоу мыльных пузырей", "Бумажное шоу"];
 
@@ -1005,6 +1008,7 @@ function actionToast(type) {
     "accept-order": "Заказ принят",
     "decline-order": "Отказ от заказа сохранен",
     "create-order": "Заказ добавлен",
+    "update-order": "\u0417\u0430\u043A\u0430\u0437 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D",
     "create-bonus": "Дополнительная выплата начислена",
     "create-promo": "Промокод добавлен",
     "withdraw-bunny": "Заявка на вывод отправлена",
@@ -1271,6 +1275,7 @@ function addEditableExtra() {
 function removeEditableExtra(title) {
   editableExtras = editableExtras.filter((item) => item.title !== title);
   state.booking.extras = state.booking.extras.filter((item) => item !== `extra:${title}`);
+  delete state.booking.extraQuantities?.[`extra:${title}`];
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
   render();
 }
@@ -1278,6 +1283,28 @@ function removeEditableExtra(title) {
 function updateEditableExtraPrice(title, price) {
   editableExtras = editableExtras.map((item) => (item.title === title ? { ...item, price: Number(price || 0) } : item));
   localStorage.setItem("editableExtras", JSON.stringify(editableExtras));
+}
+
+function extraKey(title) {
+  return `extra:${title}`;
+}
+
+function extraQuantity(title) {
+  return Math.max(1, Number(state.booking.extraQuantities?.[extraKey(title)] || 1));
+}
+
+function setExtraQuantity(title, quantity) {
+  const key = extraKey(title);
+  const next = Math.max(1, Number(quantity || 1));
+  state.booking.extraQuantities = { ...(state.booking.extraQuantities || {}), [key]: next };
+  if (!state.booking.extras.includes(key)) {
+    state.booking.extras = [...state.booking.extras, key];
+  }
+  render();
+}
+
+function adjustExtraQuantity(title, delta) {
+  setExtraQuantity(title, extraQuantity(title) + Number(delta || 0));
 }
 
 function currentKitKey() {
@@ -1393,6 +1420,34 @@ function updateOrderPay(orderId, value) {
   saveState();
 }
 
+function orderDateInputValue(order) {
+  const date = parseUiDate(order?.date);
+  return date ? localIsoDate(date) : localIsoDate(new Date());
+}
+
+function addedByText(order) {
+  return order?.addedBy || order?.added_by || order?.createdByName || order?.actors?.[0] || "\u041D\u0435 \u0443\u043A\u0430\u0437\u0430\u043D\u043E";
+}
+
+function updateOrderField(orderId, field, value) {
+  orders = orders.map((order) => {
+    if (Number(order.id) !== Number(orderId)) return order;
+    const nextValue = field === "date" ? formatUiDate(value) : ["total", "actorPay"].includes(field) ? Number(value || 0) : value;
+    return { ...order, [field]: nextValue };
+  });
+  saveState();
+}
+
+function saveOrderChanges(orderId) {
+  const order = orders.find((item) => Number(item.id) === Number(orderId));
+  if (!order) return;
+  queueAction("update-order", { order });
+  state.orderDetailEditMode = false;
+  state.toast = "\u0417\u0430\u043A\u0430\u0437 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D";
+  render();
+  clearToastLater();
+}
+
 function deleteOrderPay(orderId) {
   updateOrderPay(orderId, 0);
   queueAction("delete-order-pay", { orderId });
@@ -1448,11 +1503,16 @@ function createOrder() {
   const order = {
     id,
     title: calc.program.title,
+    firstName: state.booking.firstName || "",
+    lastName: state.booking.lastName || "",
+    phone: state.booking.phone || "",
     date: formatUiDate(state.booking.date),
     time: state.booking.start,
     address: state.booking.address || "Адрес не указан",
     role: state.booking.package,
     actors: [state.user.firstName],
+    addedBy: state.user.firstName || state.user.username || "\u041D\u0435 \u0443\u043A\u0430\u0437\u0430\u043D\u043E",
+    addedById: state.user.id,
     programId: calc.program.id,
     end: state.booking.end,
     durationMinutes: calc.durationMinutes,
@@ -1549,7 +1609,7 @@ function calculateBooking() {
   const extrasTotal = (state.booking.extras || []).reduce((sum, value) => {
     const title = String(value).replace(/^extra:/, "");
     const item = editableExtras.find((extra) => extra.title === title);
-    return sum + Number(item?.price || 0);
+    return sum + Number(item?.price || 0) * extraQuantity(title);
   }, 0);
   const promo = findPromoCode(state.booking.promoCode);
   const discount = Number(state.booking.discount || promo?.discount || 0);
@@ -2245,7 +2305,7 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Программа</h2>
+        <h2 class="panel-title">Шоу-программа</h2>
         <select class="booking-input" data-booking="programId">
           ${
             programs.length
@@ -2265,7 +2325,7 @@ function newOrderScreen() {
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Составляющая</h2>
+        <h2 class="panel-title">Шоу-программы</h2>
         <div class="option-list">
           ${packageOptions
             .map(
@@ -2285,19 +2345,30 @@ function newOrderScreen() {
         <button class="secondary-button" data-action="toggle-extra-edit">${state.extraEditMode ? "Готово" : "Изменить"}</button>
         <div class="option-list">
           ${editableExtras
-            .map(
-              (item) => `
-                <div class="editable-extra-row">
-                  ${checkboxLine(`${item.title} · ${money(item.price)}`, "extra", item.title)}
+            .map((item) => {
+              const selected = state.booking.extras.includes(extraKey(item.title));
+              const quantity = extraQuantity(item.title);
+              return `
+                <div class="editable-extra-row ${selected ? "selected-extra-row" : ""}">
+                  ${checkboxLine(`${item.title} ? ${money(item.price)}`, "extra", item.title)}
+                  ${
+                    selected
+                      ? `<div class="extra-quantity-control" aria-label="\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E">
+                          <button type="button" data-action="adjust-extra-quantity" data-extra-title="${item.title}" data-extra-delta="-1">?</button>
+                          <strong>${quantity}</strong>
+                          <button type="button" data-action="adjust-extra-quantity" data-extra-title="${item.title}" data-extra-delta="1">+</button>
+                        </div>`
+                      : ""
+                  }
                   ${
                     state.extraEditMode
                       ? `<input class="booking-input extra-price-input" type="number" min="0" data-extra-price="${item.title}" value="${item.price}" />
-                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">×</button>`
+                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">?</button>`
                       : ""
                   }
                 </div>
-              `
-            )
+              `;
+            })
             .join("")}
         </div>
         <div class="discount-row" style="margin-top: 8px">
@@ -2379,15 +2450,53 @@ function localIsoDate(date) {
 }
 
 function orderScreen() {
+  const L = {
+    order: "\u0417\u0430\u043A\u0430\u0437",
+    notFound: "\u0417\u0430\u043A\u0430\u0437 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D",
+    title: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+    firstName: "\u0418\u043C\u044F",
+    lastName: "\u0424\u0430\u043C\u0438\u043B\u0438\u044F",
+    phone: "\u0422\u0435\u043B\u0435\u0444\u043E\u043D",
+    client: "\u041A\u043B\u0438\u0435\u043D\u0442",
+    address: "\u0410\u0434\u0440\u0435\u0441",
+    comment: "\u041A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439",
+    total: "\u0421\u0443\u043C\u043C\u0430",
+    pay: "\u0417\u041F",
+    date: "\u0414\u0430\u0442\u0430",
+    noComment: "\u0411\u0435\u0437 \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u044F",
+    role: "\u0420\u043E\u043B\u044C",
+    calc: "\u0420\u0430\u0441\u0447\u0435\u0442",
+    added: "\u0414\u043E\u0431\u0430\u0432\u0438\u043B",
+    accepted: "\u041F\u0440\u0438\u043D\u044F\u043B\u0438",
+    nobody: "\u041F\u043E\u043A\u0430 \u043D\u0438\u043A\u0442\u043E",
+    save: "\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F",
+    cancel: "\u041E\u0442\u043C\u0435\u043D\u0430",
+    deleteOrder: "\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0437\u0430\u043A\u0430\u0437",
+    edit: "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C",
+    confirm: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435",
+    canAccept: "\u041C\u043E\u0436\u043D\u043E \u043F\u0440\u0438\u043D\u044F\u0442\u044C \u0437\u0430\u043A\u0430\u0437. \u0415\u0441\u043B\u0438 \u043D\u0435\u0442 \u0441\u0435\u0442\u0438, \u043E\u0442\u043C\u0435\u0442\u043A\u0430 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0438 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0441\u044F \u043F\u043E\u0437\u0436\u0435.",
+    orderAccepted: "\u0417\u0430\u043A\u0430\u0437 \u043F\u0440\u0438\u043D\u044F\u0442",
+    decline: "\u041E\u0442\u043A\u0430\u0437\u0430\u0442\u044C\u0441\u044F",
+    full: "\u041C\u0435\u0441\u0442\u0430 \u0430\u043A\u0442\u0435\u0440\u043E\u0432 \u0437\u0430\u043D\u044F\u0442\u044B",
+    acceptOrder: "\u041F\u0440\u0438\u043D\u044F\u0442\u044C \u0437\u0430\u043A\u0430\u0437",
+    kit: "\u041A\u043E\u043C\u043F\u043B\u0435\u043A\u0442",
+    takeKit: "\u0412\u0437\u044F\u0442\u044C \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442",
+    openKit: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0442",
+    saved: "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E",
+    forTrip: "\u0414\u043B\u044F \u0432\u044B\u0435\u0437\u0434\u0430",
+    program: "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0430",
+    programText: "\u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439, \u043C\u0443\u0437\u044B\u043A\u0430 \u0438 \u0442\u0430\u0439\u043C\u0438\u043D\u0433 \u0434\u043B\u044F \u0432\u044B\u0435\u0437\u0434\u0430.",
+    openProgram: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0443",
+  };
   const order = getActiveOrder();
   if (!order) {
     return appFrame(`
       <div class="top-row">
-        <button class="icon-button" data-route="orders">‹</button>
+        <button class="icon-button" data-route="orders">&#8249;</button>
         ${syncPill()}
       </div>
-      <h1 class="page-title">Заказ</h1>
-      <div class="content-stack"><div class="empty-state">Заказ не найден</div></div>
+      <h1 class="page-title">${L.order}</h1>
+      <div class="content-stack"><div class="empty-state">${L.notFound}</div></div>
     `, true);
   }
   const isSaved = state.saved.includes(order.id);
@@ -2395,72 +2504,93 @@ function orderScreen() {
   const acceptedByMe = acceptedByMeForOrder(order.id);
   const acceptedNames = acceptedList.map((accepted) => accepted.name).join(", ");
   const isFull = acceptedList.length >= orderActorLimit(order);
+  const orderDateValue = orderDateInputValue(order);
 
   return appFrame(`
     <div class="top-row">
-      <button class="icon-button" data-route="home">‹</button>
+      <button class="icon-button" data-route="home">&#8249;</button>
       ${syncPill()}
     </div>
-    <h1 class="page-title">Заказ</h1>
+    <h1 class="page-title">${L.order}</h1>
     <div class="content-stack">
       <section class="panel">
         <h2 class="panel-title">${order.title}</h2>
-        <div class="detail-grid">
-          <div class="detail-line"><span>Дата</span><strong>${order.date}, ${order.time}</strong></div>
-          <div class="detail-line"><span>Адрес</span><strong>${order.address}</strong></div>
-          <div class="detail-line"><span>Роль</span><strong>${order.role}</strong></div>
-          <div class="detail-line"><span>Расчет</span><strong>${orderCalculationSummary(order)}</strong></div>
-          <div class="detail-line"><span>Актеры</span><strong>${order.actors.join(", ")}</strong></div>
-          <div class="detail-line"><span>Приняли</span><strong>${acceptedNames || "Пока никто"}</strong></div>
-        </div>
+        ${
+          state.orderDetailEditMode
+            ? `<div class="content-stack compact-stack">
+                <input class="booking-input" data-order-field="title" data-order-id="${order.id}" value="${order.title || ""}" placeholder="${L.title}" />
+                <div class="booking-row compact-time-row">
+                  <input class="booking-input" data-order-field="firstName" data-order-id="${order.id}" value="${order.firstName || ""}" placeholder="${L.firstName}" />
+                  <input class="booking-input" data-order-field="lastName" data-order-id="${order.id}" value="${order.lastName || ""}" placeholder="${L.lastName}" />
+                </div>
+                <input class="booking-input" data-order-field="phone" data-order-id="${order.id}" value="${order.phone || ""}" placeholder="${L.phone}" />
+                <div class="booking-row compact-time-row">
+                  <input class="booking-input" type="date" data-order-field="date" data-order-id="${order.id}" value="${orderDateValue}" />
+                  <input class="booking-input" type="time" data-order-field="time" data-order-id="${order.id}" value="${order.time || ""}" />
+                  <input class="booking-input" type="time" data-order-field="end" data-order-id="${order.id}" value="${order.end || ""}" />
+                </div>
+                <select class="booking-input" data-order-field="role" data-order-id="${order.id}">
+                  ${packageOptions.map((item) => `<option value="${item.label}" ${order.role === item.label ? "selected" : ""}>${item.label}</option>`).join("")}
+                </select>
+                <textarea class="booking-input booking-textarea" data-order-field="address" data-order-id="${order.id}" placeholder="${L.address}">${order.address || ""}</textarea>
+                <textarea class="booking-input booking-textarea" data-order-field="comment" data-order-id="${order.id}" placeholder="${L.comment}">${order.comment || ""}</textarea>
+                <div class="booking-row compact-time-row">
+                  <input class="booking-input" type="number" min="0" data-order-field="total" data-order-id="${order.id}" value="${order.total || 0}" placeholder="${L.total}" />
+                  <input class="booking-input" type="number" min="0" data-order-field="actorPay" data-order-id="${order.id}" value="${order.actorPay || 0}" placeholder="${L.pay}" />
+                </div>
+              </div>`
+            : `<div class="detail-grid">
+                <div class="detail-line"><span>${L.date}</span><strong>${order.date}, ${order.time}${order.end ? ` - ${order.end}` : ""}</strong></div>
+                <div class="detail-line"><span>${L.client}</span><strong>${[order.firstName, order.lastName].filter(Boolean).join(" ") || L.noComment}</strong></div>
+                <div class="detail-line"><span>${L.phone}</span><strong>${order.phone || L.noComment}</strong></div>
+                <div class="detail-line"><span>${L.address}</span><strong>${order.address}</strong></div>
+                <div class="detail-line"><span>${L.comment}</span><strong>${order.comment || L.noComment}</strong></div>
+                <div class="detail-line"><span>${L.role}</span><strong>${order.role}</strong></div>
+                <div class="detail-line"><span>${L.calc}</span><strong>${orderCalculationSummary(order)}</strong></div>
+                <div class="detail-line"><span>${L.added}</span><strong>${addedByText(order)}</strong></div>
+                <div class="detail-line"><span>${L.accepted}</span><strong>${acceptedNames || L.nobody}</strong></div>
+              </div>`
+        }
         ${
           state.user.role === "admin"
-            ? `<button class="secondary-button" style="margin-top: 12px" data-action="toggle-order-detail-edit">${state.orderDetailEditMode ? "Готово" : "Изменить"}</button>
-               ${
-                 state.orderDetailEditMode
-                   ? `<button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-order" data-order-id="${order.id}">Удалить заказ</button>`
-                   : ""
-               }`
+            ? state.orderDetailEditMode
+              ? `<button class="primary-button" style="margin-top: 12px" data-action="save-order" data-order-id="${order.id}">${L.save}</button>
+                 <button class="secondary-button" style="margin-top: 8px" data-action="toggle-order-detail-edit">${L.cancel}</button>
+                 <button class="secondary-button danger-button" style="margin-top: 8px" data-action="delete-order" data-order-id="${order.id}">${L.deleteOrder}</button>`
+              : `<button class="secondary-button" style="margin-top: 12px" data-action="toggle-order-detail-edit">${L.edit}</button>`
             : ""
         }
       </section>
 
-      ${
-        true
-          ? `<section class="panel">
-              <h2 class="panel-title">Подтверждение</h2>
-              <p class="small-text">${acceptedList.length ? `Приняли: ${acceptedNames}` : "Можно принять заказ. Если нет сети, отметка сохранится и отправится позже."}</p>
-              ${
-                acceptedByMe
-                  ? `<button class="primary-button accepted-button" style="margin-top: 12px" disabled>Заказ принят</button>
-                     <button class="secondary-button danger-button" style="margin-top: 8px" data-action="decline-order" data-order-id="${order.id}">Отказаться</button>`
-                  : `<button class="primary-button" style="margin-top: 12px" data-action="accept-order" data-order-id="${order.id}" ${isFull ? "disabled" : ""}>
-                      ${isFull ? "Места актеров заняты" : "Принять заказ"}
-                    </button>`
-              }
-            </section>`
-          : `<section class="panel">
-              <h2 class="panel-title">Кто принял заказ</h2>
-              <p class="small-text">${acceptedNames || "Пока никто не принял заказ."}</p>
-            </section>`
-      }
+      <section class="panel">
+        <h2 class="panel-title">${L.confirm}</h2>
+        <p class="small-text">${acceptedList.length ? `${L.accepted}: ${acceptedNames}` : L.canAccept}</p>
+        ${
+          acceptedByMe
+            ? `<button class="primary-button accepted-button" style="margin-top: 12px" disabled>${L.orderAccepted}</button>
+               <button class="secondary-button danger-button" style="margin-top: 8px" data-action="decline-order" data-order-id="${order.id}">${L.decline}</button>`
+            : `<button class="primary-button" style="margin-top: 12px" data-action="accept-order" data-order-id="${order.id}" ${isFull ? "disabled" : ""}>
+                ${isFull ? L.full : L.acceptOrder}
+              </button>`
+        }
+      </section>
 
       <section class="panel">
-        <h2 class="panel-title">Комплект</h2>
+        <h2 class="panel-title">${L.kit}</h2>
         <p class="small-text">${order.available}. ${order.kitStatus}</p>
         <div class="action-grid" style="margin-top: 12px">
-          <button class="primary-button" data-action="take-kit" data-order-id="${order.id}">Взять комплект</button>
-          <button class="secondary-button" data-route="kit">Открыть комплект</button>
+          <button class="primary-button" data-action="take-kit" data-order-id="${order.id}">${L.takeKit}</button>
+          <button class="secondary-button" data-route="kit">${L.openKit}</button>
           <button class="secondary-button" data-action="save-trip" data-order-id="${order.id}">
-            ${isSaved ? "Сохранено" : "Для выезда"}
+            ${isSaved ? L.saved : L.forTrip}
           </button>
         </div>
       </section>
 
       <section class="panel">
-        <h2 class="panel-title">Программа</h2>
-        <p class="small-text">Сценарий, музыка и тайминг для выезда.</p>
-        <button class="primary-button" style="margin-top: 12px" data-route="program-detail">Открыть программу</button>
+        <h2 class="panel-title">${L.program}</h2>
+        <p class="small-text">${L.programText}</p>
+        <button class="primary-button" style="margin-top: 12px" data-route="program-detail">${L.openProgram}</button>
       </section>
     </div>
   `, true);
@@ -3359,6 +3489,7 @@ function actionTitle(action) {
   return {
     "create-employee": `Добавить сотрудника: ${payload.name || ""}`,
     "create-order": `Добавить заказ: ${payload.order?.title || payload.title || ""}`,
+    "update-order": `\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u0437\u0430\u043A\u0430\u0437: ${payload.order?.title || payload.title || payload.id || ""}`,
     "create-promo": `Добавить промокод: ${payload.code || ""}`,
     "withdraw-bunny": `Вывод банни: ${payload.amount || 0}`,
     "update-ambassador": `Обновить амбассадора: ${payload.name || payload.ambassadorCode || ""}`,
@@ -3647,6 +3778,10 @@ document.addEventListener("click", async (event) => {
     render();
   }
 
+  if (action === "save-order") {
+    saveOrderChanges(orderId);
+  }
+
   if (action === "toggle-ambassador-edit") {
     state.ambassadorEditMode = !state.ambassadorEditMode;
     render();
@@ -3724,6 +3859,10 @@ document.addEventListener("click", async (event) => {
 
   if (action === "add-extra") {
     addEditableExtra();
+  }
+
+  if (action === "adjust-extra-quantity") {
+    adjustExtraQuantity(actionButton.dataset.extraTitle, Number(actionButton.dataset.extraDelta || 0));
   }
 
   if (action === "toggle-extra-edit") {
@@ -3833,6 +3972,12 @@ document.addEventListener("input", (event) => {
     return;
   }
 
+  const orderFieldInput = event.target.closest("[data-order-field]");
+  if (orderFieldInput) {
+    updateOrderField(Number(orderFieldInput.dataset.orderId || state.activeOrderId), orderFieldInput.dataset.orderField, orderFieldInput.value);
+    return;
+  }
+
   const orderPayInput = event.target.closest("[data-order-pay]");
   if (orderPayInput) {
     updateOrderPay(Number(orderPayInput.dataset.orderPay), orderPayInput.value);
@@ -3917,6 +4062,13 @@ document.addEventListener("change", (event) => {
     return;
   }
 
+  const orderFieldInput = event.target.closest("[data-order-field]");
+  if (orderFieldInput) {
+    updateOrderField(Number(orderFieldInput.dataset.orderId || state.activeOrderId), orderFieldInput.dataset.orderField, orderFieldInput.value);
+    render();
+    return;
+  }
+
   const orderPayInput = event.target.closest("[data-order-pay]");
   if (orderPayInput) {
     const orderId = Number(orderPayInput.dataset.orderPay);
@@ -3968,9 +4120,13 @@ document.addEventListener("change", (event) => {
 
   if (extraInput) {
     const value = extraInput.dataset.extra;
-    state.booking.extras = extraInput.checked
-      ? [...new Set([...state.booking.extras, value])]
-      : state.booking.extras.filter((item) => item !== value);
+    if (extraInput.checked) {
+      state.booking.extras = [...new Set([...state.booking.extras, value])];
+      state.booking.extraQuantities = { ...(state.booking.extraQuantities || {}), [value]: state.booking.extraQuantities?.[value] || 1 };
+    } else {
+      state.booking.extras = state.booking.extras.filter((item) => item !== value);
+      delete state.booking.extraQuantities?.[value];
+    }
     render();
   }
 });
