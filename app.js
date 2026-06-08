@@ -9,10 +9,11 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.05-04";
+const APP_VERSION = "2026.06.08-01";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
+  "Исправлено открытие программы из заказа: теперь всегда открывается программа, закрепленная за выбранным заказом.",
   "\u0412 \u0437\u0430\u043A\u0430\u0437 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439, \u0430\u0432\u0442\u043E\u0440 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0432\u0432\u0435\u0434\u0435\u043D\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445.",
   "Добавлен админский экран редактирования амбассадоров: код, заработанные банни и сумма на выводе.",
   "У амбассадора скрыты разделы заказов, программ, реквизита и сохраненного.",
@@ -1591,7 +1592,20 @@ function getActiveOrder() {
 }
 
 function getProgramForOrder(order) {
-  return programs.find((program) => Number(program.id) === Number(order?.programId)) || programs.find((program) => program.title === order?.title) || programs[0];
+  const byId = programs.find((program) => Number(program.id) === Number(order?.programId));
+  if (byId) return byId;
+
+  const orderTitle = normalizeSearch(order?.title || "");
+  if (!orderTitle) return null;
+
+  return (
+    programs.find((program) => normalizeSearch(program.title) === orderTitle) ||
+    programs.find((program) => {
+      const programTitle = normalizeSearch(program.title);
+      return programTitle && (programTitle.includes(orderTitle) || orderTitle.includes(programTitle));
+    }) ||
+    null
+  );
 }
 
 function getBookingProgram() {
@@ -2505,6 +2519,7 @@ function orderScreen() {
   const acceptedNames = acceptedList.map((accepted) => accepted.name).join(", ");
   const isFull = acceptedList.length >= orderActorLimit(order);
   const orderDateValue = orderDateInputValue(order);
+  const orderProgram = getProgramForOrder(order);
 
   return appFrame(`
     <div class="top-row">
@@ -2590,7 +2605,18 @@ function orderScreen() {
       <section class="panel">
         <h2 class="panel-title">${L.program}</h2>
         <p class="small-text">${L.programText}</p>
-        <button class="primary-button" style="margin-top: 12px" data-route="program-detail">${L.openProgram}</button>
+        ${
+          orderProgram
+            ? `<button
+                class="primary-button"
+                style="margin-top: 12px"
+                data-route="program-detail"
+                data-program-id="${orderProgram.id}"
+              >
+                ${L.openProgram}
+              </button>`
+            : `<button class="primary-button" style="margin-top: 12px" disabled>Программа не найдена</button>`
+        }
       </section>
     </div>
   `, true);
