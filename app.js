@@ -1762,6 +1762,22 @@ function filteredOrders() {
   });
 }
 
+function upcomingOrders(limit = 3) {
+  const today = startOfDay(new Date());
+  return orders
+    .filter((order) => {
+      const date = parseUiDate(order.date);
+      return Boolean(date) && startOfDay(date) >= today;
+    })
+    .sort((left, right) => {
+      const leftDate = parseUiDate(left.date)?.getTime() || 0;
+      const rightDate = parseUiDate(right.date)?.getTime() || 0;
+      if (leftDate !== rightDate) return leftDate - rightDate;
+      return String(left.time || "").localeCompare(String(right.time || ""));
+    })
+    .slice(0, limit);
+}
+
 function normalizeSearch(value) {
   return String(value || "").trim().toLowerCase();
 }
@@ -2092,9 +2108,8 @@ function homeScreen() {
     <p class="section-label">Ближайшие заказы</p>
     <div class="orders-stack">
       ${
-        orders.length
-          ? orders
-              .slice(0, 3)
+        upcomingOrders().length
+          ? upcomingOrders()
               .map(
                 (order) => `
                   <button class="order-row" data-route="order" data-order-id="${order.id}">
