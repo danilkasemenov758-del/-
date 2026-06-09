@@ -9,10 +9,12 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.08-01";
+const APP_VERSION = "2026.06.09-01";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
+  "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u043E\u0431\u0449\u0438\u0439 \u0447\u0430\u0442 \u0434\u043B\u044F \u0432\u0441\u0435\u0445 \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u043A\u043E\u0432.",
+  "\u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0442\u0435\u043F\u0435\u0440\u044C \u0432\u0438\u0434\u043D\u043E, \u043A\u0430\u043A\u043E\u0435 \u0438\u043C\u0435\u043D\u043D\u043E \u043F\u043E\u043B\u0435 \u0438\u0437\u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F.",
   "Исправлено открытие программы из заказа: теперь всегда открывается программа, закрепленная за выбранным заказом.",
   "\u0412 \u0437\u0430\u043A\u0430\u0437 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439, \u0430\u0432\u0442\u043E\u0440 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0432\u0432\u0435\u0434\u0435\u043D\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445.",
   "Добавлен админский экран редактирования амбассадоров: код, заработанные банни и сумма на выводе.",
@@ -76,6 +78,8 @@ function readStorage(key, fallback) {
   }
 }
 
+let chatMessages = readStorage("chatMessages", []);
+
 const state = {
   route: localStorage.getItem("authConfirmed") === "true" ? "checking" : "auth-confirm",
   justAuthorized: false,
@@ -98,6 +102,7 @@ const state = {
   orderFilter: "active",
   toast: "",
   reportText: "",
+  chatDraft: "",
   versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
   avatarOpen: false,
   timeEditorOpen: false,
@@ -587,6 +592,7 @@ function saveState() {
   localStorage.setItem("programKits", JSON.stringify(state.programKits));
   localStorage.setItem("promoCodes", JSON.stringify(state.promoCodes));
   localStorage.setItem("ambassadorWithdrawals", JSON.stringify(state.ambassadorWithdrawals));
+  localStorage.setItem("chatMessages", JSON.stringify(chatMessages));
 }
 
 function roleLabel(role = state.user.role) {
@@ -686,6 +692,7 @@ async function loadRemoteData(options = {}) {
     reports = data.reports || reports;
     state.promoCodes = data.promoCodes || state.promoCodes;
     state.ambassadorWithdrawals = data.ambassadorWithdrawals || state.ambassadorWithdrawals;
+    chatMessages = mergeQueuedChatMessages(withoutDeleted(data.chatMessages || chatMessages, "chatMessages"));
     applyCurrentUserAccess(data.currentUser);
     state.accessChecked = true;
     saveState();
@@ -815,6 +822,43 @@ function mergeSeedPrograms(sourcePrograms) {
     if (!hasProgram(program)) merged.push(program);
   });
   return merged;
+}
+
+function normalizeChatMessage(message) {
+  return {
+    ...message,
+    id: Number(message.id || Date.now()),
+    senderId: Number(message.senderId ?? message.sender_id ?? 0),
+    senderName: message.senderName ?? message.sender_name ?? "",
+    text: String(message.text ?? ""),
+    createdAt: message.createdAt ?? message.created_at ?? new Date().toISOString(),
+  };
+}
+
+function mergeQueuedChatMessages(remoteMessages) {
+  const remoteIds = new Set(remoteMessages.map((message) => String(message.id)));
+  const queuedMessages = state.syncQueue
+    .filter((action) => action.type === "send-chat-message" && action.payload)
+    .map((action) => normalizeChatMessage(action.payload))
+    .filter((message) => !remoteIds.has(String(message.id)));
+  const merged = [...remoteMessages.map(normalizeChatMessage), ...queuedMessages];
+  merged.sort((left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime());
+  return merged;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatChatTime(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 }
 
 function applyCurrentUserAccess(currentUser) {
@@ -1576,6 +1620,24 @@ function deleteReport(id) {
   reports = reports.filter((report) => String(report.id) !== String(id));
   queueAction("delete-report", { id });
 }
+function sendChatMessage() {
+  const text = String(state.chatDraft || "").trim();
+  if (!text) return;
+  const message = {
+    id: Date.now(),
+    senderId: Number(state.user.id),
+    senderName: state.user.firstName || state.user.username || "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438",
+    text,
+    createdAt: new Date().toISOString(),
+  };
+  chatMessages = [...chatMessages, message];
+  state.chatDraft = "";
+  queueAction("send-chat-message", message);
+  saveState();
+  render();
+  clearToastLater();
+}
+
 
 function saveForTrip(orderId) {
   if (!state.saved.includes(orderId)) {
@@ -1847,26 +1909,29 @@ function tabbar() {
   const tabs =
     state.user.role === "admin"
       ? [
-          ["home", "Сегодня"],
-          ["admin", "Админ"],
-          ["orders", "Заказы"],
-          ["programs", "Программы"],
-          ["props", "Реквизит"],
-          ["saved", "Сохранено"],
+          ["home", "\u0421\u0435\u0433\u043E\u0434\u043D\u044F"],
+          ["admin", "\u0410\u0434\u043C\u0438\u043D"],
+          ["orders", "\u0417\u0430\u043A\u0430\u0437\u044B"],
+          ["programs", "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B"],
+          ["props", "\u0420\u0435\u043A\u0432\u0438\u0437\u0438\u0442"],
+          ["chat", "\u0427\u0430\u0442"],
+          ["saved", "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E"],
         ]
       : state.user.role === "ambassador"
         ? [
-            ["home", "Сегодня"],
-            ["new-order", "Заказ"],
-            ["profile", "Профиль"],
-            ["company", "О компании"],
+            ["home", "\u0421\u0435\u0433\u043E\u0434\u043D\u044F"],
+            ["new-order", "\u0417\u0430\u043A\u0430\u0437"],
+            ["profile", "\u041F\u0440\u043E\u0444\u0438\u043B\u044C"],
+            ["chat", "\u0427\u0430\u0442"],
+            ["company", "\u041E \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438"],
           ]
         : [
-          ["home", "Сегодня"],
-          ["orders", "Заказы"],
-          ["programs", "Программы"],
-          ["props", "Реквизит"],
-          ["saved", "Сохранено"],
+          ["home", "\u0421\u0435\u0433\u043E\u0434\u043D\u044F"],
+          ["orders", "\u0417\u0430\u043A\u0430\u0437\u044B"],
+          ["programs", "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B"],
+          ["props", "\u0420\u0435\u043A\u0432\u0438\u0437\u0438\u0442"],
+          ["chat", "\u0427\u0430\u0442"],
+          ["saved", "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E"],
         ];
 
   return `
@@ -2548,25 +2613,23 @@ function orderScreen() {
         ${
           state.orderDetailEditMode
             ? `<div class="content-stack compact-stack">
-                <input class="booking-input" data-order-field="title" data-order-id="${order.id}" value="${order.title || ""}" placeholder="${L.title}" />
+                <label class="edit-field"><span>${L.title}</span><input class="booking-input" data-order-field="title" data-order-id="${order.id}" value="${order.title || ""}" placeholder="${L.title}" /></label>
                 <div class="booking-row compact-time-row">
-                  <input class="booking-input" data-order-field="firstName" data-order-id="${order.id}" value="${order.firstName || ""}" placeholder="${L.firstName}" />
-                  <input class="booking-input" data-order-field="lastName" data-order-id="${order.id}" value="${order.lastName || ""}" placeholder="${L.lastName}" />
+                  <label class="edit-field"><span>${L.firstName}</span><input class="booking-input" data-order-field="firstName" data-order-id="${order.id}" value="${order.firstName || ""}" placeholder="${L.firstName}" /></label>
+                  <label class="edit-field"><span>${L.lastName}</span><input class="booking-input" data-order-field="lastName" data-order-id="${order.id}" value="${order.lastName || ""}" placeholder="${L.lastName}" /></label>
                 </div>
-                <input class="booking-input" data-order-field="phone" data-order-id="${order.id}" value="${order.phone || ""}" placeholder="${L.phone}" />
+                <label class="edit-field"><span>${L.phone}</span><input class="booking-input" data-order-field="phone" data-order-id="${order.id}" value="${order.phone || ""}" placeholder="${L.phone}" /></label>
                 <div class="booking-row compact-time-row">
-                  <input class="booking-input" type="date" data-order-field="date" data-order-id="${order.id}" value="${orderDateValue}" />
-                  <input class="booking-input" type="time" data-order-field="time" data-order-id="${order.id}" value="${order.time || ""}" />
-                  <input class="booking-input" type="time" data-order-field="end" data-order-id="${order.id}" value="${order.end || ""}" />
+                  <label class="edit-field"><span>${L.date}</span><input class="booking-input" type="date" data-order-field="date" data-order-id="${order.id}" value="${orderDateValue}" /></label>
+                  <label class="edit-field"><span>\u041D\u0430\u0447\u0430\u043B\u043E</span><input class="booking-input" type="time" data-order-field="time" data-order-id="${order.id}" value="${order.time || ""}" /></label>
+                  <label class="edit-field"><span>\u041E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u0435</span><input class="booking-input" type="time" data-order-field="end" data-order-id="${order.id}" value="${order.end || ""}" /></label>
                 </div>
-                <select class="booking-input" data-order-field="role" data-order-id="${order.id}">
-                  ${packageOptions.map((item) => `<option value="${item.label}" ${order.role === item.label ? "selected" : ""}>${item.label}</option>`).join("")}
-                </select>
-                <textarea class="booking-input booking-textarea" data-order-field="address" data-order-id="${order.id}" placeholder="${L.address}">${order.address || ""}</textarea>
-                <textarea class="booking-input booking-textarea" data-order-field="comment" data-order-id="${order.id}" placeholder="${L.comment}">${order.comment || ""}</textarea>
+                <label class="edit-field"><span>${L.role}</span><select class="booking-input" data-order-field="role" data-order-id="${order.id}">${packageOptions.map((item) => `<option value="${item.label}" ${order.role === item.label ? "selected" : ""}>${item.label}</option>`).join("")}</select></label>
+                <label class="edit-field"><span>${L.address}</span><textarea class="booking-input booking-textarea" data-order-field="address" data-order-id="${order.id}" placeholder="${L.address}">${order.address || ""}</textarea></label>
+                <label class="edit-field"><span>${L.comment}</span><textarea class="booking-input booking-textarea" data-order-field="comment" data-order-id="${order.id}" placeholder="${L.comment}">${order.comment || ""}</textarea></label>
                 <div class="booking-row compact-time-row">
-                  <input class="booking-input" type="number" min="0" data-order-field="total" data-order-id="${order.id}" value="${order.total || 0}" placeholder="${L.total}" />
-                  <input class="booking-input" type="number" min="0" data-order-field="actorPay" data-order-id="${order.id}" value="${order.actorPay || 0}" placeholder="${L.pay}" />
+                  <label class="edit-field"><span>${L.total}</span><input class="booking-input" type="number" min="0" data-order-field="total" data-order-id="${order.id}" value="${order.total || 0}" placeholder="${L.total}" /></label>
+                  <label class="edit-field"><span>${L.pay}</span><input class="booking-input" type="number" min="0" data-order-field="actorPay" data-order-id="${order.id}" value="${order.actorPay || 0}" placeholder="${L.pay}" /></label>
                 </div>
               </div>`
             : `<div class="detail-grid">
@@ -2768,6 +2831,13 @@ function programsScreen() {
 
 function programDetailScreen() {
   const program = programs.find((item) => Number(item.id) === Number(state.activeProgramId)) || programs[0];
+  const P = {
+    title: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
+    age: "\u0412\u043E\u0437\u0440\u0430\u0441\u0442",
+    duration: "\u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C",
+    drive: "\u0421\u0441\u044B\u043B\u043A\u0430 \u043D\u0430 \u0434\u0438\u0441\u043A",
+    script: "\u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439",
+  };
   return appFrame(`
     <div class="top-row">
       <button class="icon-button" data-route="programs">‹</button>
@@ -2783,10 +2853,12 @@ function programDetailScreen() {
         }
         ${
           state.programEditMode && state.user.role === "admin"
-            ? `<input class="booking-input" data-program-field="title" data-program-id="${program.id}" value="${program.title}" style="margin-top: 10px" />
-               <input class="booking-input" data-program-field="age" data-program-id="${program.id}" value="${program.age || ""}" placeholder="Возраст" style="margin-top: 8px" />
-               <input class="booking-input" data-program-field="duration" data-program-id="${program.id}" value="${program.duration || ""}" placeholder="Длительность" style="margin-top: 8px" />
-               <input class="booking-input" data-program-field="driveUrl" data-program-id="${program.id}" value="${program.driveUrl || ""}" placeholder="Ссылка на диск" style="margin-top: 8px" />`
+            ? `<div class="content-stack compact-stack program-edit-fields">
+                 <label class="edit-field"><span>${P.title}</span><input class="booking-input" data-program-field="title" data-program-id="${program.id}" value="${program.title}" /></label>
+                 <label class="edit-field"><span>${P.age}</span><input class="booking-input" data-program-field="age" data-program-id="${program.id}" value="${program.age || ""}" /></label>
+                 <label class="edit-field"><span>${P.duration}</span><input class="booking-input" data-program-field="duration" data-program-id="${program.id}" value="${program.duration || ""}" /></label>
+                 <label class="edit-field"><span>${P.drive}</span><input class="booking-input" data-program-field="driveUrl" data-program-id="${program.id}" value="${program.driveUrl || ""}" /></label>
+               </div>`
             : `<h2 class="panel-title">${program.title}</h2>
                <div class="detail-grid">
                  <div class="detail-line"><span>Возраст</span><strong>${program.age}</strong></div>
@@ -2805,11 +2877,54 @@ function programDetailScreen() {
         <h2 class="panel-title">Сценарий</h2>
         ${
           state.programEditMode && state.user.role === "admin"
-            ? `<textarea class="booking-input booking-textarea" data-program-field="script" data-program-id="${program.id}" placeholder="Сценарий программы целиком">${program.script || ""}</textarea>`
+            ? `<label class="edit-field"><span>${P.script}</span><textarea class="booking-input booking-textarea" data-program-field="script" data-program-id="${program.id}">${program.script || ""}</textarea></label>`
             : `<p class="small-text script-text">${program.script || "Сценарий пока не добавлен."}</p>`
         }
       </section>
       <button class="primary-button" data-action="save-trip" data-order-id="1">Сохранить для выезда</button>
+    </div>
+  `, true);
+}
+
+function chatScreen() {
+  const messages = chatMessages.slice(-100);
+  const C = {
+    title: "\u0427\u0430\u0442",
+    noName: "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438",
+    empty: "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442",
+    newMessage: "\u041D\u043E\u0432\u043E\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435",
+    placeholder: "\u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435...",
+    send: "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C",
+    refresh: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C",
+  };
+  return appFrame(`
+    <div class="top-row">
+      <button class="icon-button" data-route="home">&#8249;</button>
+      ${syncPill()}
+    </div>
+    <h1 class="page-title">${C.title}</h1>
+    <div class="content-stack chat-screen">
+      <section class="panel chat-panel">
+        <div class="chat-list">
+          ${messages.length ? messages.map((message) => `
+            <div class="chat-message">
+              <div class="chat-message-head">
+                <strong>${escapeHtml(message.senderName || C.noName)}</strong>
+                <span>${formatChatTime(message.createdAt)}</span>
+              </div>
+              <p>${escapeHtml(message.text)}</p>
+            </div>
+          `).join("") : `<div class="empty-state">${C.empty}</div>`}
+        </div>
+        <label class="edit-field chat-input-wrap">
+          <span>${C.newMessage}</span>
+          <textarea class="booking-input booking-textarea chat-input" data-chat-draft="true" placeholder="${C.placeholder}">${escapeHtml(state.chatDraft || "")}</textarea>
+        </label>
+        <div class="action-grid chat-actions" style="margin-top: 10px">
+          <button class="primary-button" data-action="send-chat-message">${C.send}</button>
+          <button class="secondary-button" data-action="refresh-chat">${C.refresh}</button>
+        </div>
+      </section>
     </div>
   `, true);
 }
@@ -3621,6 +3736,7 @@ function render() {
     programs: programsScreen,
     "program-detail": programDetailScreen,
     saved: savedScreen,
+    chat: chatScreen,
     profile: profileScreen,
     "admin-employee-detail": adminEmployeeDetailScreen,
     company: companyScreen,
@@ -3992,6 +4108,14 @@ document.addEventListener("click", async (event) => {
   if (action === "send-report") {
     sendReport();
   }
+
+  if (action === "send-chat-message") {
+    sendChatMessage();
+  }
+
+  if (action === "refresh-chat") {
+    loadRemoteData({ renderAfter: false }).then(() => render());
+  }
 });
 
 document.addEventListener("input", (event) => {
@@ -4046,6 +4170,12 @@ document.addEventListener("input", (event) => {
   const reportInput = event.target.closest("[data-report-text]");
   if (reportInput) {
     state.reportText = reportInput.value;
+    return;
+  }
+
+  const chatDraftInput = event.target.closest("[data-chat-draft]");
+  if (chatDraftInput) {
+    state.chatDraft = chatDraftInput.value;
     return;
   }
 
@@ -4192,3 +4322,11 @@ render();
 loadRemoteData();
 syncPendingActions();
 
+
+window.setInterval(() => {
+  if (state.route === "chat" && API_BASE && navigator.onLine) {
+    loadRemoteData({ renderAfter: false }).then(() => {
+      if (state.route === "chat") render();
+    });
+  }
+}, 15000);
