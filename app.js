@@ -679,7 +679,7 @@ async function loadRemoteData(options = {}) {
     props = remoteProps.length ? remoteProps : props;
     const remotePrograms = withoutDeleted(data.programs || [], "programs");
     programs = remotePrograms.length ? dedupePrograms(remotePrograms) : dedupePrograms(programs);
-    state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
+    state.acceptedOrders = mergeQueuedAcceptedOrders(data.acceptedOrders || state.acceptedOrders);
     state.bonuses = data.bonuses || state.bonuses;
     reports = data.reports || reports;
     state.promoCodes = data.promoCodes || state.promoCodes;
@@ -802,6 +802,54 @@ function mergeQueuedEmployees(remoteEmployees) {
     seen.add(id);
     return true;
   });
+}
+
+function normalizeAcceptedOrders(source = {}) {
+  return Object.fromEntries(
+    Object.entries(source || {}).map(([orderId, accepted]) => [
+      String(orderId),
+      (Array.isArray(accepted) ? accepted : accepted ? [accepted] : [])
+        .map((item) => ({
+          actorId: Number(item?.actorId ?? item?.actor_id ?? 0),
+          name: String(item?.name || ""),
+          acceptedAt: item?.acceptedAt ?? item?.accepted_at ?? new Date().toISOString(),
+        }))
+        .filter((item) => Number(item.actorId) > 0),
+    ])
+  );
+}
+
+function mergeQueuedAcceptedOrders(remoteAccepted = {}) {
+  const merged = normalizeAcceptedOrders(remoteAccepted);
+  pendingActions().forEach((action) => {
+    const payload = action.payload || {};
+    const orderId = String(payload.orderId || "");
+    if (!orderId) return;
+
+    if (action.type === "accept-order") {
+      const list = merged[orderId] || [];
+      const actorId = Number(payload.actorId || 0);
+      if (!list.some((item) => Number(item.actorId) === actorId)) {
+        const employee = employees.find((item) => Number(item.id) === actorId);
+        merged[orderId] = [
+          ...list,
+          {
+            actorId,
+            name: String(payload.name || employee?.name || state.user.firstName || ""),
+            acceptedAt: payload.acceptedAt || action.createdAt || new Date().toISOString(),
+          },
+        ];
+      }
+    }
+
+    if (action.type === "decline-order") {
+      const actorId = Number(payload.actorId || 0);
+      const next = (merged[orderId] || []).filter((item) => Number(item.actorId) !== actorId);
+      if (next.length) merged[orderId] = next;
+      else delete merged[orderId];
+    }
+  });
+  return merged;
 }
 
 function dedupePrograms(sourcePrograms) {
@@ -967,12 +1015,13 @@ function acceptOrder(orderId) {
     clearToastLater();
     return;
   }
+  const acceptedAt = new Date().toISOString();
   state.acceptedOrders[orderId] = [
     ...current,
     {
-    actorId: state.user.id,
-    name: state.user.firstName,
-    acceptedAt: new Date().toISOString(),
+      actorId: state.user.id,
+      name: state.user.firstName,
+      acceptedAt,
     },
   ];
   employees = employees.map((employee) =>
@@ -980,7 +1029,7 @@ function acceptOrder(orderId) {
       ? { ...employee, accepted: Number(employee.accepted || 0) + 1, efficiency: Math.min(100, Number(employee.efficiency || 0) + 5) }
       : employee
   );
-  queueAction("accept-order", { orderId, actorId: state.user.id });
+  queueAction("accept-order", { orderId, actorId: state.user.id, name: state.user.firstName, acceptedAt });
   state.toast = "Заказ принят";
   saveState();
   render();
@@ -1417,13 +1466,15 @@ function deleteOrder(id) {
 function annulOrder(orderId) {
   const accepted = state.acceptedOrders[orderId];
   if (!accepted) return;
+  const acceptedList = Array.isArray(accepted) ? accepted : [accepted];
   delete state.acceptedOrders[orderId];
+  const impactedIds = new Set(acceptedList.map((item) => Number(item.actorId)).filter((id) => Number.isFinite(id)));
   employees = employees.map((employee) =>
-    Number(employee.id) === Number(accepted.actorId)
+    impactedIds.has(Number(employee.id))
       ? { ...employee, accepted: Math.max(0, Number(employee.accepted || 0) - 1), efficiency: Math.max(0, Number(employee.efficiency || 0) - 5) }
       : employee
   );
-  queueAction("decline-order", { orderId, actorId: accepted.actorId });
+  acceptedList.forEach((item) => queueAction("decline-order", { orderId, actorId: item.actorId }));
   state.toast = "Принятие заказа аннулировано";
   saveState();
   render();
