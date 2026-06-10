@@ -9,11 +9,13 @@ if (tg) {
 }
 
 const API_BASE = window.TOCHKA_API_URL || localStorage.getItem("tochkaApiUrl") || "";
-const APP_VERSION = "2026.06.09-01";
+const APP_VERSION = "2026.06.10-01";
 const COMPANY_SITE_URL = "https://bunnybon57.ru/";
 const COMPANY_VK_URL = "https://vk.com/bunnybon57";
 const releaseNotes = [
-  "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u043E\u0431\u0449\u0438\u0439 \u0447\u0430\u0442 \u0434\u043B\u044F \u0432\u0441\u0435\u0445 \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u043A\u043E\u0432.",
+  "\u0427\u0430\u0442 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u0443\u0431\u0440\u0430\u043D \u0438\u0437 \u043F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u044F.",
+  "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u0430\u043D\u0438\u043C\u0430\u0442\u043E\u0440\u0430: \u041C\u0430\u043B\u044B\u0448 \u0438 \u041F\u0440\u043E\u0444\u0438.",
+  "\u0410\u0434\u043C\u0438\u043D \u043C\u043E\u0436\u0435\u0442 \u043C\u0435\u043D\u044F\u0442\u044C \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u0432 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0435 \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u043A\u0430.",
   "\u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0442\u0435\u043F\u0435\u0440\u044C \u0432\u0438\u0434\u043D\u043E, \u043A\u0430\u043A\u043E\u0435 \u0438\u043C\u0435\u043D\u043D\u043E \u043F\u043E\u043B\u0435 \u0438\u0437\u043C\u0435\u043D\u044F\u0435\u0442\u0441\u044F.",
   "Исправлено открытие программы из заказа: теперь всегда открывается программа, закрепленная за выбранным заказом.",
   "\u0412 \u0437\u0430\u043A\u0430\u0437 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u044B \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0439, \u0430\u0432\u0442\u043E\u0440 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0432\u0432\u0435\u0434\u0435\u043D\u043D\u044B\u0445 \u0434\u0430\u043D\u043D\u044B\u0445.",
@@ -78,8 +80,6 @@ function readStorage(key, fallback) {
   }
 }
 
-let chatMessages = readStorage("chatMessages", []);
-
 const state = {
   route: localStorage.getItem("authConfirmed") === "true" ? "checking" : "auth-confirm",
   justAuthorized: false,
@@ -102,7 +102,6 @@ const state = {
   orderFilter: "active",
   toast: "",
   reportText: "",
-  chatDraft: "",
   versionGlow: localStorage.getItem("versionSeen") !== APP_VERSION,
   avatarOpen: false,
   timeEditorOpen: false,
@@ -128,7 +127,7 @@ const state = {
     extras: [],
     extraQuantities: {},
   },
-  newEmployee: { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" },
+  newEmployee: { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "", actorLevel: "Малыш" },
   newPromo: { code: "", discount: "", description: "" },
   newProgram: { title: "", driveUrl: "", script: "", age: "", duration: "", pricePerHour: 0, actorPayPerHour: 0 },
   newBonus: { employeeId: "", amount: "", comment: "" },
@@ -499,14 +498,7 @@ const defaultPrograms = [
   }
 ];
 
-let programs = readStorage("programs", defaultPrograms);
-programs = [
-  ...programs,
-  ...defaultPrograms.filter((program) => {
-    const title = String(program.title || "").trim().toLowerCase();
-    return !programs.some((item) => String(item.id) === String(program.id) || String(item.title || "").trim().toLowerCase() === title);
-  }),
-];
+let programs = dedupePrograms(readStorage("programs", defaultPrograms));
 
 const packageOptions = [
   { label: "Экспресс-поздравление", actors: 1, multiplier: 1 },
@@ -592,7 +584,6 @@ function saveState() {
   localStorage.setItem("programKits", JSON.stringify(state.programKits));
   localStorage.setItem("promoCodes", JSON.stringify(state.promoCodes));
   localStorage.setItem("ambassadorWithdrawals", JSON.stringify(state.ambassadorWithdrawals));
-  localStorage.setItem("chatMessages", JSON.stringify(chatMessages));
 }
 
 function roleLabel(role = state.user.role) {
@@ -629,6 +620,7 @@ function ensureCurrentEmployee() {
     username: state.user.username,
     role: state.user.role,
     ambassadorCode: existing?.ambassadorCode || state.user.ambassadorCode || (state.user.role === "ambassador" ? makeAmbassadorCode() : ""),
+    actorLevel: existing?.actorLevel || state.user.actorLevel || "Малыш",
     bunnyBalance: Number(existing?.bunnyBalance || state.user.bunnyBalance || 0),
     bunnyPending: Number(existing?.bunnyPending || state.user.bunnyPending || 0),
     efficiency: existing?.efficiency ?? 0,
@@ -686,13 +678,12 @@ async function loadRemoteData(options = {}) {
     const remoteProps = withoutDeleted(data.props || [], "props");
     props = remoteProps.length ? remoteProps : props;
     const remotePrograms = withoutDeleted(data.programs || [], "programs");
-    programs = mergeSeedPrograms(remotePrograms.length ? remotePrograms : programs);
+    programs = remotePrograms.length ? dedupePrograms(remotePrograms) : dedupePrograms(programs);
     state.acceptedOrders = data.acceptedOrders || state.acceptedOrders;
     state.bonuses = data.bonuses || state.bonuses;
     reports = data.reports || reports;
     state.promoCodes = data.promoCodes || state.promoCodes;
     state.ambassadorWithdrawals = data.ambassadorWithdrawals || state.ambassadorWithdrawals;
-    chatMessages = mergeQueuedChatMessages(withoutDeleted(data.chatMessages || chatMessages, "chatMessages"));
     applyCurrentUserAccess(data.currentUser);
     state.accessChecked = true;
     saveState();
@@ -717,6 +708,7 @@ function normalizeEmployee(employee) {
     telegramId: employee.telegramId ?? employee.telegram_id,
     isActive: employee.isActive ?? employee.is_active,
     ambassadorCode: employee.ambassadorCode ?? employee.ambassador_code ?? "",
+    actorLevel: employee.actorLevel ?? employee.actor_level ?? "Малыш",
     bunnyBalance: Number(employee.bunnyBalance ?? employee.bunny_balance ?? 0),
     bunnyPending: Number(employee.bunnyPending ?? employee.bunny_pending ?? 0),
   };
@@ -767,7 +759,7 @@ function cancelSyncAction(id) {
 }
 
 function pendingActions() {
-  return state.syncQueue.filter((action) => action.status !== "synced" && action.status !== "local");
+  return state.syncQueue.filter((action) => action.type !== "send-chat-message" && action.status !== "synced" && action.status !== "local");
 }
 
 function syncPendingActions() {
@@ -812,38 +804,15 @@ function mergeQueuedEmployees(remoteEmployees) {
   });
 }
 
-function mergeSeedPrograms(sourcePrograms) {
-  const merged = [...sourcePrograms];
-  const hasProgram = (program) => {
+function dedupePrograms(sourcePrograms) {
+  const seen = new Set();
+  return sourcePrograms.filter((program) => {
     const title = String(program.title || "").trim().toLowerCase();
-    return merged.some((item) => String(item.id) === String(program.id) || String(item.title || "").trim().toLowerCase() === title);
-  };
-  defaultPrograms.forEach((program) => {
-    if (!hasProgram(program)) merged.push(program);
+    const key = title ? `title:${title}` : `id:${String(program.id || "").trim()}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
-  return merged;
-}
-
-function normalizeChatMessage(message) {
-  return {
-    ...message,
-    id: Number(message.id || Date.now()),
-    senderId: Number(message.senderId ?? message.sender_id ?? 0),
-    senderName: message.senderName ?? message.sender_name ?? "",
-    text: String(message.text ?? ""),
-    createdAt: message.createdAt ?? message.created_at ?? new Date().toISOString(),
-  };
-}
-
-function mergeQueuedChatMessages(remoteMessages) {
-  const remoteIds = new Set(remoteMessages.map((message) => String(message.id)));
-  const queuedMessages = state.syncQueue
-    .filter((action) => action.type === "send-chat-message" && action.payload)
-    .map((action) => normalizeChatMessage(action.payload))
-    .filter((message) => !remoteIds.has(String(message.id)));
-  const merged = [...remoteMessages.map(normalizeChatMessage), ...queuedMessages];
-  merged.sort((left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime());
-  return merged;
 }
 
 function escapeHtml(value) {
@@ -853,12 +822,6 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
-
-function formatChatTime(value) {
-  const date = value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 }
 
 function applyCurrentUserAccess(currentUser) {
@@ -878,6 +841,7 @@ function applyCurrentUserAccess(currentUser) {
   state.user.username = currentUser.username || state.user.username;
   state.user.role = ["admin", "ambassador"].includes(currentUser.role) ? currentUser.role : "actor";
   state.user.ambassadorCode = currentUser.ambassadorCode || "";
+  state.user.actorLevel = currentUser.actorLevel || "Малыш";
   state.user.bunnyBalance = Number(currentUser.bunnyBalance || 0);
   state.user.bunnyPending = Number(currentUser.bunnyPending || 0);
   state.user.hasAccess = true;
@@ -893,6 +857,7 @@ function revokeCurrentUserAccess(currentUser = {}) {
   state.user.role = "actor";
   state.user.hasAccess = false;
   state.user.ambassadorCode = "";
+  state.user.actorLevel = "Малыш";
   state.user.bunnyBalance = 0;
   state.user.bunnyPending = 0;
   employees = employees.filter((employee) => {
@@ -1080,6 +1045,7 @@ function addEmployee() {
     telegramId: null,
     isActive: true,
     ambassadorCode,
+    actorLevel: state.newEmployee.actorLevel || "Малыш",
     bunnyBalance: 0,
     bunnyPending: 0,
     efficiency: 0,
@@ -1092,7 +1058,7 @@ function addEmployee() {
     employee,
   ];
   queueAction("create-employee", { ...employee, isAdmin: role === "admin", isAmbassador: role === "ambassador" });
-  state.newEmployee = { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "" };
+  state.newEmployee = { name: "", username: "", isAdmin: false, isAmbassador: false, ambassadorCode: "", actorLevel: "Малыш" };
   setRoute("profile");
 }
 
@@ -1415,6 +1381,9 @@ function updateEmployeeAccess(id, field, value) {
       }
     } else if (field === "ambassadorCode") {
       next.ambassadorCode = value;
+    } else if (field === "actorLevel") {
+      next.actorLevel = value;
+      shouldRender = true;
     }
     return next;
   });
@@ -1431,6 +1400,7 @@ function saveEmployeeAccess(id) {
     username: employee.username || "",
     role: employee.role || "actor",
     ambassadorCode: employee.role === "ambassador" ? String(employee.ambassadorCode || "").trim() : "",
+    actorLevel: employee.actorLevel || "Малыш",
     bunnyBalance: Number(employee.bunnyBalance || 0),
     bunnyPending: Number(employee.bunnyPending || 0),
   });
@@ -1620,25 +1590,6 @@ function deleteReport(id) {
   reports = reports.filter((report) => String(report.id) !== String(id));
   queueAction("delete-report", { id });
 }
-function sendChatMessage() {
-  const text = String(state.chatDraft || "").trim();
-  if (!text) return;
-  const message = {
-    id: Date.now(),
-    senderId: Number(state.user.id),
-    senderName: state.user.firstName || state.user.username || "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438",
-    text,
-    createdAt: new Date().toISOString(),
-  };
-  chatMessages = [...chatMessages, message];
-  state.chatDraft = "";
-  queueAction("send-chat-message", message);
-  saveState();
-  render();
-  clearToastLater();
-}
-
-
 function saveForTrip(orderId) {
   if (!state.saved.includes(orderId)) {
     state.saved.push(orderId);
@@ -1914,7 +1865,6 @@ function tabbar() {
           ["orders", "\u0417\u0430\u043A\u0430\u0437\u044B"],
           ["programs", "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B"],
           ["props", "\u0420\u0435\u043A\u0432\u0438\u0437\u0438\u0442"],
-          ["chat", "\u0427\u0430\u0442"],
           ["saved", "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E"],
         ]
       : state.user.role === "ambassador"
@@ -1922,7 +1872,6 @@ function tabbar() {
             ["home", "\u0421\u0435\u0433\u043E\u0434\u043D\u044F"],
             ["new-order", "\u0417\u0430\u043A\u0430\u0437"],
             ["profile", "\u041F\u0440\u043E\u0444\u0438\u043B\u044C"],
-            ["chat", "\u0427\u0430\u0442"],
             ["company", "\u041E \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438"],
           ]
         : [
@@ -1930,7 +1879,6 @@ function tabbar() {
           ["orders", "\u0417\u0430\u043A\u0430\u0437\u044B"],
           ["programs", "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u044B"],
           ["props", "\u0420\u0435\u043A\u0432\u0438\u0437\u0438\u0442"],
-          ["chat", "\u0427\u0430\u0442"],
           ["saved", "\u0421\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u043E"],
         ];
 
@@ -2448,7 +2396,7 @@ function newOrderScreen() {
                   ${
                     selected
                       ? `<div class="extra-quantity-control" aria-label="\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E">
-                          <button type="button" data-action="adjust-extra-quantity" data-extra-title="${item.title}" data-extra-delta="-1">?</button>
+                          <button type="button" data-action="adjust-extra-quantity" data-extra-title="${item.title}" data-extra-delta="-1">&minus;</button>
                           <strong>${quantity}</strong>
                           <button type="button" data-action="adjust-extra-quantity" data-extra-title="${item.title}" data-extra-delta="1">+</button>
                         </div>`
@@ -2457,7 +2405,7 @@ function newOrderScreen() {
                   ${
                     state.extraEditMode
                       ? `<input class="booking-input extra-price-input" type="number" min="0" data-extra-price="${item.title}" value="${item.price}" />
-                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">?</button>`
+                         <button class="mini-delete-button" data-action="delete-extra" data-extra-title="${item.title}">&times;</button>`
                       : ""
                   }
                 </div>
@@ -2886,49 +2834,6 @@ function programDetailScreen() {
   `, true);
 }
 
-function chatScreen() {
-  const messages = chatMessages.slice(-100);
-  const C = {
-    title: "\u0427\u0430\u0442",
-    noName: "\u0411\u0435\u0437 \u0438\u043C\u0435\u043D\u0438",
-    empty: "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0439 \u043F\u043E\u043A\u0430 \u043D\u0435\u0442",
-    newMessage: "\u041D\u043E\u0432\u043E\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435",
-    placeholder: "\u041D\u0430\u043F\u0438\u0448\u0438\u0442\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435...",
-    send: "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C",
-    refresh: "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C",
-  };
-  return appFrame(`
-    <div class="top-row">
-      <button class="icon-button" data-route="home">&#8249;</button>
-      ${syncPill()}
-    </div>
-    <h1 class="page-title">${C.title}</h1>
-    <div class="content-stack chat-screen">
-      <section class="panel chat-panel">
-        <div class="chat-list">
-          ${messages.length ? messages.map((message) => `
-            <div class="chat-message">
-              <div class="chat-message-head">
-                <strong>${escapeHtml(message.senderName || C.noName)}</strong>
-                <span>${formatChatTime(message.createdAt)}</span>
-              </div>
-              <p>${escapeHtml(message.text)}</p>
-            </div>
-          `).join("") : `<div class="empty-state">${C.empty}</div>`}
-        </div>
-        <label class="edit-field chat-input-wrap">
-          <span>${C.newMessage}</span>
-          <textarea class="booking-input booking-textarea chat-input" data-chat-draft="true" placeholder="${C.placeholder}">${escapeHtml(state.chatDraft || "")}</textarea>
-        </label>
-        <div class="action-grid chat-actions" style="margin-top: 10px">
-          <button class="primary-button" data-action="send-chat-message">${C.send}</button>
-          <button class="secondary-button" data-action="refresh-chat">${C.refresh}</button>
-        </div>
-      </section>
-    </div>
-  `, true);
-}
-
 function savedScreen() {
   const savedOrders = orders.filter((order) => state.saved.includes(order.id));
   return appFrame(`
@@ -2984,6 +2889,7 @@ function ambassadorProfileScreen() {
         <div class="detail-grid">
           <div class="detail-line"><span>Роль</span><strong>амбассадор</strong></div>
           <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
+          <div class="detail-line"><span>Уровень</span><strong>${state.user.actorLevel || "Малыш"}</strong></div>
           <div class="detail-line"><span>Личный код</span><strong>${code}</strong></div>
         </div>
       </section>
@@ -3060,6 +2966,7 @@ function profileScreen() {
           <div class="detail-line"><span>Имя</span><strong>${state.user.firstName}</strong></div>
           <div class="detail-line"><span>Telegram</span><strong>@${state.user.username}</strong></div>
           <div class="detail-line"><span>Роль</span><strong>${roleLabel()}</strong></div>
+          <div class="detail-line"><span>Уровень</span><strong>${state.user.actorLevel || "Малыш"}</strong></div>
           <div class="detail-line"><span>Очередь</span><strong>${state.syncQueue.length}</strong></div>
           ${
             state.user.role === "ambassador"
@@ -3187,7 +3094,7 @@ function profileScreen() {
                     (employee) => `
                       <button class="employee-row employee-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
                         <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
-                        <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>Принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
+                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · уровень ${employee.actorLevel || "Малыш"} · принято за месяц: ${monthlyAcceptedCount(employee.id)}</small></span>
                         <b>${employee.rating}</b>
                       </button>
                     `
@@ -3254,6 +3161,10 @@ function adminEmployeeDetailScreen() {
           <option value="actor" ${employee.role === "actor" ? "selected" : ""}>Актер</option>
           <option value="admin" ${employee.role === "admin" ? "selected" : ""}>Админ</option>
           <option value="ambassador" ${employee.role === "ambassador" ? "selected" : ""}>Амбассадор</option>
+        </select>
+        <select class="booking-input" data-employee-access-field="actorLevel" data-employee-id="${employee.id}" style="margin-top: 8px">
+          <option value="Малыш" ${String(employee.actorLevel || "Малыш") === "Малыш" ? "selected" : ""}>Малыш</option>
+          <option value="Профи" ${String(employee.actorLevel || "") === "Профи" ? "selected" : ""}>Профи</option>
         </select>
         ${
           employee.role === "ambassador"
@@ -3486,7 +3397,7 @@ function adminEmployeesScreen() {
                 <div class="employee-row">
                   <div class="mini-ring" style="--value: ${employee.efficiency}">${employee.efficiency}%</div>
                   <button class="employee-name-button" data-route="admin-employee-detail" data-employee-id="${employee.id}">
-                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
+                    <span><strong>${employee.name} ${employee.role !== "actor" ? `<em class="role-mark">(${roleLabel(employee.role)})</em>` : ""}</strong><small>${roleLabel(employee.role)} · уровень ${employee.actorLevel || "Малыш"} · принято за месяц ${monthlyAcceptedCount(employee.id)}</small></span>
                   </button>
                   <div class="counter-actions">
                     <button class="mini-delete-button" data-action="decrease-accepted" data-employee-id="${employee.id}">−</button>
@@ -3736,7 +3647,6 @@ function render() {
     programs: programsScreen,
     "program-detail": programDetailScreen,
     saved: savedScreen,
-    chat: chatScreen,
     profile: profileScreen,
     "admin-employee-detail": adminEmployeeDetailScreen,
     company: companyScreen,
@@ -4109,13 +4019,6 @@ document.addEventListener("click", async (event) => {
     sendReport();
   }
 
-  if (action === "send-chat-message") {
-    sendChatMessage();
-  }
-
-  if (action === "refresh-chat") {
-    loadRemoteData({ renderAfter: false }).then(() => render());
-  }
 });
 
 document.addEventListener("input", (event) => {
@@ -4173,11 +4076,6 @@ document.addEventListener("input", (event) => {
     return;
   }
 
-  const chatDraftInput = event.target.closest("[data-chat-draft]");
-  if (chatDraftInput) {
-    state.chatDraft = chatDraftInput.value;
-    return;
-  }
 
   const ambassadorInput = event.target.closest("[data-ambassador-field]");
   if (ambassadorInput) {
@@ -4321,12 +4219,3 @@ window.setInterval(syncPendingActions, 15000);
 render();
 loadRemoteData();
 syncPendingActions();
-
-
-window.setInterval(() => {
-  if (state.route === "chat" && API_BASE && navigator.onLine) {
-    loadRemoteData({ renderAfter: false }).then(() => {
-      if (state.route === "chat") render();
-    });
-  }
-}, 15000);
